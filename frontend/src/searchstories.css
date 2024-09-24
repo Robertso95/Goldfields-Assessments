@@ -1,0 +1,232 @@
+
+
+.search-body {
+  background: white;
+}
+.search-stories-container {
+  margin-top: 30px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
+.search-bar-container {
+  position: relative;
+  width: 80%;
+  max-width: 1160px;
+  display: flex; 
+  flex-direction: column; 
+  align-items: center; 
+  margin: 0 auto; 
+}
+
+.search-stories-input {
+  padding: 15px;
+  padding-right: 50px; /* Make room for the clear button */
+  margin-bottom: 20px;
+  width: 80%;
+  border: 1px solid #326C6F;
+  border-radius: 45px;
+  display: block;
+  font-size: 18px;
+  padding-left: 60px;
+  padding-top: 25px;
+}
+
+
+
+/* Styles for the button, with a unique class name */
+.search-stories-button {
+  padding: 10px 20px;
+  font-size: 16px;
+  width: 180px;
+  border: none;
+  border-radius: 20px;
+  font-family: 'Poppins', sans-serif;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  background: #326C6F;
+  color: white;
+  margin-top: 20px;
+  display: block; 
+}
+
+.search-stories-button:hover {
+  background-color: #224957;
+}
+
+/* Styles for the error message, with a unique class name */
+.search-stories-error {
+  color: #ff0000; /* Red color for error messages */
+  margin-top: 10px;
+}
+
+.stories-logo-container{
+  padding: 30px;
+  padding-top: 7%;
+}
+
+.search-bar-container {
+  position: relative;
+  width: 80%; /* Adjust based on preference */
+  max-width: 1160px; /* Maximum width */
+}
+
+
+.clear-button {
+  position: absolute;
+  right: 130px;
+  top: 35%;
+  transform: translateY(-50%);
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 20px;
+  color: #000000;
+}
+
+.clear-button:hover {
+  color: #ff6b6b; /* Hover effect for the close button */
+}
+
+/****************************************************/
+/* search icon inside search bar */
+.search-icon {
+  position: absolute;
+  left: 130px;
+  top: 33%;
+  transform: translateY(-50%);
+  color: #E9AF0C; /* Adjust the color as per your theme */
+  font-size: 25px; /* Adjust the size as needed */
+}
+
+/****************************************************/
+
+/* Styles for the notification message */
+.notification {
+  display: inline-flex;
+  align-items: center;
+  padding: 10px 20px;
+  border-radius: 5px;
+  background-color: #f8f2f2;
+  color: #333; 
+  border: 1px solid black;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  font-family: 'Poppins', sans-serif;
+  position: fixed;
+  left: 50%;
+  top: 50px;
+  transform: translateX(-50%);
+  z-index: 1000; /* Make sure it's above other elements */
+  display: none; /* Initially don't display */
+  transition: all 0.3s ease;
+  margin-top: 33%;
+}
+
+.notification.show {
+  display: flex;
+}
+
+.notification button {
+  margin-left: 10px;
+  cursor: pointer;
+  color: #000000;
+  background: none;
+  border: none;
+  font-size: 1.5em;
+}
+
+.notification button:hover {
+  color: #ff6b6b; /* Hover effect for the close button */
+}
+
+
+.notification-enter {
+  opacity: 0;
+  transform: translateY(-20px);
+}
+
+.notification-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 300ms, transform 300ms;
+}
+
+.notification-exit {
+  opacity: 1;
+}
+
+.notification-exit-active {
+  opacity: 0;
+  transition: opacity 300ms;
+}
+/****************************************************/
+
+/* Styling for the sorting filter dropdown */
+.story-filter-dropdown {
+  padding: 5px 10px;
+  font-size: 16px;
+  border: 2px solid #326C6F;
+  border-radius: 20px;
+  font-family: 'Poppins', sans-serif;
+  cursor: pointer;
+  background: white;
+  color: #326C6F;
+  width: auto; 
+  box-sizing: border-box; 
+  margin-top: 10px; 
+  display: block; 
+}
+
+.story-filter-dropdown {
+  border-color: #224957;
+}
+
+.story-filter-dropdown{
+  outline: none;
+  border-color: #326C6F;
+}
+
+/* Styling for the sorting dropdown */
+.sort-dropdown {
+  padding: 5px 10px;
+  font-size: 16px;
+  border: 2px solid #326C6F;
+  border-radius: 20px;
+  font-family: 'Poppins', sans-serif;
+  cursor: pointer;
+  background: white;
+  color: #326C6F;
+  width: auto; 
+  box-sizing: border-box; 
+  margin-top: 10px; 
+  display: block; 
+}
+
+.sort-dropdown {
+  border-color: #224957;
+}
+
+.sort-dropdown {
+  outline: none;
+  border-color: #326C6F;
+}
+
+.filters-container {
+  display: flex;
+  justify-content: center; 
+  width: 20%; 
+  max-width: 1160px; 
+  margin-top: 10px; 
+}
+
+.story-filter-dropdown, .sort-dropdown {
+  margin: 0; 
+  margin-right: 10px; 
+}
+
+.sort-dropdown {
+  margin-right: 0;
+}
+

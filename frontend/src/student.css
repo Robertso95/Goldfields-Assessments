@@ -1,0 +1,481 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;800&display=swap');
+
+/*temporary centering fix*/
+.student-form-centered {
+  margin-left: 40%;
+}
+
+.student-form-container {
+  position: absolute; /* Positioned relative to the viewport */
+  top: 50%; /* Push down from the top to 50% of the viewport height */
+  left: 50%; /* Push from the left to 50% of the viewport width */
+  transform: translate(-50%, -50%); /* Offset the element by half of its width and height */
+  width: 300px; /* Maintain the width as per your design */
+  margin-top: 0; /* Reset margin-top to 0 */
+}
+.student-form {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.student-form input {
+  padding: 10px;
+  font-size: 16px;
+  margin: 10px 0;
+  border: 2px solid #326C6F;
+  border-radius: 20px;
+  font-family: 'Poppins', sans-serif;
+  margin: 10px 0;
+}
+
+.student-form input:focus {
+  border-color: #0056b3;
+  outline: none;
+}
+
+.student-form .error {
+  color: #ff0000;
+  font-family: 'Poppins', sans-serif;
+  margin: 10px 0;
+}
+
+.student-cards-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 10px;
+  padding: 20px;
+  justify-content: center;
+}
+
+.student-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  /* Aligns items to the start of the card */
+  justify-content: space-between;
+  height: 350px;
+  position: relative;
+  /* Ensures the card takes up all the height available */
+  padding: 20px;
+  /* Adjust the padding inside the card */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  /* Soft shadow for depth */
+  border-radius: 10px;
+  /* Rounded corners */
+  background: #ffffff;
+  /* White background */
+  width: 100%;
+  /* Card width is determined by the grid */
+  box-sizing: border-box;
+  /* Include padding in the width */
+  transition: transform 0.3s ease;
+  font-family: 'Poppins', sans-serif;
+  overflow: hidden;
+  /* Light border similar to the example */
+  border: 1px solid #326C6F;
+}
+
+.student-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  border-color: #000000;
+}
+
+.student-card-image {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 40px;
+  width: 70%;
+  height: 55%;
+  object-fit: cover; 
+  margin: auto;
+  border-radius: 10px;
+}
+
+.student-card-info {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 15px;
+}
+
+.student-name {
+  font-weight: bold;
+  /* Makes the student's name bold */
+}
+
+.student-card-info span {
+  display: block;
+  font-size: 18px;
+  margin-bottom: 5px;
+}
+
+.standard-button {
+  padding: 10px 20px;
+  font-size: 16px;
+  width: 180px;
+  border: none;
+  border-radius: 20px;
+  font-family: 'Poppins', sans-serif;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  background: #326C6F;
+  color: white;
+  margin: 5px auto;
+  display: block;
+  margin-top: 10px
+}
+
+.standard-button:hover {
+  background: #224957;
+}
+
+
+.standard-button-std {
+  padding: 10px 20px;
+  font-size: 16px;
+  width: 180px;
+  border: none;
+  border-radius: 20px;
+  font-family: 'Poppins', sans-serif;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  background: #326C6F;
+  color: white;
+  margin: 10px auto;
+  display: block;
+  margin-top: 100px
+}
+
+.standard-button-std:hover {
+  background: #224957;
+}
+
+
+
+/****************************************************/
+
+/* Button styles for transfer and cancel actions */
+.modal {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.student-form, .transfer-form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.student-form-row, .transfer-form-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 0px;
+}
+
+.student-form-row select, .transfer-form-row select {
+  flex-grow: 1;
+  margin: 0 10px;
+  padding: 8px 5px;
+  font-family: 'Poppins', sans-serif;
+  margin-bottom: 10px; 
+  width: 90px; /* Set the width of the select element */
+}
+
+.transfer-button, .cancel-button {
+  flex: 1; /* Both buttons share the space evenly */
+  margin: 5px 10px 5px 0; /* Spacing for the buttons */
+  font-size: 16px;
+  font-family: 'Poppins', sans-serif;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin: 10px 0;
+  width: 180px; /* Set the width of the buttons */
+}
+
+.transfer-button {
+  background-color: #4CAF50; /* Green background */
+  color: white; /* White text */
+}
+
+.transfer-button:hover {
+  background-color: #45a049;
+  transform: scale(1.05);
+}
+
+.cancel-button {
+  background-color: #f44336; /* Red background */
+  color: white; /* White text */
+}
+
+.cancel-button:hover {
+  background-color: #d32f2f;
+  transform: scale(1.05);
+}
+/****************************************************/
+
+
+
+/* Add global box-sizing */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+html, body {
+  height: 100%;
+  margin: 0;
+}
+
+/****************************************************/
+
+/**** Styling on Class name edit/hover **********/
+.class-name-container {
+  display: flex; /* Establish a flex container */
+  flex-wrap: wrap; /* Allow items to wrap as needed */
+  align-items: center; /* Center items vertically */
+  gap: 10px; /* Space between items */
+  position: relative; /* Position context for absolute children */
+  margin-top: 100px; /* Added space from the top */
+}
+
+.class-name {
+  font-family: 'Poppins', sans-serif;
+  color: #000000;
+  font-size: 30px;
+  font-weight: bold;
+  cursor: pointer; /* Change the cursor to a pointer */
+  text-align: left;
+}
+.class-name:hover .hover-box {
+  opacity: 1; /* Make hover-box visible when .class-name is hovered */
+  transform: translateY(0px); /* Reset the position */
+  pointer-events: auto; /* Allow mouse events when visible */
+}
+
+.hover-box {
+  display: block;
+  position: absolute;
+  top: 100%; /* Position it below the class-name */
+  left: 0; /* Align to the left edge of the class-name */
+  background-color: #ffffff;
+  color: #333;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+  padding: 8px 12px;
+  font-size: 14px;
+  z-index: 1; /* Ensure it's above other elements */
+  width: auto; /* Adjust width based on content */
+  text-align: center;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  transform: translateY(-10px); /* Start slightly above */
+  opacity: 0; /* Start as invisible */
+  pointer-events: none; /* No mouse events when it's invisible */
+  visibility: hidden; /* Start as not visible */
+}
+
+.class-name:hover .hover-box {
+  visibility: visible; /* Make visible when .class-name is hovered */
+  opacity: 1; /* Make hover-box visible when .class-name is hovered */
+  transform: translateY(0); /* Move to the correct position */
+}
+
+/****************************************************/
+
+/* Styling for the input field when editing class name */
+.edit-class-name-input {
+  padding: 10px;
+  font-size: 16px;
+  border: 2px solid #ddd; /* Light grey border */
+  border-radius: 5px;
+  border-color: #000000;
+  font-family: 'Poppins', sans-serif;
+  width: 100%; /* Input field takes full width of its parent */
+  box-sizing: border-box; /* Padding and border included in the width */
+  margin-bottom: 10px; /* Spacing between input and buttons */
+}
+
+/* Container for the input */
+.edit-class-name {
+  display: flex;
+  flex-direction: column; /* Stack children vertically */
+  align-items: flex-start; /* Align items to the start of the container */
+  width: fit-content; /* Shrink to fit the content width */
+}
+
+/* Container for the buttons */
+.edit-buttons {
+  display: flex;
+  justify-content: space-between; /* Space out buttons */
+  width: 100%; /* Buttons take full width of their parent */
+}
+
+/* Inherited styles from .action-button with additional button specific styling */
+.save-class-name-button{
+  flex: 1; /* Both buttons share the space evenly */
+  margin: 5px 10px 5px 0; /* Spacing for the buttons */
+  background-color: #4CAF50; /* Green background */
+  color: white; /* White text */
+}
+
+.save-class-name-button:hover {
+  background-color: #43A047; /* Slightly darker green on hover */
+  transform: scale(1.05);
+}
+
+.cancel-class-name-button {
+  flex: 1; /* Both buttons share the space evenly */
+  margin: 5px 10px 5px 0; /* Spacing for the buttons */
+  background-color: #f44336; /* Red background */
+  color: white; /* White text */
+}
+
+.cancel-class-name-button:hover {
+  background-color: #d32f2f; /* Slightly darker red on hover */
+  transform: scale(1.05);
+}
+/****************************************************/
+
+/* Styling for the sorting dropdown */
+.sort-dropdown-container {
+  z-index: 10; /* Keep if necessary to ensure the dropdown is above other elements */
+  display: flex; /* Flex display to align with the class name */
+}
+
+/* Update the .sort-dropdown styles for the header context */
+.sort-dropdown {
+  padding: 5px 10px;
+  font-size: 16px;
+  border: 2px solid #326C6F;
+  border-radius: 20px;
+  font-family: 'Poppins', sans-serif;
+  cursor: pointer;
+  background: white;
+  color: #326C6F;
+  margin: 0 0 0 10px;
+}
+
+.sort-dropdown:hover {
+  border-color: #224957;
+}
+
+.sort-dropdown:focus {
+  outline: none;
+  border-color: #326C6F;
+}
+
+/****************************************************/
+
+/* student action drop down */
+.student-actions-dropdown {
+  padding: 2px 7px; /* Provides internal space making the dropdown comfortable to click */
+  font-size: 14px; /* Suitable font size for the content within the dropdown */
+  border: 1px solid #326C6F; /* Giving it a distinct border */
+  border-radius: 5px; /* Rounded corners for a softer look */
+  background-color: #f9f9f9; /* A light background that contrasts well with the text */
+  color: #000000; /* Dark color for the text for readability */
+  cursor: pointer; /* Changes the cursor indicating it's an interactive element */
+  transition: all 0.3s ease; /* Smooth transition for interactive states */
+}
+
+/****************************************************/
+/* Styling for edit student tytle*/
+.custom-h1 {
+  text-align: center; /* Aligns text horizontally to the center */
+  font-family: 'Poppins', sans-serif;
+  color: #000000;
+  font-size: 35px;
+  position: absolute; /* Positions the h1 absolutely relative to its positioned parent */
+  left: 50%; /* 50% from the left of the parent element */
+  transform: translate(-50%, -50%); /* Offsets the element by its own height and width */
+  padding-top: 200px;
+  padding-bottom: 0px;
+  
+}
+
+/****************************************************/
+
+/* Styling for the student image upload */
+.student-image-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px; /* Adjust the space between the image and the button as needed */
+  padding-top: 10px;
+
+}
+
+.student-image {
+  max-width: 25vh; /* Ensure the image doesn't exceed the container width */
+  max-height: 25vh; 
+  min-height: 25vh;
+  border: 2px solid #000000; /* Your desired border color and width */
+  border-radius: 10px; /* Adjust for rounded corners if desired */
+  margin: auto;
+  object-fit: cover;
+}
+
+.image-upload-container{
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px; /* Adjust the space between the image and the button as needed */
+  padding-top: 150px;
+  padding-bottom: 1px;
+}
+
+.student-image-placeholder {
+  width: 120px; /* Set the width of the placeholder area */
+  height: 120px; /* Set the height of the placeholder area */
+  border: 2px dashed #326C6F; /* Dashed border for the placeholder */
+  border-radius: 50%; /* Makes the placeholder circular */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #326C6F;
+  font-size: 24px; /* Icon size */
+}
+
+.student-card-image, .student-card-no-image-icon {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 40px;  
+  width: 70%;    
+  height: 55%;   
+  margin: auto;  
+  border-radius: 10px; 
+  display: flex; 
+  align-items: center; 
+  justify-content: center; 
+  font-size: 50px; 
+  color: #ccc; 
+}
+
+
+/****************************************************/
+
+/* Styling for gender dropdown */
+.student-form-input{
+  padding: 4px 7px; /* Provides internal space making the dropdown comfortable to click */
+  font-size: 18px; /* Suitable font size for the content within the dropdown */
+  border: 1px solid #326C6F; /* Giving it a distinct border */
+  border-radius: 5px; /* Rounded corners for a softer look */
+  background-color: #f9f9f9; /* A light background that contrasts well with the text */
+  color: #000000; /* Dark color for the text for readability */
+  cursor: pointer; /* Changes the cursor indicating it's an interactive element */
+  transition: all 0.3s ease; /* Smooth transition for interactive states */
+}
+
+/****************************************************/
