@@ -1,0 +1,27 @@
+[
+  {
+    "_id": 1,
+    "grade": "Achieved Independently",
+    "definition": "Can achieve task/skill/activity with no support in a familiar situation. May still require known structure/sequence to achieve with no support. Show full awareness of task/skill/activity."
+  },
+  {
+    "_id": 2,
+    "grade": "Achieved With Decreasing Support",
+    "definition": "Shows momentsof independence. May still require prompting. May use iniative at times. Takes known next steps without prompting. May imitate modelling."
+  },
+  {
+    "_id": 3,
+    "grade": "Achieved With Support",
+    "definition": " Shows awareness of the task/skill/activity. May respond with prompting. May not show initiative. May require lots of structure, modelling, repitition throughout task/skill/activity."
+  },
+  {
+    "_id": 4,
+    "grade": "Generalized",
+    "definition": "Proficient. Confidently completes task/activity, uses skill. Can achieve in a nuber of situations independently. Show full awareness. Structure/sequence may be flexible."
+  },
+  {
+    "_id": 5,
+    "grade": "Not Achieved",
+    "definition": "Used mainly for MOE  data reporting. If an IEP goal is being assessed as not achieved be the mid-year point the goal will be reviewed. Shows little/no awareness of requirements/expectations. Shows little/no ability or understanding."
+  }
+]
