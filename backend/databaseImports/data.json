@@ -1,0 +1,711 @@
+[
+  {
+    "_id": 1,
+    "name": "Te Ara Whakapuawai - Numeracy",
+    "type": "folder",
+    "parent": null
+  },
+  {
+    "_id": 2,
+    "name": "Te Ara Whakapuawai - Reading",
+    "type": "folder",
+    "parent": null
+  },
+  {
+    "_id": 3,
+    "name": "Te Ara Whakapuawai - Writing",
+    "type": "folder",
+    "parent": null
+  },
+  {
+    "_id": 4,
+    "name": "Te Ara Whakapuawai - Total Communication",
+    "type": "folder",
+    "parent": null
+  },
+  {
+    "_id": 5,
+    "name": "Te Ara Whakapuawai - Te Ao Maori",
+    "type": "folder",
+    "parent": null
+  },
+  {
+    "_id": 11,
+    "name": "Number & Algebra 2-3 - Early Level 1",
+    "type": "assignment",
+    "parent": 1
+  },
+  {
+    "_id": 12,
+    "name": "Number & Algebra 4 - At Level 1",
+    "type": "assignment",
+    "parent": 1
+  },
+  {
+    "_id": 13,
+    "name": "Number & Algebra - Actively participate",
+    "type": "assignment",
+    "parent": 1
+  },
+  {
+    "_id": 14,
+    "name": "Number & Algebra - Consolidate",
+    "type": "assignment",
+    "parent": 1
+  },
+  {
+    "_id": 15,
+    "name": "Number & Algebra Early 5 - Early Level 2",
+    "type": "assignment",
+    "parent": 1
+  },
+  {
+    "_id": 16,
+    "name": "Number & Algebra - Engage",
+    "type": "assignment",
+    "parent": 1
+  },
+  {
+    "_id": 17,
+    "name": "Number & Algebra - Experience",
+    "type": "assignment",
+    "parent": 1
+  },
+  {
+    "_id": 18,
+    "name": "Number & Algebra - Respond",
+    "type": "assignment",
+    "parent": 1
+  },
+  {
+    "_id": 101,
+    "name": "Num/N EL.10. Recognise numicon numbers on a number line",
+    "type": "tag",
+    "parent": 11
+  },
+  {
+    "_id": 102,
+    "name": "Num/N EL.11. The student will tell which is first, second, third of objects in a line.",
+    "type": "tag",
+    "parent": 11
+  },
+  {
+    "_id": 103,
+    "name": "Num/N EL.12. The student will say which group has more or less within the range of 1-10.",
+    "type": "tag",
+    "parent": 11
+  },
+  {
+    "_id": 104,
+    "name": "Num/N EL.13. The student will say which group has more or less using numicon within the range of 1-10.",
+    "type": "tag",
+    "parent": 11
+  },
+  {
+    "_id": 105,
+    "name": "Num/N EL.14. The student will begin to recognise numbers from 1-10 and relate them to sets of objects.",
+    "type": "tag",
+    "parent": 11
+  },
+  {
+    "_id": 106,
+    "name": "Num/N EL.15. The student will begin to recognise numbers from 1-10 and relate them to numicon.",
+    "type": "tag",
+    "parent": 11
+  },
+  {
+    "_id": 107,
+    "name": "Num/N L4.10. The student will order numbers in the range 1-100.",
+    "type": "tag",
+    "parent": 12
+  },
+  {
+    "_id": 108,
+    "name": "Num/N L4.11. The student will add to objects in practical situations.",
+    "type": "tag",
+    "parent": 12
+  },
+  {
+    "_id": 109,
+    "name": "Num/N L4.12. The student will take away objects in practical situations.",
+    "type": "tag",
+    "parent": 12
+  },
+  {
+    "_id": 110,
+    "name": "Num/N L4.13. The student will take away or ad to objects in practical situations using numicon.",
+    "type": "tag",
+    "parent": 12
+  },
+  {
+    "_id": 111,
+    "name": "Num/N L4.14. The student will tell which is first, second, third of objects in a line.",
+    "type": "tag",
+    "parent": 12
+  },
+  {
+    "_id": 112,
+    "name": "Num/N L4.15. The student will say the number aftera given number in the range 1-50.",
+    "type": "tag",
+    "parent": 12
+  },
+  {
+    "_id": 113,
+    "name": "NumN/AP 1A. Recognise that a choice has to be made when selecting materials and equipment for a simple activity.",
+    "type": "tag",
+    "parent": 13
+  },
+  {
+    "_id": 114,
+    "name": "NumN/AP 2A. Participate in mathematical activities, participate in daily routines. Follow a sequence of actions.",
+    "type": "tag",
+    "parent": 13
+  },
+  {
+    "_id": 115,
+    "name": "NumN/AP 2B. Participate in mathematical activities, participate in daily routines. Indicate 1 or 2.",
+    "type": "tag",
+    "parent": 13
+  },
+  {
+    "_id": 116,
+    "name": "NumN/AP 2C. Participate in mathematical activities, participate in daily routines. Assign a number name to a number.",
+    "type": "tag",
+    "parent": 13
+  },
+  {
+    "_id": 117,
+    "name": "NumN/AP 2D. Participate in mathematical activities, participate in daily routines. Make marks that represent a number.",
+    "type": "tag",
+    "parent": 13
+  },
+  {
+    "_id": 118,
+    "name": "NumN/AP 2E. Participate in mathematical activities, participate in daily routines. Touch count up to 10.",
+    "type": "tag",
+    "parent": 13
+  },
+  {
+    "_id": 119,
+    "name": "NumN/AP 2F. Participate in mathematical activities rote count to 10.",
+    "type": "tag",
+    "parent": 13
+  },
+  {
+    "_id": 120,
+    "name": "NumN/C 1A. Make choices in selecting materials and equipment for a simple activity.",
+    "type": "tag",
+    "parent": 14
+  },
+  {
+    "_id": 121,
+    "name": "NumN/C 2A. Show some understanding of mathematial notations, such as numerals, words, sets - Anicipate and follow daily routines.",
+    "type": "tag",
+    "parent": 14
+  },
+  {
+    "_id": 122,
+    "name": "NumN/C 2B. Show some understanding of mathematial notations, such as numerals, words - Posiion numbers on a line.",
+    "type": "tag",
+    "parent": 14
+  },
+  {
+    "_id": 123,
+    "name": "NumN/C 2C. Show some understanding of mathematial notations, such as numerals, words - Student will count at least five objects.",
+    "type": "tag",
+    "parent": 14
+  },
+  {
+    "_id": 124,
+    "name": "NumN/C 2D. Show some understanding of mathematial notations, such as numerals, words - Students will recognise numbers up to 5 and understand that each represents a constant amount.",
+    "type": "tag",
+    "parent": 14
+  },
+  {
+    "_id": 125,
+    "name": "NumN/C 2E. Show some understanding of mathematial notations, such as numerals, words - Students willrecognise quantity such as more/les, bigger/smaller.",
+    "type": "tag",
+    "parent": 14
+  },
+  {
+    "_id": 126,
+    "name": "NumN/C 2F. Show some understanding of mathematial notations, such as numerals, words - Match and demostrate an understanding of 1:1correspondance and terms more or less, not enough and the same.",
+    "type": "tag",
+    "parent": 14
+  },
+  {
+    "_id": 127,
+    "name": "NumN E5 10. The student will skip count in 2's to 100, forwards and backwards.",
+    "type": "tag",
+    "parent": 15
+  },
+  {
+    "_id": 128,
+    "name": "NumN E5 11. The student will skip count in 3's to 100, forwards and backwards.",
+    "type": "tag",
+    "parent": 15
+  },
+  {
+    "_id": 129,
+    "name": "NumN E5 12. The student will skip count in 5's to 100, forwards and backwards.",
+    "type": "tag",
+    "parent": 15
+  },
+  {
+    "_id": 130,
+    "name": "NumN E5 13. The student will skip count in 10's to 100, forwards and backwards.",
+    "type": "tag",
+    "parent": 15
+  },
+  {
+    "_id": 131,
+    "name": "NumN E5 14. The student will skip count in 2's, 3's, 5's, and 10's to 100, forwards and backwards.",
+    "type": "tag",
+    "parent": 15
+  },
+  {
+    "_id": 132,
+    "name": "NumN E5 15. The student orders numbers in the range of 0-500.",
+    "type": "tag",
+    "parent": 15
+  },
+  {
+    "_id": 133,
+    "name": "NumN E5 16. The student orders numbers in the range of 0-1000.",
+    "type": "tag",
+    "parent": 15
+  },
+  {
+    "_id": 134,
+    "name": "NumN E5 17. The student orders fractions with like denominators e.g., 1/4, 2/4, 3/4.",
+    "type": "tag",
+    "parent": 15
+  },
+  {
+    "_id": 135,
+    "name": "NumN/Eng 1A. Engage with mathematical materials in response to teacher guidance/modelling. Interact with a range of materials with support match two unequal and two equal sets.",
+    "type": "tag",
+    "parent": 16
+  },
+  {
+    "_id": 136,
+    "name": "NumN/Eng 2A. Recognise mathematical activities in response to cues and prompts; engage with daily routines in response to teacher moddelling; imitate touch counting to 10.",
+    "type": "tag",
+    "parent": 16
+  },
+  {
+    "_id": 137,
+    "name": "NumN/Eng 2B. Recognise mathematical activities in response to cues and prompts; engage with daily routines in response to teacher moddelling; join in rote counting.",
+    "type": "tag",
+    "parent": 16
+  },
+  {
+    "_id": 138,
+    "name": "NumN/Eng 2C. Recognise mathematical activities in response to cues and prompts; engage with daily routines in response to teacher moddelling; show 1-2 fingers.",
+    "type": "tag",
+    "parent": 16
+  },
+  {
+    "_id": 139,
+    "name": "NumN/Eng 2D. Recognise mathematical activities in response to cues and prompts; engage with daily routines in response to teacher moddelling; begin to show consistent response to objects and counting activities.",
+    "type": "tag",
+    "parent": 16
+  },
+  {
+    "_id": 140,
+    "name": "NumN/Eng 2E. Recognise mathematical activities in response to cues and prompts; engage with daily routines in response to teacher moddelling; trach items that are being counted.",
+    "type": "tag",
+    "parent": 16
+  },
+  {
+    "_id": 141,
+    "name": "NumN/E 1A. Encounter a variety of mathematical materials and equipment; experience a range of materials.",
+    "type": "tag",
+    "parent": 17
+  },
+  {
+    "_id": 142,
+    "name": "NumN/E 1B. Encounter a variety of mathematical materials and equipment; students may show a reflex response.",
+    "type": "tag",
+    "parent": 17
+  },
+  {
+    "_id": 143,
+    "name": "NumN/E 1C. Encounter a variety of mathematical materials and equipment; students may show simple reflex responses when encountering patterns of sound,light, or objects e.g. light sequenceplayed ontobody or hand wih a torch.",
+    "type": "tag",
+    "parent": 17
+  },
+  {
+    "_id": 144,
+    "name": "NumN/E 1D. Encounter a variety of mathematical materials and equipment; E.g numicon shapes.",
+    "type": "tag",
+    "parent": 17
+  },
+  {
+    "_id": 145,
+    "name": "NumN/E 1E. Encounter a variety of mathematical materials and equipment; encounter through senses objects being built and knocked down.",
+    "type": "tag",
+    "parent": 17
+  },
+  {
+    "_id": 146,
+    "name": "NumN/R 1A. Interact with materials and equipment; respond with some interest to a range of materials lego, blocks, numicon, sensory play.",
+    "type": "tag",
+    "parent": 18
+  },
+  {
+    "_id": 147,
+    "name": "NumN/R 1B. Interact with materials and equipment; The students will cooperate with shared exploration and participation with support.",
+    "type": "tag",
+    "parent": 18
+  },
+  {
+    "_id": 148,
+    "name": "NumN/R 2A. Respond to mathematical activities and become aware of daily routines. Students will perform actions, often b trial and improvments and remember learned responses over a period of time.",
+    "type": "tag",
+    "parent": 18
+  },
+  {
+    "_id": 149,
+    "name": "NumN/R 2B. Respond to mathematical activities and become aware of daily routines. Respond intermittently to activities that include real/pretend coins and real/pretend shopping situations which involve giving and recieving. Numicon matching puzzles.",
+    "type": "tag",
+    "parent": 18
+  },
+  {
+    "_id": 150,
+    "name": "NumN/R 3A. Become aware of the existanceof a problem, respond and interact with simple logical strategies. Students will demonstrate understanding of the concept 'all gone'.",
+    "type": "tag",
+    "parent": 18
+  },
+  {
+    "_id": 151,
+    "name": "Reading - Actively Participate",
+    "type": "assignment",
+    "parent": 2
+  },
+  {
+    "_id": 152,
+    "name": "Reading - Consolidate",
+    "type": "assignment",
+    "parent": 2
+  },
+  {
+    "_id": 153,
+    "name": "Reading - Early Level 1",
+    "type": "assignment",
+    "parent": 2
+  },
+  {
+    "_id": 154,
+    "name": "Reading - Engage",
+    "type": "assignment",
+    "parent": 2
+  },
+  {
+    "_id": 155,
+    "name": "Reading - Experience",
+    "type": "assignment",
+    "parent": 2
+  },
+  {
+    "_id": 156,
+    "name": "Reading - Level 1",
+    "type": "assignment",
+    "parent": 2
+  },
+  {
+    "_id": 157,
+    "name": "Reading - Level 2",
+    "type": "assignment",
+    "parent": 2
+  },
+  {
+    "_id": 158,
+    "name": "Reading - Respond",
+    "type": "assignment",
+    "parent": 2
+  },
+  {
+    "_id": 159,
+    "name": "READ/AP 1A: Actively participate in an activity with a range of texts/images for information, ideas and enjoyment; Choose a book",
+    "type": "tag",
+    "parent": 151
+  },
+  {
+    "_id": 160,
+    "name": "READ/AP 1B: Actively participate in an activity with a range of texts/images for information, ideas and enjoyment; Hold a book the right way up and turn the pages sequentially, looking at the pictures to make sense of the story or information.",
+    "type": "tag",
+    "parent": 151
+  },
+  {
+    "_id": 161,
+    "name": "READ/AP 1C: Actively participate in an activity with a range of texts/images for information, ideas and enjoyment; Show understanding of a story or information read to them, such as sequencing pictures,answering questions.",
+    "type": "tag",
+    "parent": 151
+  },
+  {
+    "_id": 162,
+    "name": "READ/AP 1D: Actively participate in an activity with a range of texts/images for information, ideas and enjoyment; Turn the pages of a book appropriately.",
+    "type": "tag",
+    "parent": 151
+  },
+  {
+    "_id": 163,
+    "name": "READ/CON 1A: Show understanding that meaning can be taken from pictures, images and texts; Pretend to read a book, he/she may point to pictures and texts.",
+    "type": "tag",
+    "parent": 152
+  },
+  {
+    "_id": 164,
+    "name": "READ/CON 1B: Show understanding that meaning can be taken from pictures, images and texts; Participate in reading behaviour such as read a story to an audience (toys or peers).",
+    "type": "tag",
+    "parent": 152
+  },
+  {
+    "_id": 165,
+    "name": "READ/CON 1C: Show understanding that meaning can be taken from pictures, images and texts; Participate in simple words matching activities.",
+    "type": "tag",
+    "parent": 152
+  },
+  {
+    "_id": 166,
+    "name": "READ/CON 1D: Show understanding that meaning can be taken from pictures, images and texts; Demonstrate an understanding that meaning can be taken from pictures, images and texts while navigating an online story.",
+    "type": "tag",
+    "parent": 152
+  },
+  {
+    "_id": 167,
+    "name": "READ/EL 1.10: Listen to and participate in reading of stories, rhymes and poems.",
+    "type": "tag",
+    "parent": 153
+  },
+  {
+    "_id": 168,
+    "name": "READ/EL 1.11: Handle books correctly.",
+    "type": "tag",
+    "parent": 153
+  },
+  {
+    "_id": 169,
+    "name": "READ/EL 1.12: Explore and develop recognition of capital letters and full stops.",
+    "type": "tag",
+    "parent": 153
+  },
+  {
+    "_id": 170,
+    "name": "READ/EL 1.13: Discriminate among picture, text, cover, letter, word, first, last, top, bottom, front, back, page, story.",
+    "type": "tag",
+    "parent": 153
+  },
+  {
+    "_id": 171,
+    "name": "READ/EL 1.14: Develop an awareness rhyme, rhythm and alliteration.",
+    "type": "tag",
+    "parent": 153
+  },
+  {
+    "_id": 172,
+    "name": "READ/Eng 1A: Purposefully engage for longer periods of time with a range of texts/images for information, ideas, and enjoyment; Enjoy hearing a familiar story.",
+    "type": "tag",
+    "parent": 154
+  },
+  {
+    "_id": 173,
+    "name": "READ/Eng 1B: Purposefully engage for longer periods of time with a range of texts/images for information, ideas, and enjoyment; Willingly engage with an adult/peer in sharing a book.",
+    "type": "tag",
+    "parent": 154
+  },
+  {
+    "_id": 174,
+    "name": "READ/E 1A: Experience a range of texts/images for information, ideas and enjoyment; Experience a CD story supported by the text.",
+    "type": "tag",
+    "parent": 155
+  },
+  {
+    "_id": 175,
+    "name": "READ/E 1B: Experience a range of texts/images for information, ideas and enjoyment; Experience a story shared through a picture on an interactive whiteboard (or current ICT display unit).",
+    "type": "tag",
+    "parent": 155
+  },
+  {
+    "_id": 176,
+    "name": "READ L1.10: Identify rhythm, alliteration and rhyming words in text (orally).",
+    "type": "tag",
+    "parent": 156
+  },
+  {
+    "_id": 177,
+    "name": "READ L1.11: Develop an understanding of question marks.",
+    "type": "tag",
+    "parent": 156
+  },
+  {
+    "_id": 178,
+    "name": "READ L2.10: Justify own options of texts.",
+    "type": "tag",
+    "parent": 157
+  },
+  {
+    "_id": 179,
+    "name": "READ L2.11: Discuss morals and values.",
+    "type": "tag",
+    "parent": 157
+  },
+  {
+    "_id": 180,
+    "name": "READ/R 1A: Respond intermittently to a range of texts/images for information, ideas and enjoyment; intermittently listen to a CD story supported by the text.",
+    "type": "tag",
+    "parent": 158
+  },
+  {
+    "_id": 181,
+    "name": "READ/R 1B: Respond intermittently to a range of texts/images for information, ideas and enjoyment; intermittently listen to a CD story through the medium of an interactive whiteboard (or current ICT display unit).",
+    "type": "tag",
+    "parent": 158
+  },
+  {
+    "_id": 182,
+    "name": "Actively Participate",
+    "type": "assignment",
+    "parent": 3
+  },
+  {
+    "_id": 183,
+    "name": "Engage",
+    "type": "assignment",
+    "parent": 3
+  },
+  {
+    "_id": 184,
+    "name": "Experience",
+    "type": "assignment",
+    "parent": 3
+  },
+  {
+    "_id": 185,
+    "name": "Respond",
+    "type": "assignment",
+    "parent": 3
+  },
+  {
+    "_id": 186,
+    "name": "Writing - consolidate",
+    "type": "assignment",
+    "parent": 3
+  },
+  {
+    "_id": 187,
+    "name": "Writing Early Level 1",
+    "type": "assignment",
+    "parent": 3
+  },
+  {
+    "_id": 188,
+    "name": "Writing - Level 1",
+    "type": "assignment",
+    "parent": 3
+  },
+  {
+    "_id": 189,
+    "name": "Writing - Level 2",
+    "type": "assignment",
+    "parent": 3
+  },
+
+  {
+    "_id": 190,
+    "name": "WRITE/AP 1A: Participate in modelled writing activities; Make decisions on what should be included in shared writing by answering/indicationg 'yes' or 'no'.",
+    "type": "tag",
+    "parent": 182
+  },
+  {
+    "_id": 191,
+    "name": "WRITE/AP 1B: Participate in modelled writing activities; Use computer programmes to participate in writing activites.",
+    "type": "tag",
+    "parent": 182
+  },
+  {
+    "_id": 192,
+    "name": "WRITE/ENG 1A: Engage in modelled writing activities; Watch an adult write.",
+    "type": "tag",
+    "parent": 183
+  },
+  {
+    "_id": 193,
+    "name": "WRITE/ENG 1B: Engage in modelled writing activities; Imitate the use of writing tools and surfaces.",
+    "type": "tag",
+    "parent": 183
+  },
+  {
+    "_id": 194,
+    "name": "WRITE/E 1A: Experience writing activities; Experience a range of multi-sensory stimuli, such as dough, soapy water, pasta.",
+    "type": "tag",
+    "parent": 184
+  },
+  {
+    "_id": 195,
+    "name": "WRITE/E 1B: Experience writing activities; Experience the teacher demonstrating writing or mark-making activites.",
+    "type": "tag",
+    "parent": 184
+  },
+  {
+    "_id": 196,
+    "name": "WRITE/R 1A: Respond intermittently to writing activites; Respond intermittently to a range of multi-sensory stimuli.",
+    "type": "tag",
+    "parent": 185
+  },
+  {
+    "_id": 197,
+    "name": "WRITE/R 1B: Respond intermittently to writing activites; Listen and look intermittently at an adult writing or making marks(using pictures/patterns/symbols and/or words).",
+    "type": "tag",
+    "parent": 185
+  },
+  {
+    "_id": 198,
+    "name": "WRITE/CON 1A: Begin to make contributions to shared writing activities; Make some suggestions on what to write or draw in shared writing using signing, eye pointing, pointing at pictures.",
+    "type": "tag",
+    "parent": 186
+  },
+  {
+    "_id": 199,
+    "name": "WRITE/CON 1B: Begin to make contributions to shared writing activities; Ask an adult to write words/draw pictures of personal interest (asking may be non-verbal).",
+    "type": "tag",
+    "parent": 186
+  },
+  {
+    "_id": 200,
+    "name": "WRITE/EL 1.10: Link sounds to letter symbols.",
+    "type": "tag",
+    "parent": 187
+  },
+  {
+    "_id": 201,
+    "name": "WRITE/EL 1.11: Use approximations according to the initial sound.",
+    "type": "tag",
+    "parent": 187
+  },
+  {
+    "_id": 202,
+    "name": "WRITE/L 1.10: Use the beginning and end sounds of words.",
+    "type": "tag",
+    "parent": 188
+  },
+  {
+    "_id": 203,
+    "name": "WRITE/L 1.11: Use some initial blends.",
+    "type": "tag",
+    "parent": 188
+  },
+  {
+    "_id": 204,
+    "name": "WRITE/L 2.10: Use phonetic knowledge.",
+    "type": "tag",
+    "parent": 189
+  },
+  {
+    "_id": 205,
+    "name": "WRITE/L 2.11: use adjectives when writing.",
+    "type": "tag",
+    "parent": 189
+  }
+]
