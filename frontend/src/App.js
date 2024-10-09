@@ -25,6 +25,9 @@ import InviteParent from "./pages/inviteParent";
 import ChangePassword from './pages/changePassword';
 
 import Assessments from './pages/Assessments'; // Sprint 1
+import CreateAssignment from './pages/CreateAssignment'; // 
+import ViewAssignments from './pages/ViewAssignments'; // 
+
 
 function App() {
 
@@ -113,10 +116,15 @@ function App() {
                 <Route path="/invite_family" element={<InviteFamily />} />
                 <Route path="/invite_parent" element={<InviteParent />} />
                 <Route path="/change_password" element={<ChangePassword />} />
-                
-                <Route path="/assessments" element={<Assessments />} /> {/* New Route */}
-
                 <Route path="/class/:classId/student/:studentId" element={<StudentDetail />} />
+
+                <Route path="/assessments" element={<Assessments />} /> {/* New Route */}
+                <Route path="/create-assignment" element={<CreateAssignment />} /> {/* New Route */}
+                <Route path="/view-assignments" element={<ViewAssignments />} /> {/* New Route */}
+               
+                
+
+                
 
               </Routes>
             </div>

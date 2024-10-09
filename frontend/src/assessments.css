@@ -1,60 +1,85 @@
-/* src/assessments.css */
-.assessments-container {
-  padding: 20px;
-  background-color: #f9f9f9;
-}
-
-.assessments-title {
-  font-size: 2em;
-  color: #333;
-  margin-bottom: 10px;
-}
-
-.assessments-description {
-  font-size: 1.2em;
-  color: #666;
-  margin-bottom: 20px;
-}
-
-.assignment-form {
+.container {
   display: flex;
-  flex-direction: column;
-  margin-bottom: 20px;
 }
 
-.assignment-input,
-.assignment-textarea {
+.sidebar {
+  width: 200px;
+  background-color: #f4f4f4;
+  padding: 20px;
+  box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+}
+
+.sidebar h2 {
+  margin-top: 0;
+}
+
+.sidebar .button {
+  display: block;
+  margin: 10px 0;
   padding: 10px;
-  font-size: 1em;
-  margin-bottom: 10px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-}
-
-.assignment-textarea {
-  height: 100px;
-}
-
-.assignment-submit {
-  padding: 10px 20px;
-  font-size: 1em;
+  text-decoration: none;
+  color: #fff;
   background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
+  text-align: center;
+  border-radius: 4px;
 }
 
-.assignment-submit:hover {
+.sidebar .button:hover {
   background-color: #0056b3;
 }
 
-.assignments-list {
-  list-style-type: none;
-  padding: 0;
+.main-content {
+  flex-grow: 1;
+  padding: 20px;
 }
 
-.assignment-item {
-  padding: 10px;
-  border-bottom: 1px solid #ccc;
+.dummy-data {
+  margin-top: 20px;
+}
+
+.dummy-data p {
+  margin: 5px 0;
+}
+
+.dummy-data a {
+  display: block;
+  margin-top: 10px;
+  text-decoration: none;
+  color: #007bff;
+}
+
+.divider {
+  margin: 20px 0;
+  border: 0;
+  border-top: 1px solid #ccc;
+}
+
+.boxes {
+  display: flex;
+  margin-top: 20px;
+}
+
+.box {
+  flex: 1;
+  padding: 20px;
+  margin-right: 10px;
+  background-color: #e0e0e0;
+  text-align: center;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.box:last-child {
+  margin-right: 0;
+}
+
+.students-title {
+  margin-top: 30px;
+  font-size: 24px;
+}
+
+.massive-box {
+  height: 300px;
+  background-color: #f0f0f0;
+  margin-top: 10px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
