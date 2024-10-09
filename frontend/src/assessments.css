@@ -1,0 +1,60 @@
+/* src/assessments.css */
+.assessments-container {
+  padding: 20px;
+  background-color: #f9f9f9;
+}
+
+.assessments-title {
+  font-size: 2em;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.assessments-description {
+  font-size: 1.2em;
+  color: #666;
+  margin-bottom: 20px;
+}
+
+.assignment-form {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 20px;
+}
+
+.assignment-input,
+.assignment-textarea {
+  padding: 10px;
+  font-size: 1em;
+  margin-bottom: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.assignment-textarea {
+  height: 100px;
+}
+
+.assignment-submit {
+  padding: 10px 20px;
+  font-size: 1em;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.assignment-submit:hover {
+  background-color: #0056b3;
+}
+
+.assignments-list {
+  list-style-type: none;
+  padding: 0;
+}
+
+.assignment-item {
+  padding: 10px;
+  border-bottom: 1px solid #ccc;
+}

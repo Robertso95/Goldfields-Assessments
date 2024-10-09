@@ -9,6 +9,7 @@ const classRoutes = require('./routes/classRoutes');
 const userRoutes = require('./routes/userRoutes');
 const tagRoutes = require('./routes/tagRoutes');
 const homeRoutes = require('./routes/homeRoutes');
+const assignmentRoutes = require('./routes/assignmentRoutes');
 
 const app = express();
 
@@ -27,6 +28,7 @@ app.use('/api/stories', storyRoutes);
 app.use('/api/classes', classRoutes);
 app.use('/api/tags', tagRoutes);
 app.use('/api/images', homeRoutes);
+app.use('/api', assignmentRoutes);
 
 /**
  * New Route added for user routes
