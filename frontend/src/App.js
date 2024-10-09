@@ -23,6 +23,9 @@ import InviteFamily from './pages/inviteFamily';
 import StudentDetail from './pages/StudentDetail';
 import InviteParent from "./pages/inviteParent";
 import ChangePassword from './pages/changePassword';
+
+import Assessments from './pages/Assessments'; // Sprint 1
+
 function App() {
 
   const [role, setRole] = useState("");
@@ -110,6 +113,8 @@ function App() {
                 <Route path="/invite_family" element={<InviteFamily />} />
                 <Route path="/invite_parent" element={<InviteParent />} />
                 <Route path="/change_password" element={<ChangePassword />} />
+                
+                <Route path="/assessments" element={<Assessments />} /> {/* New Route */}
 
                 <Route path="/class/:classId/student/:studentId" element={<StudentDetail />} />
 

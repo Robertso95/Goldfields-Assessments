@@ -1,14 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { FaUserCircle } from "react-icons/fa";
+import { FaUserCircle, FaHome, FaBook, FaChalkboard, FaSearch, FaTimes, FaUserPlus, FaClipboardList } from 'react-icons/fa';
 import "../home.css";
-import { FaHome, FaBook, FaChalkboard, FaSearch, FaTimes, FaUserPlus } from 'react-icons/fa';
 
 const Navbar = (props) => {
     const location = useLocation(); // This hook gives us the current location object
     let pageTitle;
 
-// React useState weather to show the password
+    // React useState weather to show the password
     const [showPassword, setShowPassword] = useState("0");
 
     // Handling user to logout and gets redirect user to login
@@ -20,6 +19,7 @@ const Navbar = (props) => {
     useEffect(() => {
         setShowPassword(localStorage.getItem("change") ?? "0");
     }, []);
+
     // Function to check if the current path matches a dynamic route pattern
     const isDynamicRoute = (routePattern) => {
         const regex = new RegExp(routePattern);
@@ -67,10 +67,10 @@ const Navbar = (props) => {
                 pageTitle = "Goldfields School"; // Fallback title
         }
     }
+
     const isActive = (path) => {
         return location.pathname === path ? "nav-item active" : "nav-item";
     };
-
 
     if (showPassword == "0") {
         return (
@@ -86,13 +86,11 @@ const Navbar = (props) => {
                         </Link>
                         {
                             ["Admin", "Teacher", "Parent", "Family"].includes(props?.role) &&
-
                             <Link to="/stories" className={isActive("/stories")}>
                                 <FaBook className="nav-icon" /> Stories
                             </Link>
                         }
                         {
-
                             ["Admin", "Teacher"].includes(props?.role) &&
                             <>
                                 <Link to="/class" className={isActive("/class")}>
@@ -100,6 +98,9 @@ const Navbar = (props) => {
                                 </Link>
                                 <Link to="/search" className={isActive("/search")}>
                                     <FaSearch className="nav-icon" /> Search Stories
+                                </Link>
+                                <Link to="/assessments" className={isActive("/assessments")}>
+                                    <FaClipboardList className="nav-icon" /> Assessments
                                 </Link>
                             </>
                         }
@@ -110,7 +111,6 @@ const Navbar = (props) => {
                             </Link>
                         }
                         {
-
                             ["Admin"].includes(props?.role) &&
                             <>
                                 <Link to="/invite_parent" className={isActive("/invite_parent")}>
@@ -138,20 +138,16 @@ const Navbar = (props) => {
                             </>
                         }
                         <Link to="/logout" onClick={logoutHandler} className="nav-item">
-                            <FaTimes
-                                className="nav-icon" /> Logout
+                            <FaTimes className="nav-icon" /> Logout
                         </Link>
-
                     </div>
                 </nav>
             </header>
         );
-    }
-    else if (showPassword == "1") {
+    } else if (showPassword == "1") {
         return (
             <header>
                 <nav className="navbar">
-                    
                     <Link to="/home" className="nav-logo">
                         <h1 className="nav-h1">{pageTitle}</h1>
                     </Link>
@@ -160,16 +156,13 @@ const Navbar = (props) => {
                             <FaHome className="nav-icon" /> Home
                         </Link>
                         <Link to="/logout" onClick={logoutHandler} className="nav-item">
-                            <FaTimes
-                                className="nav-icon" /> Logout
+                            <FaTimes className="nav-icon" /> Logout
                         </Link>
-
                     </div>
                 </nav>
             </header>
         );
     }
-
 };
 
 export default Navbar;
