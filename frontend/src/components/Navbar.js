@@ -3,6 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import { FaUserCircle, FaHome, FaBook, FaChalkboard, FaSearch, FaTimes, FaUserPlus, FaClipboardList } from 'react-icons/fa';
 import "../home.css";
 
+
 const Navbar = (props) => {
     const location = useLocation(); // This hook gives us the current location object
     let pageTitle;
@@ -61,6 +62,9 @@ const Navbar = (props) => {
                 break;
             case "/invite_parent":
                 pageTitle = "Invite Parent";
+                break;
+            case "/assessments":
+                pageTitle = "Assessments";
                 break;
             // other static routes
             default:

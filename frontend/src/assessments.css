@@ -1,5 +1,6 @@
 .container {
   display: flex;
+  margin-top: 60px; /* Adjust this value as needed to create space below the navbar */
 }
 
 .sidebar {
@@ -41,13 +42,6 @@
   margin: 5px 0;
 }
 
-.dummy-data a {
-  display: block;
-  margin-top: 10px;
-  text-decoration: none;
-  color: #007bff;
-}
-
 .divider {
   margin: 20px 0;
   border: 0;
@@ -82,4 +76,10 @@
   background-color: #f0f0f0;
   margin-top: 10px;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.buttons {
+  margin-top: 20px;
+  display: flex;
+  gap: 10px;
 }
