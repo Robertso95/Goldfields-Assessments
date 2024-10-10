@@ -26,6 +26,9 @@ const Assessments = () => {
         <Link to="/view-assignments" className="button">
           View Assignments
         </Link>
+        <Link to="/" className="button">
+           Analysis
+        </Link>
       </div>
       <div className="main-content">
       <div class="content-container">
@@ -40,32 +43,27 @@ const Assessments = () => {
             <div className="box">
               <Carousel arrows infinite={false}>
                 <div>
-                  <h3 style={contentStyle}>Class 1</h3>
+                  <h3 style={contentStyle}>Class A1024</h3>
                 </div>
                 <div>
-                  <h3 style={contentStyle}>Class 2</h3>
+                  <h3 style={contentStyle}>6 Students</h3>
                 </div>
-                <div>
-                  <h3 style={contentStyle}>Class 3</h3>
-                </div>
-                <div>
-                  <h3 style={contentStyle}>Class 4</h3>
-                </div>
+                
               </Carousel>
             </div>
             <div className="box">
               <Carousel arrows infinite={false}>
                 <div>
-                  <h3 style={contentStyle}>Assignment 1</h3>
+                  <h3 style={contentStyle}>Assignment Now</h3>
                 </div>
                 <div>
-                  <h3 style={contentStyle}>Assignment 2</h3>
+                  <h3 style={contentStyle}> Assignment due</h3>
                 </div>
                 <div>
-                  <h3 style={contentStyle}>Assignment 3</h3>
+                  <h3 style={contentStyle}>Assignment Next</h3>
                 </div>
                 <div>
-                  <h3 style={contentStyle}>Assignment 4</h3>
+                  <h3 style={contentStyle}>Assignment Analysis</h3>
                 </div>
               </Carousel>
             </div>
