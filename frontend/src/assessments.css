@@ -1,13 +1,14 @@
 .container {
   display: flex;
-  margin-top: 60px; /* Adjust this value as needed to create space below the navbar */
+  margin-top: 60px; /* Space below the navbar */
 }
 
 .sidebar {
   width: 200px;
   background-color: #f4f4f4;
   padding: 20px;
-  box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+  flex-shrink: 0; /* Prevent the sidebar from shrinking */
 }
 
 .sidebar h2 {
@@ -34,8 +35,15 @@
   padding: 20px;
 }
 
+.content-container {
+  padding-left: 20px; /* Adjust to align with the first box */
+  max-width: 960px; /* Set a maximum width */
+  margin: 0 auto; /* Center content */
+}
+
 .dummy-data {
   margin-top: 20px;
+  text-align: left; /* Align text to the left */
 }
 
 .dummy-data p {
@@ -43,43 +51,79 @@
 }
 
 .divider {
-  margin: 20px 0;
+  margin: 30px 0;
   border: 0;
-  border-top: 1px solid #ccc;
+  border-top: 5px solid #000000;
+  width: 100%;
+  background-color: #000000;
+}
+
+.boxes-container {
+  display: flex;
+  justify-content: center; /* Center the boxes container horizontally */
+  width: 100%; /* Ensure it takes the full width */
 }
 
 .boxes {
   display: flex;
-  margin-top: 20px;
+  flex-wrap: wrap; /* Allow boxes to wrap to the next line */
+  justify-content: center; /* Center the boxes within the container */
 }
 
 .box {
-  flex: 1;
-  padding: 20px;
-  margin-right: 10px;
-  background-color: #e0e0e0;
+  flex: 2;
+  padding: 0.1px;
+  margin: 20px; /* Add margin to create space between boxes */
+  background-color: #FFFFFF;
   text-align: center;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-.box:last-child {
-  margin-right: 0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  max-width: 450px; /* Adjust the width as needed */
 }
 
 .students-title {
   margin-top: 30px;
   font-size: 24px;
+  width: 100%; /* Ensure it takes the full width */
+  max-width: 1200px; /* Limit the maximum width */
+  text-align: left; /* Align text to the left */
+}
+
+.massive-box-container {
+  display: flex;
+  justify-content: center; /* Center the massive box container horizontally */
+  width: 100%; /* Ensure it takes the full width */
 }
 
 .massive-box {
   height: 300px;
   background-color: #f0f0f0;
   margin-top: 10px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  width: 100%; /* Ensure the box takes the full width */
+  max-width: 950px; /* Limit the maximum width */
 }
 
-.buttons {
-  margin-top: 20px;
-  display: flex;
-  gap: 10px;
+/* Media Queries for Responsive Design */
+@media (max-width: 1200px) {
+  .box {
+    max-width: 300px; /* Adjust the width for medium screens */
+  }
+}
+
+@media (max-width: 768px) {
+  .box {
+    max-width: 100%; /* Full width for small screens */
+  }
+  .content-container {
+    padding-left: 10px; /* Reduce padding on smaller screens */
+  }
+}
+
+@media (max-width: 480px) {
+  .box {
+    max-width: 80%; /* Full width for extra small screens */
+  }
+  .content-container {
+    padding-left: 5px; /* Further reduce padding for very small screens */
+  }
 }
