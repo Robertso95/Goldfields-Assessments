@@ -9,14 +9,15 @@
   padding: 20px;
 }
 
-/* Style the form */
-.create-assignment-form {
+/* Style the form container */
+.form-container {
   background-color: #fff;
   padding: 20px;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   width: 100%;
   max-width: 600px;
+  box-sizing: border-box;
 }
 
 /* Style form items */
@@ -40,8 +41,19 @@
 }
 
 /* Style the text area */
-.create-assignment-form .ant-input-textarea {
-  resize: none;
+.description-editor .ql-container {
+  height: 150px; /* Fixed height */
+  transition: height 0.3s ease;
+}
+
+/* Style the modal text area */
+.description-editor-modal {
+  height: 100%; /* Full height in modal */
+}
+
+.description-editor-modal .ql-container {
+  height: 100%; /* Full height in modal */
+  overflow-y: auto; /* Allow scrolling */
 }
 
 /* Style the title */
@@ -51,9 +63,33 @@
   color: #333;
 }
 
-/* Style the dummy data */
-.create-assignment-container p {
-  font-size: 1.2em;
-  margin-bottom: 20px;
-  color: #666;
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .form-container {
+    padding: 15px;
+    max-width: 90%;
+  }
+
+  .create-assignment-container h1 {
+    font-size: 1.5em;
+  }
+
+  .description-editor .ql-container {
+    height: 120px; /* Adjust height for smaller screens */
+  }
+}
+
+@media (max-width: 480px) {
+  .form-container {
+    padding: 10px;
+    max-width: 100%;
+  }
+
+  .create-assignment-container h1 {
+    font-size: 1.2em;
+  }
+
+  .description-editor .ql-container {
+    height: 100px; /* Adjust height for smaller screens */
+  }
 }

@@ -28,7 +28,7 @@ app.use('/api/stories', storyRoutes);
 app.use('/api/classes', classRoutes);
 app.use('/api/tags', tagRoutes);
 app.use('/api/images', homeRoutes);
-app.use('/api', assignmentRoutes);
+app.use('/api', assignmentRoutes); //Sprint 1
 
 /**
  * New Route added for user routes

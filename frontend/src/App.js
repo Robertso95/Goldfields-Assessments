@@ -25,8 +25,8 @@ import InviteParent from "./pages/inviteParent";
 import ChangePassword from './pages/changePassword';
 
 import Assessments from './pages/Assessments'; // Sprint 1
-import CreateAssignment from './pages/CreateAssignment'; // 
-import ViewAssignments from './pages/ViewAssignments'; // 
+import CreateAssignment from './pages/CreateAssignment'; // Sprint 1
+import ViewAssignments from './pages/ViewAssignments'; // Sprint 1
 
 
 function App() {
@@ -118,9 +118,9 @@ function App() {
                 <Route path="/change_password" element={<ChangePassword />} />
                 <Route path="/class/:classId/student/:studentId" element={<StudentDetail />} />
 
-                <Route path="/assessments" element={<Assessments />} /> {/* New Route */}
-                <Route path="/create-assignment" element={<CreateAssignment />} /> {/* New Route */}
-                <Route path="/view-assignments" element={<ViewAssignments />} /> {/* New Route */}
+                <Route path="/assessments" element={<Assessments />} /> {/* New Route Sprint 1*/}
+                <Route path="/create-assignment" element={<CreateAssignment />} /> {/* New Route Sprint 1*/}
+                <Route path="/view-assignments" element={<ViewAssignments />} /> {/* New Route Sprint 1*/}
                
                 
 

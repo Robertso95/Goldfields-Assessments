@@ -1,4 +1,4 @@
-// backend/routes/assignmentRoutes.js
+//Sprint 1
 const express = require('express');
 const router = express.Router();
 const assignmentController = require('../controllers/assignmentController');

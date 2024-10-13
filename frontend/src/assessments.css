@@ -1,14 +1,16 @@
 .container {
   display: flex;
   margin-top: 60px; /* Space below the navbar */
+  flex-wrap: nowrap; /* Prevent wrapping */
 }
 
 .sidebar {
-  width: 200px;
+  width: 220px; /* Fixed width for larger screens */
   background-color: #f4f4f4;
   padding: 20px;
   box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
   flex-shrink: 0; /* Prevent the sidebar from shrinking */
+  height: 120vh; /* Full viewport height */
 }
 
 .sidebar h2 {
@@ -32,11 +34,11 @@
 
 .main-content {
   flex-grow: 1;
-  padding: 20px;
+  padding: 40px; /* Increased padding for main content */
 }
 
 .content-container {
-  padding-left: 20px; /* Adjust to align with the first box */
+  padding-left: 20px; /* Align with the first box */
   max-width: 960px; /* Set a maximum width */
   margin: 0 auto; /* Center content */
 }
@@ -60,53 +62,89 @@
 
 .boxes-container {
   display: flex;
-  justify-content: center; /* Center the boxes container horizontally */
-  width: 100%; /* Ensure it takes the full width */
+  justify-content: center; /* Center the boxes container */
+  width: 100%; /* Full width */
 }
 
 .boxes {
   display: flex;
-  flex-wrap: wrap; /* Allow boxes to wrap to the next line */
-  justify-content: center; /* Center the boxes within the container */
+  flex-wrap: wrap; /* Allow boxes to wrap */
+  justify-content: center; /* Center boxes within the container */
 }
 
 .box {
   flex: 2;
   padding: 0.1px;
-  margin: 20px; /* Add margin to create space between boxes */
+  margin: 20px; /* Space between boxes */
   background-color: #FFFFFF;
   text-align: center;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  max-width: 450px; /* Adjust the width as needed */
+  max-width: 450px; /* Width for larger screens */
 }
 
 .students-title {
   margin-top: 30px;
   font-size: 24px;
-  width: 100%; /* Ensure it takes the full width */
-  max-width: 1200px; /* Limit the maximum width */
-  text-align: left; /* Align text to the left */
+  width: 100%; /* Full width */
+  max-width: 1200px; /* Maximum width */
+  text-align: left; /* Left-align text */
 }
 
 .massive-box-container {
   display: flex;
-  justify-content: center; /* Center the massive box container horizontally */
-  width: 100%; /* Ensure it takes the full width */
+  justify-content: center; /* Center the massive box container */
+  width: 100%; /* Full width */
 }
 
 .massive-box {
-  height: 300px;
+  height: auto; /* Allow height to adjust based on content */
   background-color: #f0f0f0;
   margin-top: 10px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  width: 100%; /* Ensure the box takes the full width */
+  width: 100%; /* Full width */
   max-width: 950px; /* Limit the maximum width */
+  padding: 20px; /* Inner padding */
+  box-sizing: border-box; /* Include padding in width calculation */
+}
+
+/* Button styles */
+.green-button {
+  background-color: #28a745; /* Green */
+  color: white; /* White text */
+  border: none; /* No border */
+  padding: 10px 20px; /* Padding */
+  border-radius: 5px; /* Rounded corners */
+  cursor: pointer; /* Pointer cursor */
+  font-size: 10px; /* Font size */
+  transition: background-color 0.3s ease; /* Smooth hover effect */
+}
+
+.green-button:hover {
+  background-color: #218838; /* Darker green */
+}
+
+.red-button {
+  background-color: #dc3545; /* Red */
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s ease;
+}
+
+.red-button:hover {
+  background-color: #c82333; /* Darker red */
 }
 
 /* Media Queries for Responsive Design */
 @media (max-width: 1200px) {
   .box {
-    max-width: 300px; /* Adjust the width for medium screens */
+    max-width: 300px; /* Adjust width for medium screens */
+  }
+  .sidebar {
+    width: 150px; /* Reduce sidebar width */
   }
 }
 
@@ -115,7 +153,13 @@
     max-width: 100%; /* Full width for small screens */
   }
   .content-container {
-    padding-left: 10px; /* Reduce padding on smaller screens */
+    padding-left: 10px; /* Reduce padding */
+  }
+  .sidebar {
+    display: none; /* Hide sidebar on small screens */
+  }
+  .main-content {
+    padding: 20px; /* Reduce padding on main content for smaller screens */
   }
 }
 
@@ -124,6 +168,9 @@
     max-width: 80%; /* Full width for extra small screens */
   }
   .content-container {
-    padding-left: 5px; /* Further reduce padding for very small screens */
+    padding-left: 5px; /* Further reduce padding */
+  }
+  .massive-box {
+    padding: 10px; /* Reduce padding in massive box for smaller screens */
   }
 }
