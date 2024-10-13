@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Button, DatePicker, Form, Input, Select, Modal } from 'antd';
-import { Link } from 'react-router-dom';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import axios from 'axios';
@@ -11,10 +10,12 @@ const { TextArea } = Input;
 const CreateAssignment = () => {
   const [form] = Form.useForm();
   const [students] = useState([
-    { value: 'john_doe', label: 'John Doe' },
-    { value: 'jane_smith', label: 'Jane Smith' },
-    { value: 'alice_johnson', label: 'Alice Johnson' },
-    { value: 'bob_brown', label: 'Bob Brown' },
+    { value: 'Mia Hernandez', label: 'Mia Hernandez' },
+    { value: 'Emma Johnson', label: 'Emma Johnson' },
+    { value: 'Daniel Garcia', label: 'Daniel Garcia' },
+    { value: 'Ethan Wilson', label: 'Ethan Wilson' },
+    { value: 'Jamal Davis', label: 'Jamal Davis' },
+    { value: 'Noah William', label: 'Noah William' },
   ]);
   const [selectedStudents, setSelectedStudents] = useState([]);
   const [description, setDescription] = useState('');
@@ -59,6 +60,11 @@ const CreateAssignment = () => {
     setIsModalVisible(false);
   };
 
+  const handleDescriptionChange = (value) => {
+    setDescription(value);
+    form.setFieldsValue({ description: value }); // Sync with the form's description field
+  };
+
   return (
     <div className="create-assignment-container">
       <h1>Create Assignment</h1>
@@ -84,8 +90,7 @@ const CreateAssignment = () => {
             rules={[{ required: true, message: 'Please input the description!' }]}
           >
             <div>
-              <ReactQuill value={description} onChange={setDescription} className="description-editor" />
-              <Input type="hidden" value={description} />
+              <ReactQuill value={description} onChange={handleDescriptionChange} className="description-editor" />
               <Button type="link" onClick={showModal}>Expand</Button>
             </div>
           </Form.Item>
@@ -133,7 +138,7 @@ const CreateAssignment = () => {
         style={{ top: 20 }}
         bodyStyle={{ height: '70vh', overflowY: 'auto' }}
       >
-        <ReactQuill value={description} onChange={setDescription} className="description-editor-modal" />
+        <ReactQuill value={description} onChange={handleDescriptionChange} className="description-editor-modal" />
       </Modal>
     </div>
   );
