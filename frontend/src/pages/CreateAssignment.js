@@ -6,7 +6,7 @@ import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import axios from 'axios';
 import '../createAssignment.css';
-
+// eslint-disable-next-line
 const { TextArea } = Input;
 
 const CreateAssignment = () => {
