@@ -1,10 +1,9 @@
-// backend/controllers/assignmentController.js
 const Assignment = require('../models/assignmentModel');
 
 exports.createAssignment = async (req, res) => {
   try {
-    const { title, description, dueDate, className, studentName } = req.body;
-    const newAssignment = new Assignment({ title, description, dueDate, className, studentName });
+    const { title, description, dueDate, className, studentNames } = req.body; // Updated to studentNames
+    const newAssignment = new Assignment({ title, description, dueDate, className, studentNames }); // Updated to studentNames
     await newAssignment.save();
     res.status(201).json(newAssignment);
   } catch (error) {

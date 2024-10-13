@@ -1,34 +1,35 @@
-// CreateAssignment.js
 import React, { useState } from 'react';
-import '../assessments.css';
+import { Button, DatePicker, Form, Input, Select } from 'antd';
+import { Link } from 'react-router-dom';
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
+import axios from 'axios';
+import '../createAssignment.css';
+
+const { TextArea } = Input;
 
 const CreateAssignment = () => {
-  const [title, setTitle] = useState('');
+  const [form] = Form.useForm();
+  const [students] = useState([
+    { value: 'john_doe', label: 'John Doe' },
+    { value: 'jane_smith', label: 'Jane Smith' },
+    { value: 'alice_johnson', label: 'Alice Johnson' },
+    { value: 'bob_brown', label: 'Bob Brown' },
+  ]);
+  const [selectedStudents, setSelectedStudents] = useState([]);
   const [description, setDescription] = useState('');
-  const [dueDate, setDueDate] = useState('');
-  const [className, setClassName] = useState('');
-  const [studentName, setStudentName] = useState('');
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const newAssignment = { title, description, dueDate, className, studentName };
+  const handleSubmit = async (values) => {
+    const newAssignment = { ...values, studentNames: selectedStudents, description };
 
     try {
-      const response = await fetch('/api/assignments', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(newAssignment),
-      });
+      const response = await axios.post('/api/assignments', newAssignment);
 
-      if (response.ok) {
+      if (response.status === 201) {
         alert('Assignment created successfully!');
-        setTitle('');
+        form.resetFields();
+        setSelectedStudents([]);
         setDescription('');
-        setDueDate('');
-        setClassName('');
-        setStudentName('');
       } else {
         alert('Failed to create assignment.');
       }
@@ -37,56 +38,93 @@ const CreateAssignment = () => {
     }
   };
 
+  const handleStudentChange = (value) => {
+    if (value.includes('select_all')) {
+      if (selectedStudents.length === students.length) {
+        setSelectedStudents([]);
+      } else {
+        setSelectedStudents(students.map(student => student.value));
+      }
+    } else {
+      setSelectedStudents(value);
+    }
+  };
+
   return (
-    <div>
+    <div className="create-assignment-container">
       <h1>Create Assignment</h1>
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label>Title:</label>
-          <input
-            type="text"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            required
+      <p>Class: A1024</p>
+      <Form
+        form={form}
+        layout="vertical"
+        onFinish={handleSubmit}
+        className="create-assignment-form"
+        initialValues={{ className: 'A1024' }}
+      >
+        <Form.Item
+          label="Title"
+          name="title"
+          rules={[{ required: true, message: 'Please input the title!' }]}
+        >
+          <Input />
+        </Form.Item>
+        <Form.Item
+          label="Description"
+          name="description"
+          rules={[{ required: true, message: 'Please input the description!' }]}
+        >
+          <ReactQuill value={description} onChange={setDescription} />
+        </Form.Item>
+        {/* Removed Upload Feature */}
+        <Form.Item
+          label="Due Date"
+          name="dueDate"
+          rules={[{ required: true, message: 'Please select the due date!' }]}
+        >
+          <DatePicker />
+        </Form.Item>
+        <Form.Item
+          label="Class Name"
+          name="className"
+          rules={[{ required: true, message: 'Please input the class name!' }]}
+        >
+          <Input />
+        </Form.Item>
+        <Form.Item
+          label="Student Name"
+          name="studentName"
+          rules={[{ required: true, message: 'Please select at least one student!' }]}
+        >
+          <Select
+            mode="multiple"
+            showSearch
+            style={{ width: '100%' }}
+            placeholder="Select students"
+            optionFilterProp="label"
+            filterSort={(optionA, optionB) =>
+              (optionA?.label ?? '').toLowerCase().localeCompare((optionB?.label ?? '').toLowerCase())
+            }
+            options={[
+              { value: 'select_all', label: 'Select All' },
+              ...students
+            ]}
+            value={selectedStudents}
+            onChange={handleStudentChange}
           />
-        </div>
-        <div>
-          <label>Description:</label>
-          <textarea
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            required
-          />
-        </div>
-        <div>
-          <label>Due Date:</label>
-          <input
-            type="date"
-            value={dueDate}
-            onChange={(e) => setDueDate(e.target.value)}
-            required
-          />
-        </div>
-        <div>
-          <label>Class Name:</label>
-          <input
-            type="text"
-            value={className}
-            onChange={(e) => setClassName(e.target.value)}
-            required
-          />
-        </div>
-        <div>
-          <label>Student Name:</label>
-          <input
-            type="text"
-            value={studentName}
-            onChange={(e) => setStudentName(e.target.value)}
-            required
-          />
-        </div>
-        <button type="submit">Create Assignment</button>
-      </form>
+        </Form.Item>
+        <Form.Item>
+          <Button type="primary" htmlType="submit">
+            Create Assignment
+          </Button>
+        </Form.Item>
+        <Form.Item>
+          <Link to="/assessments">
+            <Button type="default">
+              Return 
+            </Button>
+          </Link>
+        </Form.Item>
+      </Form>
     </div>
   );
 };
