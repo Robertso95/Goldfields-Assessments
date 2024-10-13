@@ -108,8 +108,8 @@
 }
 
 /* Button styles */
-.green-button {
-  background-color: #28a745; /* Green */
+.blue-button {
+  background-color: #007bff; /* Green */
   color: white; /* White text */
   border: none; /* No border */
   padding: 10px 20px; /* Padding */
@@ -119,7 +119,7 @@
   transition: background-color 0.3s ease; /* Smooth hover effect */
 }
 
-.green-button:hover {
+.blue-button:hover {
   background-color: #218838; /* Darker green */
 }
 
@@ -161,6 +161,7 @@
   .main-content {
     padding: 20px; /* Reduce padding on main content for smaller screens */
   }
+  
 }
 
 @media (max-width: 480px) {
@@ -168,7 +169,7 @@
     max-width: 80%; /* Full width for extra small screens */
   }
   .content-container {
-    padding-left: 5px; /* Further reduce padding */
+    padding-left: 10px; /* Further reduce padding */
   }
   .massive-box {
     padding: 10px; /* Reduce padding in massive box for smaller screens */

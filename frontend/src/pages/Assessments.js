@@ -82,8 +82,8 @@ const columns = [
     key: 'action',
     render: (_, record) => (
       <Space size="middle">
-        <button className="green-button">Edit</button>
-        <button className="green-button">View</button>
+        <button className="blue-button">Edit</button>
+        <button className="blue-button">View</button>
       </Space>
     ),
   },
