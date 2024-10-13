@@ -1,0 +1,95 @@
+/* Center the form on the page */
+.create-assignment-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: #f9f9f9;
+  padding: 20px;
+}
+
+/* Style the form container */
+.form-container {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 600px;
+  box-sizing: border-box;
+}
+
+/* Style form items */
+.ant-form-item {
+  margin-bottom: 16px;
+}
+
+/* Style the form labels */
+.ant-form-item-label > label {
+  font-weight: bold;
+}
+
+/* Style the submit button */
+.create-assignment-form .ant-btn-primary {
+  width: 100%;
+}
+
+/* Add some spacing between the form items */
+.create-assignment-form .ant-form-item {
+  margin-bottom: 24px;
+}
+
+/* Style the text area */
+.description-editor .ql-container {
+  height: 150px; /* Fixed height */
+  transition: height 0.3s ease;
+}
+
+/* Style the modal text area */
+.description-editor-modal {
+  height: 100%; /* Full height in modal */
+}
+
+.description-editor-modal .ql-container {
+  height: 100%; /* Full height in modal */
+  overflow-y: auto; /* Allow scrolling */
+}
+
+/* Style the title */
+.create-assignment-container h1 {
+  font-size: 2em;
+  margin-bottom: 10px;
+  color: #333;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .form-container {
+    padding: 15px;
+    max-width: 90%;
+  }
+
+  .create-assignment-container h1 {
+    font-size: 1.5em;
+  }
+
+  .description-editor .ql-container {
+    height: 120px; /* Adjust height for smaller screens */
+  }
+}
+
+@media (max-width: 480px) {
+  .form-container {
+    padding: 10px;
+    max-width: 100%;
+  }
+
+  .create-assignment-container h1 {
+    font-size: 1.2em;
+  }
+
+  .description-editor .ql-container {
+    height: 100px; /* Adjust height for smaller screens */
+  }
+}
