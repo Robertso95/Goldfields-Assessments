@@ -1,0 +1,59 @@
+/* Center the form on the page */
+.create-assignment-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: #f9f9f9;
+  padding: 20px;
+}
+
+/* Style the form */
+.create-assignment-form {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 600px;
+}
+
+/* Style form items */
+.ant-form-item {
+  margin-bottom: 16px;
+}
+
+/* Style the form labels */
+.ant-form-item-label > label {
+  font-weight: bold;
+}
+
+/* Style the submit button */
+.create-assignment-form .ant-btn-primary {
+  width: 100%;
+}
+
+/* Add some spacing between the form items */
+.create-assignment-form .ant-form-item {
+  margin-bottom: 24px;
+}
+
+/* Style the text area */
+.create-assignment-form .ant-input-textarea {
+  resize: none;
+}
+
+/* Style the title */
+.create-assignment-container h1 {
+  font-size: 2em;
+  margin-bottom: 10px;
+  color: #333;
+}
+
+/* Style the dummy data */
+.create-assignment-container p {
+  font-size: 1.2em;
+  margin-bottom: 20px;
+  color: #666;
+}

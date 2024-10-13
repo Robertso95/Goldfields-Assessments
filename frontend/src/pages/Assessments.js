@@ -34,7 +34,7 @@ const Assessments = () => {
       <div class="content-container">
   <div class="dummy-data">
     <p>Hello, M. Smith</p>
-    <p>Goldfields School</p>
+    <p>Goldfields School 01/01/2025</p>
   </div>
   <hr class="divider" />
 </div>

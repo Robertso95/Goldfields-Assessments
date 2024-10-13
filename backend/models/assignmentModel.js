@@ -1,4 +1,3 @@
-// backend/models/assignmentModel.js
 const mongoose = require('mongoose');
 
 const assignmentSchema = new mongoose.Schema({
@@ -21,8 +20,9 @@ const assignmentSchema = new mongoose.Schema({
   className: {
     type: String,
   },
-  studentName: {
-    type: String,
+  studentNames: { // Updated field to handle multiple students
+    type: [String],
+    required: true,
   },
   createdAt: {
     type: Date,
