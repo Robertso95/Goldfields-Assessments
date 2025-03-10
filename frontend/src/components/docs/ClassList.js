@@ -15,10 +15,19 @@ const ClassList = () => {
     });
   };
 
-  // Get the formatted classes
+  // Get the formatted classes - Sprint 2
   const formattedClasses = formatClasses(classes);
 
-  return formattedClasses;
+  return (
+    <div>
+      {formattedClasses.map((classItem, index) => (
+        <div key={index}>
+          <h3>{classItem.label}</h3>
+          <p>{classItem.value}</p>
+        </div>
+      ))}
+    </div>
+  );
 };
 
 export default ClassList;
