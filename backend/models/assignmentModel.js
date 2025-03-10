@@ -6,11 +6,11 @@ const assignmentSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     auto: true,
   },
-  title: {
+  subject: {
     type: String,
     required: true,
   },
-  description: {
+  assignment: {
     type: String,
     required: true,
   },
@@ -21,7 +21,7 @@ const assignmentSchema = new mongoose.Schema({
   className: {
     type: String,
   },
-  studentNames: { // Updated field to handle multiple students
+  studentNames: {
     type: [String],
     required: true,
   },

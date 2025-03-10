@@ -1,13 +1,11 @@
-//sprint 1
-
-import React, { useState } from 'react';
-import { Button, DatePicker, Form, Input, Select, Modal } from 'antd';
+import React, { useState, useEffect } from 'react';
+import { Button, DatePicker, Form, Select, Modal } from 'antd';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import axios from 'axios';
 import '../createAssignment.css';
-// eslint-disable-next-line
-const { TextArea } = Input;
+
+const { Option } = Select;
 
 const CreateAssignment = () => {
   const [form] = Form.useForm();
@@ -22,6 +20,24 @@ const CreateAssignment = () => {
   const [selectedStudents, setSelectedStudents] = useState([]);
   const [description, setDescription] = useState('');
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [learningSet, setLearningSet] = useState([]);
+
+  // Fetch assignment titles from MongoDB
+  useEffect(() => {
+    const fetchTitles = async () => {
+      try {
+        const response = await axios.get('/api/learningsets'); // Adjust API endpoint
+        if (response.status === 200) {
+          setLearningSet(response.data); // Assuming response.data is an array of titles
+          console.log(response.data);
+        }
+      } catch (error) {
+        console.error('Error fetching assignment titles:', error);
+      }
+    };
+
+    fetchTitles();
+  }, []);
 
   const handleSubmit = async (values) => {
     const newAssignment = { ...values, studentNames: selectedStudents, description };
@@ -50,21 +66,9 @@ const CreateAssignment = () => {
     }
   };
 
-  const showModal = () => {
-    setIsModalVisible(true);
-  };
-
-  const handleOk = () => {
-    setIsModalVisible(false);
-  };
-
-  const handleCancel = () => {
-    setIsModalVisible(false);
-  };
-
   const handleDescriptionChange = (value) => {
     setDescription(value);
-    form.setFieldsValue({ description: value }); // Sync with the form's description field
+    form.setFieldsValue({ description: value });
   };
 
   return (
@@ -79,23 +83,35 @@ const CreateAssignment = () => {
           className="create-assignment-form"
           initialValues={{ className: 'A1024' }}
         >
+
           <Form.Item
-            label="Title"
-            name="title"
-            rules={[{ required: true, message: 'Please input the title!' }]}
+            label="Subject"
+            name="subject"
+            rules={[{ required: true, message: 'Please select the title!' }]}
           >
-            <Input />
+            <Select placeholder="Select a subject">
+              {learningSet.map((subject) => 
+                <Option key={subject._id} value={subject._id}>
+                  {subject.name}
+                </Option>
+              )}
+            </Select>
           </Form.Item>
+
           <Form.Item
-            label="Description"
-            name="description"
-            rules={[{ required: true, message: 'Please input the description!' }]}
+            label="Assignment"
+            name="assignment"
+            rules={[{ required: true, message: 'Please select an assignemnt' }]}
           >
-            <div>
-              <ReactQuill value={description} onChange={handleDescriptionChange} className="description-editor" />
-              <Button type="link" onClick={showModal}>Expand</Button>
-            </div>
+            <Select placeholder="Select an assignment">
+              {learningSet.map((assignment) => (
+                <Option key={assignment} value={assignment}>
+                  {assignment}
+                </Option>
+              ))}
+            </Select>
           </Form.Item>
+
           <Form.Item
             label="Due Date"
             name="dueDate"
@@ -103,13 +119,17 @@ const CreateAssignment = () => {
           >
             <DatePicker />
           </Form.Item>
+
           <Form.Item
             label="Class Name"
             name="className"
             rules={[{ required: true, message: 'Please input the class name!' }]}
           >
-            <Input disabled />
+            <Select disabled defaultValue="A1024">
+              <Option value="A1024">A1024</Option>
+            </Select>
           </Form.Item>
+
           <Form.Item
             label="Student Name"
             name="studentName"
@@ -123,6 +143,7 @@ const CreateAssignment = () => {
               options={[{ value: 'select_all', label: 'Select All' }, ...students]}
             />
           </Form.Item>
+
           <Form.Item>
             <Button type="primary" htmlType="submit">
               Submit
@@ -131,11 +152,12 @@ const CreateAssignment = () => {
         </Form>
       </div>
 
+      {/* Description Modal */}
       <Modal
         title="Edit Description"
-        visible={isModalVisible}
-        onOk={handleOk}
-        onCancel={handleCancel}
+        open={isModalVisible}
+        onOk={() => setIsModalVisible(false)}
+        onCancel={() => setIsModalVisible(false)}
         width="80%"
         style={{ top: 20 }}
         bodyStyle={{ height: '70vh', overflowY: 'auto' }}
