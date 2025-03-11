@@ -132,7 +132,7 @@ const transferStudent = async (req, res) => {
   }
 };
 
-// Update a student in a class
+//Update a student in a class
 const updateStudent = async (req, res) => {
   const { classId, studentId } = req.params;
   const updatedInfo = req.body; // updatedInfo might include a new image URL
@@ -156,6 +156,51 @@ const updateStudent = async (req, res) => {
     await classToUpdate.save();
 
     res.status(200).json(classToUpdate.students[studentIndex]);
+  } catch (error) {
+    console.error(error);
+    res.status(400).json({ error: error.message });
+  }
+};
+//update student Assignment
+const  updateStudentAssessment = async (req, res) => {
+  const { classId, studentId } = req.params;
+  const updatedInfo = req.body;
+
+  if (!mongoose.Types.ObjectId.isValid(classId) || !mongoose.Types.ObjectId.isValid(studentId)) {
+    return res.status(404).json({ error: "Invalid class or student ID" });
+  }
+
+  try {
+    console.log("Updating student with data:", updatedInfo); // Debug log
+
+    // Use findOneAndUpdate with the $set operator to update specific fields
+    const result = await Class.findOneAndUpdate(
+      { 
+        "_id": classId,
+        "students._id": studentId 
+      },
+      { 
+        "$set": {
+          "students.$.assessmentType": updatedInfo.assessmentType,
+          "students.$.term": updatedInfo.term,
+          //"students.$.term": updatedInfo.dueDate,
+          "students.$.tags": updatedInfo.tags
+        }
+      },
+      { new: true }
+    );
+
+    if (!result) {
+      return res.status(404).json({ error: "Student or class not found" });
+    }
+
+    // Find the updated student in the result
+    const updatedStudent = result.students.find(
+      student => student._id.toString() === studentId
+    );
+
+    console.log("Updated student:", updatedStudent); // Debug log
+    res.status(200).json(updatedStudent);
   } catch (error) {
     console.error(error);
     res.status(400).json({ error: error.message });
@@ -249,6 +294,7 @@ module.exports = {
   addStudent,
   transferStudent,
   updateStudent,
+  updateStudentAssessment,
   deleteStudent,
   getStudentInClass,
   getStudentList
