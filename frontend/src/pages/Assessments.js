@@ -127,7 +127,6 @@ const data = [
   {
     key: "4",
     id: "6645c95cb3397acd3b1ff9a5",
-
     fullName: "Ethan Wilson",
     class: "A1024",
     term: "Term 3",
@@ -137,7 +136,6 @@ const data = [
   {
     key: "5",
     id: "65ee5669bf2de1b6c141dc65",
-
     fullName: "Jamal Davis",
     class: "A1024",
     term: "Term 2",
