@@ -1,73 +1,80 @@
-import React from 'react';
-import { Space, Table, Tag, Carousel } from 'antd';
-import { Link } from 'react-router-dom';
-import '../assessments.css';
+import React from "react";
+import { Space, Table, Tag, Carousel } from "antd";
+import { Link } from "react-router-dom";
+import "../assessments.css";
 
 const columns = [
   {
-    title: 'Full Name',
-    dataIndex: 'fullName',
-    key: 'fullName',
+    title: "Full Name",
+    dataIndex: "fullName",
+    key: "fullName",
     // eslint-disable-next-line
-    render: (text) => <a href="#">{text}</a>,
+    render: (text) =>
+      data.map((d, v) =>
+        d.fullName === text ? (
+          <a key={v} href={`/class/65ee29cee4bdbe9194506bf7/student/${d.id}`}>{text}</a>
+        ) : (
+          ""
+        )
+      ),
   },
   {
-    title: 'Class',
-    dataIndex: 'class',
-    key: 'class',
+    title: "Class",
+    dataIndex: "class",
+    key: "class",
   },
   {
-    title: 'Term',
-    dataIndex: 'term',
-    key: 'term',
+    title: "Term",
+    dataIndex: "term",
+    key: "term",
   },
   {
-    title: 'Assessment Type',
-    dataIndex: 'assessmentType',
-    key: 'assessmentType',
+    title: "Assessment Type",
+    dataIndex: "assessmentType",
+    key: "assessmentType",
   },
   {
-    title: 'Tags',
-    key: 'tags',
-    dataIndex: 'tags',
+    title: "Tags",
+    key: "tags",
+    dataIndex: "tags",
     render: (_, { tags }) => (
       <>
         {tags.map((tag) => {
           let color;
-          
+
           // Assign different colors based on tag values
           switch (tag.toLowerCase()) {
-            case 'hardworking':
-              color = 'green';
+            case "hardworking":
+              color = "green";
               break;
-            case 'dedicated':
-              color = 'blue';
+            case "dedicated":
+              color = "blue";
               break;
-            case 'focused':
-              color = 'orange';
+            case "focused":
+              color = "orange";
               break;
-            case 'creative':
-              color = 'purple';
+            case "creative":
+              color = "purple";
               break;
-            case 'team player':
-              color = 'cyan';
+            case "team player":
+              color = "cyan";
               break;
-            case 'determined':
-              color = 'gold';
+            case "determined":
+              color = "gold";
               break;
-            case 'improving':
-              color = 'lime';
+            case "improving":
+              color = "lime";
               break;
-            case 'brilliant':
-              color = 'geekblue';
+            case "brilliant":
+              color = "geekblue";
               break;
-            case 'leadership':
-              color = 'red';
+            case "leadership":
+              color = "red";
               break;
             default:
-              color = tag.length > 5 ? 'geekblue' : 'green'; // Default color based on length
+              color = tag.length > 5 ? "geekblue" : "green"; // Default color based on length
           }
-  
+
           return (
             <Tag color={color} key={tag}>
               {tag.toUpperCase()}
@@ -78,8 +85,8 @@ const columns = [
     ),
   },
   {
-    title: 'Actions',
-    key: 'action',
+    title: "Actions",
+    key: "action",
     render: (_, record) => (
       <Space size="middle">
         <button className="blue-button">Edit</button>
@@ -89,67 +96,74 @@ const columns = [
   },
 ];
 
-
 const data = [
   {
-    key: '1',
-    fullName: 'Mia Hernandez',
-    class: 'A1024',
-    term: 'Term 1',
-    assessmentType: 'Mid-term Exam',
-    tags: ['hardworking', 'dedicated'],
+    key: "1",
+    fullName: "Mia Hernandez",
+    id: "6635b4a94abc29e9d174a12b",
+    class: "A1024",
+    term: "Term 1",
+    assessmentType: "Mid-term Exam",
+    tags: ["hardworking", "dedicated"],
   },
   {
-    key: '2',
-    fullName: 'Emma Johnson',
-    class: 'A1024',
-    term: 'Term 2',
-    assessmentType: 'Final Exam',
-    tags: ['focused'],
+    key: "2",
+    id: "6635b4a94abc29e9d174a12b",
+    fullName: "Emma Johnson",
+    class: "A1024",
+    term: "Term 2",
+    assessmentType: "Final Exam",
+    tags: ["focused"],
   },
   {
-    key: '3',
-    fullName: 'Daniel Garcia',
-    class: 'A1024',
-    term: 'Term 1',
-    assessmentType: 'Quiz',
-    tags: ['excellent', 'consistent'],
+    key: "3",
+    id: "6635b4a94abc29e9d174a12b",
+
+    fullName: "Daniel Garcia",
+    class: "A1024",
+    term: "Term 1",
+    assessmentType: "Quiz",
+    tags: ["excellent", "consistent"],
   },
   {
-    key: '4',
-    fullName: 'Ethan Wilson',
-    class: 'A1024',
-    term: 'Term 3',
-    assessmentType: 'Project Presentation',
-    tags: ['creative', 'team player'],
+    key: "4",
+    id: "6635b4a94abc29e9d174a12b",
+
+    fullName: "Ethan Wilson",
+    class: "A1024",
+    term: "Term 3",
+    assessmentType: "Project Presentation",
+    tags: ["creative", "team player"],
   },
   {
-    key: '5',
-    fullName: 'Jamal Davis',
-    class: 'A1024',
-    term: 'Term 2',
-    assessmentType: 'Mid-term Exam',
-    tags: ['determined', 'improving'],
+    key: "5",
+    id: "6635b4a94abc29e9d174a12b",
+
+    fullName: "Jamal Davis",
+    class: "A1024",
+    term: "Term 2",
+    assessmentType: "Mid-term Exam",
+    tags: ["determined", "improving"],
   },
   {
-    key: '6',
-    fullName: 'Noah Williams',
-    class: 'A1024',
-    term: 'Term 1',
-    assessmentType: 'Final Exam',
-    tags: ['brilliant', 'leadership'],
+    key: "6",
+    id: "6635b4a94abc29e9d174a12b",
+
+    fullName: "Noah Williams",
+    class: "A1024",
+    term: "Term 1",
+    assessmentType: "Final Exam",
+    tags: ["brilliant", "leadership"],
   },
 ];
 
-
-
 const contentStyle = {
   margin: 0,
-  height: '200px',
-  color: '#fff',
-  lineHeight: '200px',
-  textAlign: 'center',
-  background: '#007bff',
+  height: "200px",
+  color: "#fff",
+  lineHeight: "200px",
+  textAlign: "center",
+  background: "#007bff",
 };
 
 const Assessments = () => (
