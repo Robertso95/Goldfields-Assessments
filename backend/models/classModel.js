@@ -24,6 +24,19 @@ const studentSchema = new mongoose.Schema({
   image: {
     type: String, 
   },
+  // Add these fields
+  assessmentType: {
+    type: String,
+    default: ''
+  },
+  term: {
+    type: String,
+    default: 'Term 1'
+  },
+  tags: {
+    type: [String],
+    default: ['hardworking']
+  }
 });
 
 const classSchema = new mongoose.Schema({

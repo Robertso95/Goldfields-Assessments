@@ -14,6 +14,7 @@ const Assessments = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingStudent, setEditingStudent] = useState(null);
   const [form] = Form.useForm();
+  
 
   useEffect(() => {
     const fetchClasses = async () => {
@@ -88,33 +89,57 @@ const Assessments = () => {
   const handleSave = async () => {
     try {
       const values = await form.validateFields();
+      
+      // Make sure assignments is available
+      if (!assignments || assignments.length === 0) {
+        console.error('No assignments available');
+      }
+      
+      console.log('Form values:', values); // Debug log
+      console.log('Selected class ID:', selectedClass._id);
+      console.log('Editing student ID:', editingStudent._id);
+      
       const updatedStudent = {
-        ...editingStudent,
-        ...values,
-        tags: values.tags.split(',').map(tag => tag.trim())
+        firstName: editingStudent.firstName,
+        lastName: editingStudent.lastName,
+        assessmentType: values.assessmentType,  // Make sure this is set correctly
+        term: values.term,
+        tags: values.tags ? values.tags.split(',').map(tag => tag.trim()) : ['hardworking']
       };
-
+      
+      console.log('Sending updated student data:', updatedStudent); // Debug log
+  
       const response = await fetch(`/api/classes/${selectedClass._id}/students/${editingStudent._id}`, {
-        method: 'PUT',
+        method: 'PATCH', // Changed from PUT to PATCH
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(updatedStudent),
       });
-
+  
       if (!response.ok) {
+        const errorData = await response.text();
+        console.error('Error response:', errorData);
         throw new Error('Failed to update student');
       }
-
-      // Update the student in the local state
+  
+      const updatedStudentData = await response.json();
+      console.log('Received updated student data:', updatedStudentData); // Debug log
+  
+      // Update the students list with the new data
       setStudents(prevStudents =>
         prevStudents.map(student =>
           student._id === editingStudent._id
-            ? { ...student, ...updatedStudent }
+            ? {
+                ...student,
+                ...updatedStudentData,
+                fullName: `${updatedStudentData.firstName} ${updatedStudentData.lastName}`,
+                assessmentType: updatedStudentData.assessmentType // Ensure assessment type is included
+              }
             : student
         )
       );
-
+  
       setIsModalVisible(false);
       setEditingStudent(null);
       form.resetFields();
@@ -311,6 +336,13 @@ const Assessments = () => {
                 </Option>
               ))}
             </Select>
+          </Form.Item>
+          <Form.Item 
+            name="Due Date" 
+            label="Due Date" 
+            rules={[{ required: true, message: 'Please enter the Date' }]}
+          >
+            <Input />
           </Form.Item>
           <Form.Item 
             name="tags" 
