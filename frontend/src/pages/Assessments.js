@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Space, Table, Tag, Carousel, Select } from 'antd';
+import { Space, Table, Tag, Carousel, Select, Modal, Form, Input, Button } from 'antd';
 import { Link } from 'react-router-dom';
 import '../assessments.css';
 
@@ -9,12 +9,16 @@ const Assessments = () => {
   const [classes, setClasses] = useState([]);
   const [selectedClass, setSelectedClass] = useState(null);
   const [students, setStudents] = useState([]);
+  const [assignments, setAssignments] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [editingStudent, setEditingStudent] = useState(null);
+  const [form] = Form.useForm();
 
   useEffect(() => {
     const fetchClasses = async () => {
       try {
-        const response = await fetch('/api/classes'); // Replace with your API endpoint
+        const response = await fetch('/api/classes');
         const data = await response.json();
         setClasses(data);
         setLoading(false);
@@ -24,20 +28,98 @@ const Assessments = () => {
       }
     };
 
+    const fetchAssignments = async () => {
+      try {
+        const response = await fetch('/api/assignments');
+        const data = await response.json();
+        setAssignments(data);
+      } catch (error) {
+        console.error('Error fetching assignments:', error);
+      }
+    };
+
     fetchClasses();
+    fetchAssignments();
   }, []);
 
   const handleClassChange = async (classId) => {
     setLoading(true);
     try {
-      const response = await fetch(`/api/classes/${classId}`); // Replace with your API endpoint
+      const response = await fetch(`/api/classes/${classId}`);
       const data = await response.json();
       setSelectedClass(data);
-      setStudents(data.students || []); // Ensure students is an array
+      // Map the students data to include all necessary fields
+      const mappedStudents = data.students.map(student => ({
+        ...student,
+        key: student._id,
+        fullName: `${student.firstName} ${student.lastName}`,
+        class: data.className,
+        term: student.term || 'Term 1',
+        assessmentType: student.assessmentType || '',
+        tags: student.tags || ['hardworking']
+      }));
+      setStudents(mappedStudents);
       setLoading(false);
     } catch (error) {
       console.error('Error fetching class data:', error);
       setLoading(false);
+    }
+  };
+
+  const handleEdit = (record) => {
+    console.log('Editing student:', record); // Debug log
+    setEditingStudent(record);
+    form.setFieldsValue({
+      firstName: record.firstName,
+      lastName: record.lastName,
+      term: record.term || 'Term 1',
+      assessmentType: record.assessmentType || '',
+      tags: record.tags ? record.tags.join(', ') : ''
+    });
+    setIsModalVisible(true);
+  };
+
+  const handleCancel = () => {
+    setIsModalVisible(false);
+    setEditingStudent(null);
+    form.resetFields();
+  };
+
+  const handleSave = async () => {
+    try {
+      const values = await form.validateFields();
+      const updatedStudent = {
+        ...editingStudent,
+        ...values,
+        tags: values.tags.split(',').map(tag => tag.trim())
+      };
+
+      const response = await fetch(`/api/classes/${selectedClass._id}/students/${editingStudent._id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updatedStudent),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update student');
+      }
+
+      // Update the student in the local state
+      setStudents(prevStudents =>
+        prevStudents.map(student =>
+          student._id === editingStudent._id
+            ? { ...student, ...updatedStudent }
+            : student
+        )
+      );
+
+      setIsModalVisible(false);
+      setEditingStudent(null);
+      form.resetFields();
+    } catch (error) {
+      console.error('Error saving student:', error);
     }
   };
 
@@ -46,7 +128,7 @@ const Assessments = () => {
       title: 'Full Name',
       dataIndex: 'fullName',
       key: 'fullName',
-      render: (text) => <a href="#">{text}</a>,
+      render: (text, record) => <a onClick={() => handleEdit(record)}>{text}</a>,
     },
     {
       title: 'Class',
@@ -67,42 +149,10 @@ const Assessments = () => {
       title: 'Tags',
       key: 'tags',
       dataIndex: 'tags',
-      render: (_, { tags }) => (
+      render: (tags) => (
         <>
           {tags.map((tag) => {
-            let color;
-            switch (tag.toLowerCase()) {
-              case 'hardworking':
-                color = 'green';
-                break;
-              case 'dedicated':
-                color = 'blue';
-                break;
-              case 'focused':
-                color = 'orange';
-                break;
-              case 'creative':
-                color = 'purple';
-                break;
-              case 'team player':
-                color = 'cyan';
-                break;
-              case 'determined':
-                color = 'gold';
-                break;
-              case 'improving':
-                color = 'lime';
-                break;
-              case 'brilliant':
-                color = 'geekblue';
-                break;
-              case 'leadership':
-                color = 'red';
-                break;
-              default:
-                color = tag.length > 5 ? 'geekblue' : 'green';
-            }
-
+            let color = 'green';
             return (
               <Tag color={color} key={tag}>
                 {tag.toUpperCase()}
@@ -117,21 +167,12 @@ const Assessments = () => {
       key: 'action',
       render: (_, record) => (
         <Space size="middle">
-          <button className="blue-button">Edit</button>
+          <button className="blue-button" onClick={() => handleEdit(record)}>Edit</button>
           <button className="blue-button">View</button>
         </Space>
       ),
     },
   ];
-
-  const data = students.map((student, index) => ({
-    key: index + 1,
-    fullName: `${student.firstName} ${student.lastName}`,
-    class: selectedClass ? selectedClass.className : '',
-    term: 'Term 1', // Dummy data
-    assessmentType: 'Mid-term Exam', // Dummy data
-    tags: ['hardworking', 'dedicated'], // Dummy data
-  }));
 
   const contentStyle = {
     margin: 0,
@@ -216,11 +257,70 @@ const Assessments = () => {
           <h2 className="students-title">Students</h2>
           <div className="massive-box-container">
             <div className="massive-box">
-              <Table columns={columns} dataSource={data} />
+              <Table columns={columns} dataSource={students} />
             </div>
           </div>
         </div>
       </div>
+      <Modal
+        title="Edit Student"
+        visible={isModalVisible}
+        onCancel={handleCancel}
+        footer={[
+          <Button key="cancel" onClick={handleCancel}>
+            Cancel
+          </Button>,
+          <Button key="save" type="primary" onClick={handleSave}>
+            Save
+          </Button>,
+        ]}
+      >
+        <Form 
+          form={form} 
+          layout="vertical"
+          initialValues={editingStudent}
+        >
+          <Form.Item 
+            name="firstName" 
+            label="First Name"
+          >
+            <Input disabled defaultValue={editingStudent?.firstName} />
+          </Form.Item>
+          <Form.Item 
+            name="lastName" 
+            label="Last Name"
+          >
+            <Input disabled defaultValue={editingStudent?.lastName} />
+          </Form.Item>
+          <Form.Item 
+            name="term" 
+            label="Term" 
+            rules={[{ required: true, message: 'Please enter the term' }]}
+          >
+            <Input />
+          </Form.Item>
+          <Form.Item 
+            name="assessmentType" 
+            label="Assessment Type" 
+            rules={[{ required: true, message: 'Please select the assessment type' }]}
+          >
+            <Select>
+              {assignments.map((assignment) => (
+                <Option key={assignment._id} value={assignment.title}>
+                  {assignment.title}
+                </Option>
+              ))}
+            </Select>
+          </Form.Item>
+          <Form.Item 
+            name="tags" 
+            label="Tags" 
+            rules={[{ required: true, message: 'Please enter the tags' }]}
+          >
+            <Input />
+          </Form.Item>
+        </Form>
+      </Modal>
     </div>
   );
 };
