@@ -24,13 +24,12 @@ const StudentAssessmentView = ({ student, classId }) => {
 
     setLoading(true)
     try {
-      // You'll need to create this endpoint in your backend
-      // For now, I'll use a mock response based on your data structure
+  
       const response = await axios.get(`/api/classes/${classId}/students/${student._id}/assessments`)
 
-      // If you don't have this endpoint yet, you can use this mock data for testing
+     
       if (!response.data) {
-        // Mock data based on your data.json structure
+      
         const mockAssessments = [
           {
             _id: "1",
@@ -47,7 +46,7 @@ const StudentAssessmentView = ({ student, classId }) => {
       }
     } catch (error) {
       console.error("Error fetching assessments:", error)
-      // Use mock data if API fails
+      
       const mockAssessments = [
         {
           _id: "1",
