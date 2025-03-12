@@ -138,6 +138,72 @@
   background-color: #c82333; /* Darker red */
 }
 
+/* New button styles for table actions */
+.action-button {
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.edit-button {
+  background-color: #007bff;
+  color: white;
+}
+
+.edit-button:hover {
+  background-color: #0056b3;
+}
+
+.view-button {
+  background-color: #28a745;
+  color: white;
+}
+
+.view-button:hover {
+  background-color: #218838;
+}
+
+/* Table styling improvements */
+.ant-table-wrapper {
+  width: 100%;
+}
+
+.ant-table table {
+  width: 100%;
+  table-layout: fixed;
+}
+
+.ant-table-thead > tr > th {
+  background-color: #f0f5ff;
+  font-weight: 600;
+}
+
+.ant-table-tbody > tr:hover > td {
+  background-color: #f0f7ff;
+}
+
+.filter-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  align-items: flex-end;
+  margin-bottom: 20px;
+}
+
+.filter-controls > div {
+  flex: 1;
+  min-width: 250px;
+}
+
+.filter-controls .students-title {
+  margin-bottom: 8px;
+}
+
 /* Media Queries for Responsive Design */
 @media (max-width: 1200px) {
   .box {
