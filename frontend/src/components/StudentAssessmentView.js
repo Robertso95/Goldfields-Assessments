@@ -71,11 +71,6 @@ const StudentAssessmentView = ({ student, classId }) => {
       key: "name",
     },
     {
-      title: "Score",
-      dataIndex: "score",
-      key: "score",
-    },
-    {
       title: "Date",
       dataIndex: "date",
       key: "date",
