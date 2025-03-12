@@ -132,7 +132,7 @@ const transferStudent = async (req, res) => {
   }
 };
 
-// Update a student in a class
+//Update a student in a class
 const updateStudent = async (req, res) => {
   const { classId, studentId } = req.params;
   const updatedInfo = req.body; // updatedInfo might include a new image URL
@@ -156,6 +156,51 @@ const updateStudent = async (req, res) => {
     await classToUpdate.save();
 
     res.status(200).json(classToUpdate.students[studentIndex]);
+  } catch (error) {
+    console.error(error);
+    res.status(400).json({ error: error.message });
+  }
+};
+//update student Assignment
+const  updateStudentAssessment = async (req, res) => {
+  const { classId, studentId } = req.params;
+  const updatedInfo = req.body;
+
+  if (!mongoose.Types.ObjectId.isValid(classId) || !mongoose.Types.ObjectId.isValid(studentId)) {
+    return res.status(404).json({ error: "Invalid class or student ID" });
+  }
+
+  try {
+    console.log("Updating student with data:", updatedInfo); // Debug log
+
+    // Use findOneAndUpdate with the $set operator to update specific fields
+    const result = await Class.findOneAndUpdate(
+      { 
+        "_id": classId,
+        "students._id": studentId 
+      },
+      { 
+        "$set": {
+          "students.$.assessmentType": updatedInfo.assessmentType,
+          "students.$.term": updatedInfo.term,
+          //"students.$.term": updatedInfo.dueDate,
+          "students.$.tags": updatedInfo.tags
+        }
+      },
+      { new: true }
+    );
+
+    if (!result) {
+      return res.status(404).json({ error: "Student or class not found" });
+    }
+
+    // Find the updated student in the result
+    const updatedStudent = result.students.find(
+      student => student._id.toString() === studentId
+    );
+
+    console.log("Updated student:", updatedStudent); // Debug log
+    res.status(200).json(updatedStudent);
   } catch (error) {
     console.error(error);
     res.status(400).json({ error: error.message });
@@ -238,6 +283,60 @@ const getStudentList = async (req, res) => {
   }
 };
 
+const getStudentAssessments = async (req, res) => {
+  const { classId, studentId } = req.params;
+  
+  try {
+    // Validate the IDs
+    if (!mongoose.Types.ObjectId.isValid(classId) || !mongoose.Types.ObjectId.isValid(studentId)) {
+      return res.status(400).json({ error: 'Invalid class or student ID' });
+    }
+
+    // Find the class and student
+    const classDoc = await Class.findById(classId);
+    if (!classDoc) {
+      return res.status(404).json({ error: 'Class not found' });
+    }
+
+    const student = classDoc.students.find(s => s._id.toString() === studentId);
+    if (!student) {
+      return res.status(404).json({ error: 'Student not found' });
+    }
+
+    // Find assignments for this student
+    const assignments = await Assignment.find({ 
+      studentNames: { $elemMatch: { $eq: `${student.firstName} ${student.lastName}` } }
+    });
+
+    // Map the assignments to assessment format
+    const assessments = assignments.map(assignment => ({
+      _id: assignment._id,
+      name: assignment.assignment,
+      score: 'Not graded', // You can add a score field to your Assignment model if needed
+      date: assignment.dueDate,
+      status: new Date() > new Date(assignment.dueDate) ? 'Overdue' : 'Pending',
+      grade: 'Not graded' // You can add a grade field to your Assignment model if needed
+    }));
+
+    // If no assignments found, create one based on the student's assessmentType
+    if (assessments.length === 0 && student.assessmentType) {
+      assessments.push({
+        _id: new mongoose.Types.ObjectId(),
+        name: student.assessmentType,
+        score: 'Not graded',
+        date: new Date(),
+        status: 'Assigned',
+        grade: 'Not graded'
+      });
+    }
+    
+    res.status(200).json(assessments);
+  } catch (error) {
+    console.error('Error fetching student assessments:', error);
+    res.status(500).json({ error: 'Failed to fetch assessments' });
+  }
+};
+
 
 // Export the methods
 module.exports = {
@@ -249,7 +348,9 @@ module.exports = {
   addStudent,
   transferStudent,
   updateStudent,
+  updateStudentAssessment,
   deleteStudent,
   getStudentInClass,
-  getStudentList
+  getStudentList,
+  getStudentAssessments
 };
