@@ -5,5 +5,8 @@ const assignmentController = require('../controllers/assignmentController');
 
 router.post('/assignments', assignmentController.createAssignment);
 router.get('/assignments', assignmentController.getAssignments);
+router.get('/learningsets', assignmentController.getSubjects);
+router.get('/assignmenttype', assignmentController.getAssignmentsType);
+router.get('/tags', assignmentController.getTags);
 
 module.exports = router;

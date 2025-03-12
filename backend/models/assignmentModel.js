@@ -6,13 +6,20 @@ const assignmentSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     auto: true,
   },
-  title: {
+  subject: {
     type: String,
     required: true,
   },
-  description: {
+  assignment: {
     type: String,
     required: true,
+  },
+  tags: {
+    type: [String],
+    required: true,
+  },
+  additionalComments: {
+    type: String,
   },
   dueDate: {
     type: Date,
@@ -21,7 +28,7 @@ const assignmentSchema = new mongoose.Schema({
   className: {
     type: String,
   },
-  studentNames: { // Updated field to handle multiple students
+  studentNames: {
     type: [String],
     required: true,
   },
