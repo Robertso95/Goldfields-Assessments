@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Space, Table, Tag, Carousel, Select, Modal, Form, Input, Button } from 'antd';
+import StudentAssessmentView from '../components/StudentAssessmentView';
 import { Link } from 'react-router-dom';
 import '../assessments.css';
 
@@ -193,7 +194,7 @@ const Assessments = () => {
       render: (_, record) => (
         <Space size="middle">
           <button className="blue-button" onClick={() => handleEdit(record)}>Edit</button>
-          <button className="blue-button">View</button>
+          <StudentAssessmentView student={record} classId={selectedClass?._id} />
         </Space>
       ),
     },
