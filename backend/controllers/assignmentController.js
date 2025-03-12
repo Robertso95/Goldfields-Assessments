@@ -36,5 +36,31 @@ try {
   }
 };
 
+//Get all assignments where type is 'assignment'
+const getAssignmentsType = async (req, res) => {
+  try {
+    const assignments = await learningsets.find({type: "assignment"});
+    
+    console.log('Assignments fetched from DB:', assignments);
+    res.json(assignments);
+  } catch (error) {
+    console.error('Error fetching assignments:', error);
+    res.status(500).json({ error: 'Failed to fetch assignments' });
+  }
+};
 
-module.exports = { createAssignment, getAssignments, getSubjects };
+//Get all assignments where type is 'tag'
+const getTags = async (req, res) => {
+  try {
+    const tags = await learningsets.find({type: "tag"});
+    console.log('Tags fetched from DB:', tags);
+    res.json(tags);
+  } catch (error) {
+    console.error('Error fetching tags:', error);
+    res.status(500).json({ error: 'Failed to fetch tags' });
+  }
+};
+
+
+
+module.exports = { createAssignment, getAssignments, getSubjects, getAssignmentsType, getTags };

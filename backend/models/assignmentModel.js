@@ -14,6 +14,13 @@ const assignmentSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  tags: {
+    type: [String],
+    required: true,
+  },
+  additionalComments: {
+    type: String,
+  },
   dueDate: {
     type: Date,
     required: true,

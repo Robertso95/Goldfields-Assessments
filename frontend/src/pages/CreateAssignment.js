@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Button, DatePicker, Form, Select, Modal } from 'antd';
+import { Button, DatePicker, Form, Select, Modal, Tag } from 'antd';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import axios from 'axios';
 import '../createAssignment.css';
+import CheckboxTagList from '../components/CheckboxTagList/CheckboxTagList';
 
 const { Option } = Select;
 
@@ -20,27 +21,57 @@ const CreateAssignment = () => {
   const [selectedStudents, setSelectedStudents] = useState([]);
   const [description, setDescription] = useState('');
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [learningSet, setLearningSet] = useState([]);
+  const [learningSets, setLearningSets] = useState([]);
+  const [assignmentTypes, setAssignmentTypes] = useState([]);
+  const [filteredAssignments, setFilteredAssignments] = useState([]);
+  const [tags, setTags] = useState([]);
+  const [filteredTags, setFilteredtags] = useState([]);
+  const [selectedTags, setSelectedTags] = useState([]);
+
+
 
   // Fetch assignment titles from MongoDB
   useEffect(() => {
-    const fetchTitles = async () => {
+    const fetchLearningSets= async () => {
       try {
         const response = await axios.get('/api/learningsets'); // Adjust API endpoint
         if (response.status === 200) {
-          setLearningSet(response.data); // Assuming response.data is an array of titles
-          console.log(response.data);
+          setLearningSets(response.data); // Assuming response.data is an array of titles
         }
       } catch (error) {
         console.error('Error fetching assignment titles:', error);
       }
     };
 
-    fetchTitles();
+    const fetchAssignmentTypes= async () => {
+      try {
+        const response = await axios.get('/api/assignmenttype'); // Adjust API endpoint
+        if (response.status === 200) {
+          setAssignmentTypes(response.data); // Assuming response.data is an array of titles
+        }
+      } catch (error) {
+        console.error('Error fetching assignment titles:', error);
+      }
+    }
+
+    const fetchTags = async () => {
+      try {
+        const response = await axios.get('/api/tags'); // Adjust API endpoint
+        if (response.status === 200) {
+          setTags(response.data); // Assuming response.data is an array of titles
+        }
+      } catch (error) {
+        console.error('Error fetching tags:', error);
+      }
+    }
+
+    fetchLearningSets();
+    fetchAssignmentTypes();
+    fetchTags();
   }, []);
 
   const handleSubmit = async (values) => {
-    const newAssignment = { ...values, studentNames: selectedStudents, description };
+    const newAssignment = { ...values, studentNames: selectedStudents, description, tags: selectedTags };
 
     try {
       const response = await axios.post('/api/assignments', newAssignment);
@@ -50,6 +81,7 @@ const CreateAssignment = () => {
         form.resetFields();
         setSelectedStudents([]);
         setDescription('');
+        setSelectedTags([]);
       } else {
         alert('Failed to create assignment.');
       }
@@ -71,6 +103,20 @@ const CreateAssignment = () => {
     form.setFieldsValue({ description: value });
   };
 
+  const handleChangeLearningSet = (value) => {
+    setFilteredAssignments(assignmentTypes.filter((assignment) => {
+      return assignment.parent === value
+    }))
+    
+  }
+
+  const handleChangeAssignmentType = (value) => {
+    setFilteredtags(tags.filter((tag) => {
+      return tag.parent === value
+    }
+    ))
+  }
+
   return (
     <div className="create-assignment-container">
       <h1>Create Assignment</h1>
@@ -89,8 +135,8 @@ const CreateAssignment = () => {
             name="subject"
             rules={[{ required: true, message: 'Please select the title!' }]}
           >
-            <Select placeholder="Select a subject">
-              {learningSet.map((subject) => 
+            <Select placeholder="Select a subject" onChange={(value) => {handleChangeLearningSet(value)}}>
+              {learningSets.map((subject) => 
                 <Option key={subject._id} value={subject._id}>
                   {subject.name}
                 </Option>
@@ -103,15 +149,28 @@ const CreateAssignment = () => {
             name="assignment"
             rules={[{ required: true, message: 'Please select an assignemnt' }]}
           >
-            <Select placeholder="Select an assignment">
-              {learningSet.map((assignment) => (
-                <Option key={assignment} value={assignment}>
-                  {assignment}
+            <Select placeholder="Select an assignment" onChange={(value) => {handleChangeAssignmentType(value)}}>
+              {filteredAssignments.map((assignment) => (
+                <Option key={assignment._id} value={assignment._id}>
+                  {assignment.name}
                 </Option>
               ))}
             </Select>
           </Form.Item>
+          <Form.Item label="Tags">
+            <CheckboxTagList 
+              tags={filteredTags} 
+              selectedTags={selectedTags} 
+              setSelectedTags={setSelectedTags} 
+            />
+          </Form.Item>
 
+          <Form.Item
+            label="Additional Comments"
+            name="additionalComments"
+          >
+            <input type="text" />
+          </Form.Item>
           <Form.Item
             label="Due Date"
             name="dueDate"
