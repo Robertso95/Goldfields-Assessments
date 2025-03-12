@@ -1,14 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { Space, Table, Tag, Carousel, Select, Modal, Form, Input, Button } from 'antd';
+import { Space, Table, Tag, Carousel, Select, Modal, Form, Input, Button, message } from 'antd';
+import { SearchOutlined } from '@ant-design/icons';
 import { Link } from 'react-router-dom';
 import '../assessments.css';
 
 const { Option } = Select;
+const { Search } = Input;
 
 const Assessments = () => {
   const [classes, setClasses] = useState([]);
   const [selectedClass, setSelectedClass] = useState(null);
   const [students, setStudents] = useState([]);
+  const [filteredStudents, setFilteredStudents] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
   const [assignments, setAssignments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -43,7 +47,94 @@ const Assessments = () => {
     fetchAssignments();
   }, []);
 
+  // Initialize filtered students when students change
+  useEffect(() => {
+    console.log("Students changed, setting filtered students:", students.length);
+    setFilteredStudents(students);
+  }, [students]);
+
+  // Enhanced search function with debugging
+  const handleSearch = (value) => {
+    console.log("Search triggered with:", value);
+    console.log("Current students count:", students.length);
+    
+    setSearchQuery(value);
+    
+    if (!value) {
+      console.log("Empty search, showing all students");
+      setFilteredStudents(students);
+      return;
+    }
+    
+    const lowercasedQuery = value.toLowerCase();
+    console.log("Lowercase query:", lowercasedQuery);
+    
+    // More robust filtering that checks for undefined properties
+    const filtered = students.filter(student => {
+      // Make sure properties exist before checking them
+      const firstNameMatch = student.firstName && 
+        student.firstName.toLowerCase().includes(lowercasedQuery);
+      
+      const lastNameMatch = student.lastName && 
+        student.lastName.toLowerCase().includes(lowercasedQuery);
+      
+      const fullNameMatch = student.fullName && 
+        student.fullName.toLowerCase().includes(lowercasedQuery);
+      
+      const classMatch = student.class && 
+        student.class.toLowerCase().includes(lowercasedQuery);
+      
+      return firstNameMatch || lastNameMatch || fullNameMatch || classMatch;
+    });
+    
+    console.log("Filtered students count:", filtered.length);
+    setFilteredStudents(filtered);
+  };
+
+  // New function to fetch all students from all classes
+  const fetchAllStudents = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch('/api/classes');
+      const allClasses = await response.json();
+      
+      // Set selected class to null to indicate "All Students" view
+      setSelectedClass(null);
+      
+      // Combine students from all classes
+      const allStudents = [];
+      
+      allClasses.forEach(classItem => {
+        if (classItem.students && Array.isArray(classItem.students)) {
+          const classStudents = classItem.students.map(student => ({
+            ...student,
+            key: student._id,
+            fullName: `${student.firstName} ${student.lastName}`,
+            class: classItem.className, // Store the class name
+            classId: classItem._id, // Store the class ID for editing/transferring
+            term: student.term || 'Term 1',
+            assessmentType: student.assessmentType || '',
+            tags: student.tags || ['hardworking']
+          }));
+          allStudents.push(...classStudents);
+        }
+      });
+      
+      console.log("Total students loaded:", allStudents.length);
+      setStudents(allStudents);
+      setLoading(false);
+    } catch (error) {
+      console.error('Error fetching all students:', error);
+      setLoading(false);
+    }
+  };
+
   const handleClassChange = async (classId) => {
+    if (classId === 'all') {
+      await fetchAllStudents();
+      return;
+    }
+    
     setLoading(true);
     try {
       const response = await fetch(`/api/classes/${classId}`);
@@ -55,6 +146,7 @@ const Assessments = () => {
         key: student._id,
         fullName: `${student.firstName} ${student.lastName}`,
         class: data.className,
+        classId: data._id, // Store the class ID consistently
         term: student.term || 'Term 1',
         assessmentType: student.assessmentType || '',
         tags: student.tags || ['hardworking']
@@ -70,12 +162,22 @@ const Assessments = () => {
   const handleEdit = (record) => {
     console.log('Editing student:', record); // Debug log
     setEditingStudent(record);
+    
+    // In "All Students" view, we need to set the selectedClass for this specific student
+    if (!selectedClass && record.classId) {
+      const studentClass = classes.find(c => c._id === record.classId);
+      if (studentClass) {
+        setSelectedClass(studentClass);
+      }
+    }
+    
     form.setFieldsValue({
       firstName: record.firstName,
       lastName: record.lastName,
       term: record.term || 'Term 1',
       assessmentType: record.assessmentType || '',
-      tags: record.tags ? record.tags.join(', ') : ''
+      tags: record.tags ? record.tags.join(', ') : '',
+      transferToClass: '' // Initialize transfer dropdown to empty
     });
     setIsModalVisible(true);
   };
@@ -86,9 +188,66 @@ const Assessments = () => {
     form.resetFields();
   };
 
+  // Function to handle student transfers
+  const handleTransferStudent = async (studentId, oldClassId, newClassId) => {
+    try {
+      const response = await fetch("/api/classes/transfer-student", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ studentId, oldClassId, newClassId }),
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to transfer student");
+      }
+      
+      message.success("Student transferred successfully");
+      
+      // Check if we're in "All Students" view
+      const wasAllStudentsView = selectedClass === null;
+      
+      if (wasAllStudentsView) {
+        // If in "All Students" view, refresh the complete list
+        await fetchAllStudents();
+      } else {
+        // Otherwise just remove from current class view
+        setStudents(prevStudents => 
+          prevStudents.filter(student => student._id !== studentId)
+        );
+      }
+      
+      // Close the modal
+      setIsModalVisible(false);
+      setEditingStudent(null);
+      form.resetFields();
+    } catch (error) {
+      console.error("Error transferring student:", error);
+      message.error(error.message || "Error transferring student");
+    }
+  };
+
   const handleSave = async () => {
     try {
       const values = await form.validateFields();
+      
+      // Store if we're in "All Students" view
+      const wasAllStudentsView = selectedClass === null;
+      
+      // Check if transfer option was selected
+      if (values.transferToClass) {
+        // For "All Students" view, we need the classId from the student record
+        const oldClassId = selectedClass ? selectedClass._id : editingStudent.classId;
+        
+        await handleTransferStudent(
+          editingStudent._id,
+          oldClassId,
+          values.transferToClass
+        );
+        return; // Exit early as transfer handles the rest
+      }
       
       // Make sure assignments is available
       if (!assignments || assignments.length === 0) {
@@ -96,7 +255,7 @@ const Assessments = () => {
       }
       
       console.log('Form values:', values); // Debug log
-      console.log('Selected class ID:', selectedClass._id);
+      console.log('Selected class ID:', selectedClass ? selectedClass._id : editingStudent.classId);
       console.log('Editing student ID:', editingStudent._id);
       
       const updatedStudent = {
@@ -109,8 +268,11 @@ const Assessments = () => {
       
       console.log('Sending updated student data:', updatedStudent); // Debug log
   
-      const response = await fetch(`/api/classes/${selectedClass._id}/students/${editingStudent._id}`, {
-        method: 'PATCH', // Changed from PUT to PATCH
+      // Use the class ID from either selectedClass or from the student record (for "All Students" view)
+      const classId = selectedClass ? selectedClass._id : editingStudent.classId;
+      
+      const response = await fetch(`/api/classes/${classId}/students/${editingStudent._id}`, {
+        method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
         },
@@ -126,19 +288,24 @@ const Assessments = () => {
       const updatedStudentData = await response.json();
       console.log('Received updated student data:', updatedStudentData); // Debug log
   
-      // Update the students list with the new data
-      setStudents(prevStudents =>
-        prevStudents.map(student =>
-          student._id === editingStudent._id
-            ? {
-                ...student,
-                ...updatedStudentData,
-                fullName: `${updatedStudentData.firstName} ${updatedStudentData.lastName}`,
-                assessmentType: updatedStudentData.assessmentType // Ensure assessment type is included
-              }
-            : student
-        )
-      );
+      // If we were in "All Students" view, refresh the entire list
+      if (wasAllStudentsView) {
+        await fetchAllStudents();
+      } else {
+        // Otherwise just update the current student in the list
+        setStudents(prevStudents =>
+          prevStudents.map(student =>
+            student._id === editingStudent._id
+              ? {
+                  ...student,
+                  ...updatedStudentData,
+                  fullName: `${updatedStudentData.firstName} ${updatedStudentData.lastName}`,
+                  assessmentType: updatedStudentData.assessmentType
+                }
+              : student
+          )
+        );
+      }
   
       setIsModalVisible(false);
       setEditingStudent(null);
@@ -160,40 +327,45 @@ const Assessments = () => {
       dataIndex: 'class',
       key: 'class',
     },
-    {
-      title: 'Term',
-      dataIndex: 'term',
-      key: 'term',
-    },
-    {
-      title: 'Assessment Type',
-      dataIndex: 'assessmentType',
-      key: 'assessmentType',
-    },
-    {
-      title: 'Tags',
-      key: 'tags',
-      dataIndex: 'tags',
-      render: (tags) => (
-        <>
-          {tags.map((tag) => {
-            let color = 'green';
-            return (
-              <Tag color={color} key={tag}>
-                {tag.toUpperCase()}
-              </Tag>
-            );
-          })}
-        </>
-      ),
-    },
+    // {
+    //   title: 'Term',
+    //   dataIndex: 'term',
+    //   key: 'term',
+    // },
+    // {
+    //   title: 'Assessment Type',
+    //   dataIndex: 'assessmentType',
+    //   key: 'assessmentType',
+    // },
+    // {
+    //   title: 'Tags',
+    //   key: 'tags',
+    //   dataIndex: 'tags',
+    //   render: (tags) => (
+    //     <>
+    //       {tags.map((tag) => {
+    //         let color = 'green';
+    //         return (
+    //           <Tag color={color} key={tag}>
+    //             {tag.toUpperCase()}
+    //           </Tag>
+    //         );
+    //       })}
+    //     </>
+    //   ),
+    // },
     {
       title: 'Actions',
       key: 'action',
+      width: 250, // Set a fixed width for this column
       render: (_, record) => (
-        <Space size="middle">
-          <button className="blue-button" onClick={() => handleEdit(record)}>Edit</button>
-          <button className="blue-button">View</button>
+        <Space size="small"> {/* Change to small spacing */}
+          <button className="action-button edit-button" onClick={() => handleEdit(record)}>
+            Edit
+          </button>
+          <button className="action-button view-button">
+            View Assessments
+          </button>
         </Space>
       ),
     },
@@ -239,10 +411,10 @@ const Assessments = () => {
             <div className="box">
               <Carousel arrows infinite={false}>
                 <div>
-                  <h3 style={contentStyle}>{selectedClass ? selectedClass.className : 'Class'}</h3>
+                  <h3 style={contentStyle}>{selectedClass ? selectedClass.className : 'All Classes'}</h3>
                 </div>
                 <div>
-                  <h3 style={contentStyle}>{students.length} Students</h3>
+                  <h3 style={contentStyle}>{filteredStudents.length} Students</h3>
                 </div>
               </Carousel>
             </div>
@@ -265,24 +437,46 @@ const Assessments = () => {
           </div>
         </div>
         <div className="content-container">
-          <h2 className="students-title">Select Class</h2>
-          <Select
-            style={{ width: 200 }}
-            placeholder="Select a class"
-            onChange={handleClassChange}
-          >
-            {classes.map((classItem) => (
-              <Option key={classItem._id} value={classItem._id}>
-                {classItem.className}
-              </Option>
-            ))}
-          </Select>
-        </div>
-        <div className="content-container">
-          <h2 className="students-title">Students</h2>
+          <div className="filter-controls">
+            <div>
+              <h2 className="students-title">Select Class</h2>
+              <Select
+                style={{ width: 200 }}
+                placeholder="Select a class"
+                onChange={handleClassChange}
+              >
+                <Option key="all" value="all">All Students</Option>
+                {classes.map((classItem) => (
+                  <Option key={classItem._id} value={classItem._id}>
+                    {classItem.className}
+                  </Option>
+                ))}
+              </Select>
+            </div>
+            
+            <div>
+              <h2 className="students-title">Search Students</h2>
+              <Search
+                placeholder="Search by name..."
+                allowClear
+                enterButton={<SearchOutlined />}
+                style={{ width: 250 }}
+                onSearch={handleSearch}
+                onChange={e => handleSearch(e.target.value)}
+              />
+            </div>
+          </div>
+          
+          {/* <h2 className="students-title">
+            Students: {filteredStudents.length} {searchQuery && `(Showing results for "${searchQuery}")`}
+          </h2> */}
           <div className="massive-box-container">
             <div className="massive-box">
-              <Table columns={columns} dataSource={students} />
+              <Table 
+                columns={columns} 
+                dataSource={filteredStudents} 
+                locale={{ emptyText: "No students found" }}
+              />
             </div>
           </div>
         </div>
@@ -317,14 +511,14 @@ const Assessments = () => {
           >
             <Input disabled defaultValue={editingStudent?.lastName} />
           </Form.Item>
-          <Form.Item 
+          {/* <Form.Item 
             name="term" 
             label="Term" 
             rules={[{ required: true, message: 'Please enter the term' }]}
           >
             <Input />
-          </Form.Item>
-          <Form.Item 
+          </Form.Item> */}
+          {/* <Form.Item 
             name="assessmentType" 
             label="Assessment Type" 
             rules={[{ required: true, message: 'Please select the assessment type' }]}
@@ -350,7 +544,36 @@ const Assessments = () => {
             rules={[{ required: true, message: 'Please enter the tags' }]}
           >
             <Input />
+          </Form.Item> */}
+         <>
+          {/* Warning message */}
+          <div style={{ marginBottom: '12px', color: '#ff4d4f', fontSize: '14px' }}>
+            <strong>Warning:</strong> Transferring a student will move all their assessments and data to the selected class.
+          </div>
+          
+          <Form.Item 
+            name="transferToClass" 
+            label="Transfer To Class"
+          >
+            <Select placeholder="Select class to transfer student (optional)">
+              <Option value="">-- No Transfer --</Option>
+              {classes
+                .filter(classItem => {
+                  // When in "All Students" view, exclude the student's current class
+                  if (!selectedClass && editingStudent) {
+                    return classItem._id !== editingStudent.classId;
+                  }
+                  // Normal view, exclude the selected class
+                  return classItem._id !== selectedClass?._id;
+                })
+                .map((classItem) => (
+                  <Option key={classItem._id} value={classItem._id}>
+                    {classItem.className}
+                  </Option>
+                ))}
+            </Select>
           </Form.Item>
+        </>
         </Form>
       </Modal>
     </div>
