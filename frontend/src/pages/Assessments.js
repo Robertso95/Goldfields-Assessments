@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Space, Table, Tag, Carousel, Select, Modal, Form, Input, Button, message } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
+import StudentAssessmentView from '../components/StudentAssessmentView';
 import { Link } from 'react-router-dom';
 import '../assessments.css';
 
@@ -359,13 +360,16 @@ const Assessments = () => {
       key: 'action',
       width: 250, // Set a fixed width for this column
       render: (_, record) => (
-        <Space size="small"> {/* Change to small spacing */}
-          <button className="action-button edit-button" onClick={() => handleEdit(record)}>
-            Edit
-          </button>
-          <button className="action-button view-button">
-            View Assessments
-          </button>
+<Space size="small"> {/* Using small spacing from testBranch */}
+  <button className="action-button edit-button" onClick={() => handleEdit(record)}>
+    Edit
+  </button>
+  <StudentAssessmentView 
+    student={record} 
+    classId={selectedClass?._id} 
+    className="action-button view-button" 
+  />
+</Space>
         </Space>
       ),
     },

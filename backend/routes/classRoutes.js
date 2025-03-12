@@ -31,4 +31,5 @@ router.put('/:classId/students/:studentId', updateStudent); // Update a student 
 router.delete('/:classId/students/:studentId', deleteStudent); // Delete a student from a class
 router.get('/:classId/students/:studentId', getStudentInClass); // Get a student in a class
 router.patch('/:classId/students/:studentId', updateStudentAssessment);
+router.get('/classes/:classId/students/:studentId/assessments', classController.getStudentAssessments);
 module.exports = router;
