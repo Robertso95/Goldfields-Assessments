@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react"
 import { Space, Table, Tag, Carousel, Select, Modal, Form, Input, Button, message } from "antd"
 import { SearchOutlined } from "@ant-design/icons"
-import StudentAssessmentView from "./components/StudentAssessmentView"
+import StudentAssessmentView from "../components/StudentAssessmentView"
 import { Link } from "react-router-dom"
-import "./Assessments.css"
+import "../assessments.css"
 
 const { Option } = Select
 const { Search } = Input
