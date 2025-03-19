@@ -377,7 +377,7 @@ const Assessments = () => {
           <StudentAssessmentView
             student={record}
             classId={record.classId || selectedClass?._id}
-            className="action-button view-button"
+            className="action-button view-button" 
           />
         </Space>
       ),
@@ -390,7 +390,7 @@ const Assessments = () => {
     color: "#fff",
     lineHeight: "200px",
     textAlign: "center",
-    background: "#007bff",
+    background: "#326C6F",
   }
 
   if (loading) {
@@ -470,7 +470,11 @@ const Assessments = () => {
               <Search
                 placeholder="Search by name..."
                 allowClear
-                enterButton={<SearchOutlined />}
+                enterButton={
+                  <Button Style={{backgroundColor: '#326c6f', borderColor: '#326c6f'}}>
+                    <SearchOutlined style={{color:'white'}}/>
+                  </Button>
+                }
                 style={{ width: 250 }}
                 onSearch={handleSearch}
                 onChange={(e) => handleSearch(e.target.value)}
