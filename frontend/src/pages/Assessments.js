@@ -470,7 +470,11 @@ const Assessments = () => {
               <Search
                 placeholder="Search by name..."
                 allowClear
-                enterButton={<SearchOutlined />}
+                enterButton={
+                  <Button Style={{backgroundColor: '#326c6f', borderColor: '#326c6f'}}>
+                    <SearchOutlined style={{color:'white'}}/>
+                  </Button>
+                }
                 style={{ width: 250 }}
                 onSearch={handleSearch}
                 onChange={(e) => handleSearch(e.target.value)}
