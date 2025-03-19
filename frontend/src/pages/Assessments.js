@@ -377,7 +377,7 @@ const Assessments = () => {
           <StudentAssessmentView
             student={record}
             classId={record.classId || selectedClass?._id}
-            className="action-button view-button"
+            className="action-button view-button" 
           />
         </Space>
       ),
@@ -390,7 +390,7 @@ const Assessments = () => {
     color: "#fff",
     lineHeight: "200px",
     textAlign: "center",
-    background: "#007bff",
+    background: "#326C6F",
   }
 
   if (loading) {
