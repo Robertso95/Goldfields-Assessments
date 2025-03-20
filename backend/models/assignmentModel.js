@@ -21,9 +21,11 @@ const assignmentSchema = new mongoose.Schema({
   additionalComments: {
     type: String,
   },
-  dueDate: {
+  evidence: {
+    type: [String],
+  },
+  completedDate: {
     type: Date,
-    required: true,
   },
   className: {
     type: String,
