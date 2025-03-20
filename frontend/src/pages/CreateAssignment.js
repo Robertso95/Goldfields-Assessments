@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Button, DatePicker, Form, Select, Modal, Tag } from 'antd';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
@@ -10,14 +10,6 @@ const { Option } = Select;
 
 const CreateAssignment = () => {
   const [form] = Form.useForm();
-  const [students] = useState([
-    { value: 'Mia Hernandez', label: 'Mia Hernandez' },
-    { value: 'Emma Johnson', label: 'Emma Johnson' },
-    { value: 'Daniel Garcia', label: 'Daniel Garcia' },
-    { value: 'Ethan Wilson', label: 'Ethan Wilson' },
-    { value: 'Jamal Davis', label: 'Jamal Davis' },
-    { value: 'Noah William', label: 'Noah William' },
-  ]);
   const [selectedStudents, setSelectedStudents] = useState([]);
   const [description, setDescription] = useState('');
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -26,8 +18,72 @@ const CreateAssignment = () => {
   const [filteredAssignments, setFilteredAssignments] = useState([]);
   const [tags, setTags] = useState([]);
   const [filteredTags, setFilteredtags] = useState([]);
+  const [images, setImages] = useState([]);
+  const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedTags, setSelectedTags] = useState([]);
+  const cloudinaryWidgetRef = useRef();
+  const [classes, setClasses] = useState([]);
+  const [classStudents, setClassStudents] = useState([]);
 
+
+
+    useEffect(() => {
+        cloudinaryWidgetRef.current = window.cloudinary.createUploadWidget({
+          cloudName: "drpnvb7qc",
+          uploadPreset: "tetlineq",
+          sources: ["local"],
+          clientAllowedFormats: ["image", "video"],
+          multiple: true
+        }, async (error, result) => {
+          if (!error && result && result.event === "success") {
+            try {
+              const response = await fetch('/api/images', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ imageUrl: result.info.secure_url }),
+              });
+              if (!response.ok) {
+                throw new Error('Failed to save the image to the backend');
+              }
+              const newImage = await response.json();
+              setImages(prevImages => [...prevImages, newImage]);
+              setCurrentIndex(prevIndex => prevIndex + 1);
+            } catch (error) {
+              console.error("Error saving the image:", error);
+            }
+          }
+        });
+      }, []);
+
+        const handleImageUpload = () => {
+    cloudinaryWidgetRef.current.open();
+  };
+
+  useEffect(() => {
+  const fetchClasses = async () => {
+    try {
+      const response = await axios.get('/api/classes'); // Adjust API endpoint
+      if (response.status === 200) {
+        setClasses(response.data); // Assuming response.data is an array of classes
+      }
+    } catch (error) {
+      console.error('Error fetching classes:', error);
+    }
+  };
+
+  fetchClasses();
+}, []);
+
+  const handleClassChange = (classId) => {
+  const selectedClass = classes.find(cls => cls._id === classId);
+  if (selectedClass) {
+    setClassStudents(selectedClass.students);
+  } else {
+    setClassStudents([]);
+  }
+};
 
 
   // Fetch assignment titles from MongoDB
@@ -71,7 +127,7 @@ const CreateAssignment = () => {
   }, []);
 
   const handleSubmit = async (values) => {
-    const newAssignment = { ...values, studentNames: selectedStudents, description, tags: selectedTags };
+    const newAssignment = { ...values, studentNames: selectedStudents, description, tags: selectedTags, evidence: images };
 
     try {
       const response = await axios.post('/api/assignments', newAssignment);
@@ -82,6 +138,7 @@ const CreateAssignment = () => {
         setSelectedStudents([]);
         setDescription('');
         setSelectedTags([]);
+        setImages([]);
       } else {
         alert('Failed to create assignment.');
       }
@@ -91,11 +148,7 @@ const CreateAssignment = () => {
   };
 
   const handleStudentChange = (value) => {
-    if (value.includes('select_all')) {
-      setSelectedStudents(students.map(student => student.value));
-    } else {
-      setSelectedStudents(value);
-    }
+    setSelectedStudents(value);
   };
 
   const handleDescriptionChange = (value) => {
@@ -120,15 +173,46 @@ const CreateAssignment = () => {
   return (
     <div className="create-assignment-container">
       <h1>Create Assignment</h1>
-      <p>Class: A1024</p>
       <div className="form-container">
         <Form
           form={form}
           layout="vertical"
           onFinish={handleSubmit}
           className="create-assignment-form"
-          initialValues={{ className: 'A1024' }}
         >
+
+          <Form.Item
+            label="Class Name"
+            name="className"
+            rules={[{ required: true, message: 'Please select a class name!' }]}
+          >
+            <Select placeholder="Select class name" onChange={handleClassChange}>
+              {classes.map((cls) => (
+                <Option key={cls._id} value={cls._id}>
+                  {cls.className}
+                </Option>
+              ))}
+            </Select>
+          </Form.Item>
+
+
+          <Form.Item
+            label="Student Name"
+            name="studentNames"
+            rules={[{ required: true, message: 'Please select a student!' }]}
+          >
+            <Select
+              placeholder="Select student"
+              value={selectedStudents}
+              onChange={setSelectedStudents}
+            >
+              {classStudents.map((student) => (
+                <Option key={student._id} value={student._id}>
+                  {`${student.firstName} ${student.lastName}`}
+                </Option>
+              ))}
+            </Select>
+          </Form.Item>
 
           <Form.Item
             label="Subject"
@@ -171,36 +255,22 @@ const CreateAssignment = () => {
           >
             <input type="text" />
           </Form.Item>
+
+          <Form.Item>
+            <Button 
+              type="primary" 
+              onClick={handleImageUpload}
+            >
+              Upload Evidence
+            </Button>
+          </Form.Item>
+
           <Form.Item
-            label="Due Date"
-            name="dueDate"
-            rules={[{ required: true, message: 'Please select the due date!' }]}
+            label="Completed Date"
+            name="completedDate"
+            rules={[{ required: false, message: 'Please select the completed date!' }]}
           >
             <DatePicker />
-          </Form.Item>
-
-          <Form.Item
-            label="Class Name"
-            name="className"
-            rules={[{ required: true, message: 'Please input the class name!' }]}
-          >
-            <Select disabled defaultValue="A1024">
-              <Option value="A1024">A1024</Option>
-            </Select>
-          </Form.Item>
-
-          <Form.Item
-            label="Student Name"
-            name="studentName"
-            rules={[{ required: true, message: 'Please select at least one student!' }]}
-          >
-            <Select
-              mode="multiple"
-              placeholder="Select students"
-              value={selectedStudents}
-              onChange={handleStudentChange}
-              options={[{ value: 'select_all', label: 'Select All' }, ...students]}
-            />
           </Form.Item>
 
           <Form.Item>
