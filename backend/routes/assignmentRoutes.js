@@ -8,5 +8,6 @@ router.get('/assignments', assignmentController.getAssignments);
 router.get('/learningsets', assignmentController.getSubjects);
 router.get('/assignmenttype', assignmentController.getAssignmentsType);
 router.get('/tags', assignmentController.getTags);
+router.post('/assignmentimages', assignmentController.createAssignmentImage);
 
 module.exports = router;
