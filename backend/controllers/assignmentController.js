@@ -61,16 +61,6 @@ const getTags = async (req, res) => {
   }
 };
 
-const createAssignmentImage = async (req, res) => {
-  const image = new HomeImage({
-    imageUrl: req.body.imageUrl
-  });
-  try {
-    const newImage = await image.save();
-    res.status(201).json(newImage);
-  } catch (err) {
-    res.status(400).json({ message: err.message });
-  }
-}
 
-module.exports = { createAssignment, getAssignments, getSubjects, getAssignmentsType, getTags, createAssignmentImage };
+
+module.exports = { createAssignment, getAssignments, getSubjects, getAssignmentsType, getTags };
