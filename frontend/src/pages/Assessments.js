@@ -231,14 +231,18 @@ const Assessments = () => {
 
       message.success("Student transferred successfully")
 
+      
       const wasAllStudentsView = selectedClass === null
 
       if (wasAllStudentsView) {
+        
         await fetchAllStudents()
       } else {
+        
         setStudents((prevStudents) => prevStudents.filter((student) => student._id !== studentId))
       }
 
+      
       setIsModalVisible(false)
       setEditingStudent(null)
       form.resetFields()
@@ -252,8 +256,10 @@ const Assessments = () => {
     try {
       const values = await form.validateFields()
 
+      
       const wasAllStudentsView = selectedClass === null
 
+      
       if (values.transferToClass) {
         // For "All Students" view, we need the classId from the student record
         const oldClassId = selectedClass ? selectedClass._id : editingStudent.classId
@@ -262,6 +268,7 @@ const Assessments = () => {
         return // Exit early as transfer handles the rest
       }
 
+      
       if (!assignments || assignments.length === 0) {
         console.error("No assignments available")
       }
@@ -273,14 +280,14 @@ const Assessments = () => {
       const updatedStudent = {
         firstName: editingStudent.firstName,
         lastName: editingStudent.lastName,
-        assessmentType: values.assessmentType, 
+        assessmentType: values.assessmentType, // Make sure this is set correctly
         term: values.term,
         tags: values.tags ? values.tags.split(",").map((tag) => tag.trim()) : ["hardworking"],
       }
 
       console.log("Sending updated student data:", updatedStudent) // Debug log
 
-     
+      // Use the class ID from either selectedClass or from the student record (for "All Students" view)
       const classId = selectedClass ? selectedClass._id : editingStudent.classId
 
       const response = await fetch(`/api/classes/${classId}/students/${editingStudent._id}`, {
@@ -300,9 +307,11 @@ const Assessments = () => {
       const updatedStudentData = await response.json()
       console.log("Received updated student data:", updatedStudentData) // Debug log
 
+      
       if (wasAllStudentsView) {
         await fetchAllStudents()
       } else {
+        
         setStudents((prevStudents) =>
           prevStudents.map((student) =>
             student._id === editingStudent._id
