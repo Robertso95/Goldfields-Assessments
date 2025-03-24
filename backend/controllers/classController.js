@@ -283,6 +283,62 @@ const getStudentList = async (req, res) => {
   }
 };
 
+const assignTeacherToClass = async (req, res) => {
+  const { classId, teacherId } = req.body;
+  
+  if (!mongoose.Types.ObjectId.isValid(classId)) {
+    return res.status(404).json({ error: "Class not found" });
+  }
+  
+  try {
+    // If teacherId is empty string, set to null (to remove teacher)
+    const teacherIdValue = teacherId === '' ? null : teacherId;
+    
+    const updatedClass = await Class.findByIdAndUpdate(
+      classId,
+      { teacherId: teacherIdValue },
+      { new: true }
+    );
+    
+    if (!updatedClass) {
+      return res.status(404).json({ error: "Class not found" });
+    }
+    
+    res.status(200).json(updatedClass);
+  } catch (error) {
+    console.error('Error assigning teacher:', error);
+    res.status(400).json({ error: error.message });
+  }
+};
+
+// Get class by teacher ID
+const getClassByTeacherId = async (req, res) => {
+  const { teacherId } = req.params;
+  
+  try {
+    console.log("Looking for class with teacherId:", teacherId);
+    
+    // Check for valid MongoDB ObjectId
+    if (!mongoose.Types.ObjectId.isValid(teacherId)) {
+      return res.status(404).json({ error: "Invalid teacher ID format" });
+    }
+    
+    // Find class where teacherId matches
+    const classWithTeacher = await Class.findOne({ teacherId: teacherId });
+    console.log("Class found by teacher ID:", classWithTeacher ? classWithTeacher.className : "None");
+    
+    if (!classWithTeacher) {
+      return res.status(404).json({ error: "No class found for this teacher" });
+    }
+    
+    res.status(200).json(classWithTeacher);
+  } catch (error) {
+    console.error("Error finding class by teacher ID:", error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+
 const getStudentAssessments = async (req, res) => {
   const { classId, studentId } = req.params;
   
@@ -335,6 +391,7 @@ const getStudentAssessments = async (req, res) => {
     console.error('Error fetching student assessments:', error);
     res.status(500).json({ error: 'Failed to fetch assessments' });
   }
+  
 };
 
 
@@ -352,5 +409,7 @@ module.exports = {
   deleteStudent,
   getStudentInClass,
   getStudentList,
+  assignTeacherToClass, // sam
+  getClassByTeacherId, // sam
   getStudentAssessments
 };
