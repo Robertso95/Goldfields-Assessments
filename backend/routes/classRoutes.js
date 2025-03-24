@@ -14,7 +14,6 @@ const {
   updateStudentAssessment,
   deleteStudent,
   getStudentInClass,
-  getStudentAssessments,
   getStudentList
 } = require('../controllers/classController');
 
@@ -32,5 +31,4 @@ router.put('/:classId/students/:studentId', updateStudent); // Update a student 
 router.delete('/:classId/students/:studentId', deleteStudent); // Delete a student from a class
 router.get('/:classId/students/:studentId', getStudentInClass); // Get a student in a class
 router.patch('/:classId/students/:studentId', updateStudentAssessment);
-router.get('/classes/:classId/students/:studentId/assessments', getStudentAssessments);
 module.exports = router;

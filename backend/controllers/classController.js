@@ -283,60 +283,6 @@ const getStudentList = async (req, res) => {
   }
 };
 
-const getStudentAssessments = async (req, res) => {
-  const { classId, studentId } = req.params;
-  
-  try {
-    // Validate the IDs
-    if (!mongoose.Types.ObjectId.isValid(classId) || !mongoose.Types.ObjectId.isValid(studentId)) {
-      return res.status(400).json({ error: 'Invalid class or student ID' });
-    }
-
-    // Find the class and student
-    const classDoc = await Class.findById(classId);
-    if (!classDoc) {
-      return res.status(404).json({ error: 'Class not found' });
-    }
-
-    const student = classDoc.students.find(s => s._id.toString() === studentId);
-    if (!student) {
-      return res.status(404).json({ error: 'Student not found' });
-    }
-
-    // Find assignments for this student
-    const assignments = await Assignment.find({ 
-      studentNames: { $elemMatch: { $eq: `${student.firstName} ${student.lastName}` } }
-    });
-
-    // Map the assignments to assessment format
-    const assessments = assignments.map(assignment => ({
-      _id: assignment._id,
-      name: assignment.assignment,
-      score: 'Not graded', // You can add a score field to your Assignment model if needed
-      date: assignment.dueDate,
-      status: new Date() > new Date(assignment.dueDate) ? 'Overdue' : 'Pending',
-      grade: 'Not graded' // You can add a grade field to your Assignment model if needed
-    }));
-
-    // If no assignments found, create one based on the student's assessmentType
-    if (assessments.length === 0 && student.assessmentType) {
-      assessments.push({
-        _id: new mongoose.Types.ObjectId(),
-        name: student.assessmentType,
-        score: 'Not graded',
-        date: new Date(),
-        status: 'Assigned',
-        grade: 'Not graded'
-      });
-    }
-    
-    res.status(200).json(assessments);
-  } catch (error) {
-    console.error('Error fetching student assessments:', error);
-    res.status(500).json({ error: 'Failed to fetch assessments' });
-  }
-};
-
 
 // Export the methods
 module.exports = {
@@ -351,6 +297,5 @@ module.exports = {
   updateStudentAssessment,
   deleteStudent,
   getStudentInClass,
-  getStudentList,
-  getStudentAssessments
+  getStudentList
 };

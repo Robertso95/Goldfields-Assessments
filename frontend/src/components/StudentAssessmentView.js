@@ -114,4 +114,3 @@ const StudentAssessmentView = ({ student, classId }) => {
 }
 
 export default StudentAssessmentView
-
