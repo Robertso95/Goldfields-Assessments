@@ -1,52 +1,48 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import { ClassesProvider } from './context/ClassesContext';
-import ClassesList from './components/ClassesList';
-import ClassDetails from './pages/ClassDetails';
-import Stories from './pages/Stories';
-import PendingStories from './pages/PendingStories';
-import Class from './pages/Class';
-import Navbar from './components/Navbar';
-import CreateStory from './pages/stories/CreateStory';
-import AddStudentPage from './pages/AddStudentPage';
-import StoryPage from './pages/StoryPage';
-import Login from './pages/Login';
-import Signup from './pages/Signup';
-import { useEffect, useState } from 'react';
-import axios from './axios';
-import NavbarLogin from './components/NavbarLogin';
-import EditStudentPage from './pages/EditStudentPage';
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { ClassesProvider } from "./context/ClassesContext";
+import ClassesList from "./components/ClassesList";
+import ClassDetails from "./pages/ClassDetails";
+import Stories from "./pages/Stories";
+import PendingStories from "./pages/PendingStories";
+import Class from "./pages/Class";
+import Navbar from "./components/Navbar";
+import CreateStory from "./pages/stories/CreateStory";
+import AddStudentPage from "./pages/AddStudentPage";
+import StoryPage from "./pages/StoryPage";
+import Login from "./pages/Login";
+import Signup from "./pages/Signup";
+import { useEffect, useState } from "react";
+import axios from "./axios";
+import NavbarLogin from "./components/NavbarLogin";
+import EditStudentPage from "./pages/EditStudentPage";
 import Home from "./pages/Home";
-import User from './pages/User';
-import CreateFamilyStory from './pages/CreateFamilyStory';
-import SearchStories from './pages/SearchStories';
-import InviteFamily from './pages/inviteFamily';
-import StudentDetail from './pages/StudentDetail';
+import User from "./pages/User";
+import CreateFamilyStory from "./pages/CreateFamilyStory";
+import SearchStories from "./pages/SearchStories";
+import InviteFamily from "./pages/inviteFamily";
+import StudentDetail from "./pages/StudentDetail";
 import InviteParent from "./pages/inviteParent";
-import ChangePassword from './pages/changePassword';
+import ChangePassword from "./pages/changePassword";
 
-import Assessments from './pages/Assessments'; // Sprint 1
-import CreateAssignment from './pages/CreateAssignment'; // Sprint 1
-import ViewAssignments from './pages/ViewAssignments'; // Sprint 1
-
+import Assessments from "./pages/Assessments"; // Sprint 1
+import CreateAssignment from "./pages/CreateAssignment"; // Sprint 1
+import ViewAssignments from "./pages/ViewAssignments"; // Sprint 1
+import EditTags from "./pages/EditTags";
 
 function App() {
-
   const [role, setRole] = useState("");
 
   //Check if user is logged in or not
   const [login, setLogin] = useState(false);
   useEffect(() => {
-
     const currentRoute = window.location.pathname;
 
     async function checkValidity() {
       try {
-
-        const yourApiEndpoint = "/users/checkValidity"
+        const yourApiEndpoint = "/users/checkValidity";
         //Getting token from localsotrage
         let token = localStorage.getItem("token");
         if (token) {
-
           //if token exist then it will send request validity
           const response = await axios.get(yourApiEndpoint, {
             headers: {
@@ -57,36 +53,33 @@ function App() {
           localStorage.setItem("role", response?.data?.role);
           setRole(response?.data?.role);
           setLogin(true);
-        }
-        else {
+        } else {
           //else if statement when no token then it will redirect to login page
           if (!currentRoute?.includes("/login"))
             window.location.href = "/login";
         }
-      }
-      catch (ex) {
-        if (!currentRoute?.includes("/login"))
-
-          window.location.href = "/login";
+      } catch (ex) {
+        if (!currentRoute?.includes("/login")) window.location.href = "/login";
       }
     }
     checkValidity();
   }, []);
 
-// Based on the current role of user it will ensure that the user gets redirected to the right page if condition are met
+  // Based on the current role of user it will ensure that the user gets redirected to the right page if condition are met
   useEffect(() => {
-
     const currentRoute = window.location.pathname;
     try {
-      if (currentRoute != "/login" && currentRoute != "/signup" && currentRoute != "/change_password") {
+      if (
+        currentRoute != "/login" &&
+        currentRoute != "/signup" &&
+        currentRoute != "/change_password"
+      ) {
         let change = localStorage.getItem("change");
         if (change == "1") {
           window.location.href = "/change_password";
         }
       }
-    }
-    catch (ex) {
-    }
+    } catch (ex) {}
   }, []);
 
   if (login) {
@@ -105,35 +98,50 @@ function App() {
                 <Route path="/editstory/:storyid" element={<CreateStory />} />
                 <Route path="/classeslist" element={<ClassesList />} />
                 <Route path="/class/:classId" element={<ClassDetails />} />
-                <Route path="/class/:classId/addstudent" element={<AddStudentPage />} />
+                <Route
+                  path="/class/:classId/addstudent"
+                  element={<AddStudentPage />}
+                />
                 <Route path="/stories/:storyid" element={<StoryPage />} />
                 <Route path="/pending/:storyid" element={<StoryPage />} />
-                <Route path="/class/:classId/editstudent/:studentId" element={<EditStudentPage />} />
+                <Route
+                  path="/class/:classId/editstudent/:studentId"
+                  element={<EditStudentPage />}
+                />
                 <Route path="/manage_accounts" element={<User />} />
                 <Route path="/home" element={<Home />} />
-                <Route path="/createfamilystory" element={<CreateFamilyStory />} />
+                <Route
+                  path="/createfamilystory"
+                  element={<CreateFamilyStory />}
+                />
                 <Route path="/search" element={<SearchStories />} />
                 <Route path="/invite_family" element={<InviteFamily />} />
                 <Route path="/invite_parent" element={<InviteParent />} />
                 <Route path="/change_password" element={<ChangePassword />} />
-                <Route path="/class/:classId/student/:studentId" element={<StudentDetail />} />
-
-                <Route path="/assessments" element={<Assessments />} /> {/* New Route Sprint 1*/}
-                <Route path="/create-assignment" element={<CreateAssignment />} /> {/* New Route Sprint 1*/}
-                <Route path="/view-assignments" element={<ViewAssignments />} /> {/* New Route Sprint 1*/}
-               
-                
-
-                
-
+                <Route
+                  path="/class/:classId/student/:studentId"
+                  element={<StudentDetail />}
+                />
+                <Route path="/assessments" element={<Assessments />} />{" "}
+                {/* New Route Sprint 1*/}
+                <Route
+                  path="/create-assignment"
+                  element={<CreateAssignment />}
+                />{" "}
+                {/* New Route Sprint 1*/}
+                <Route
+                  path="/view-assignments"
+                  element={<ViewAssignments />}
+                />{" "}
+                {/* New Route Sprint 1*/}
+                <Route path="/edit-tags" element={<EditTags />} />
               </Routes>
             </div>
           </BrowserRouter>
         </div>
       </ClassesProvider>
     );
-  }
-  else {
+  } else {
     return (
       <ClassesProvider>
         <div className="App">
@@ -150,7 +158,6 @@ function App() {
       </ClassesProvider>
     );
   }
-
 }
 
 export default App;
