@@ -162,7 +162,7 @@ const CreateAssignment = () => {
   const handleChangeAssignmentType = (value) => {
     setFilteredtags(
       tags.filter((tag) => {
-        return tag.parent === value;
+        return tag.parent === value && tag.isactive;
       })
     );
   };
