@@ -9,82 +9,101 @@ const EditTags = () => {
   const [form] = Form.useForm();
   const [subjects, setSubjects] = useState([]);
   const [assignments, setAssignments] = useState([]);
+  const [filteredAssignments, setFilteredAssignments] = useState([]);
   const [tags, setTags] = useState([]);
-  const [filteredTags, setFilteredTags] = useState([]); // We will use this to store the filtered tags
-  const [selectedSubject, setSelectedSubject] = useState(null);
-  const [selectedAssignment, setSelectedAssignment] = useState(null);
-  const [newTag, setNewTag] = useState("");
+  const [filteredTags, setFilteredtags] = useState([]);
+  const [tagName, setTagName] = useState("");
+  const [selectedAssignment, setSelectedAssignment] = useState("");
+  const [removeTag, setRemoveTag] = useState("");
 
   useEffect(() => {
     const fetchSubjects = async () => {
       try {
-        const response = await axios.get("/api/learningsets");
-        setSubjects(response.data);
+        const response = await axios.get("/api/learningsets"); // Adjust API endpoint
+        if (response.status === 200) {
+          setSubjects(response.data); // Assuming response.data is an array of titles
+        }
       } catch (error) {
-        console.error("Error fetching subjects:", error);
+        console.error("Error fetching assignment titles:", error);
+      }
+    };
+
+    const fetchAssignmentTypes = async () => {
+      try {
+        const response = await axios.get("/api/assignmenttype"); // Adjust API endpoint
+        if (response.status === 200) {
+          setAssignments(response.data); // Assuming response.data is an array of titles
+        }
+      } catch (error) {
+        console.error("Error fetching assignment titles:", error);
+      }
+    };
+
+    const fetchTags = async () => {
+      try {
+        const response = await axios.get("/api/tags"); // Adjust API endpoint
+        if (response.status === 200) {
+          setTags(response.data);
+        }
+      } catch (error) {
+        console.error("Error fetching tags:", error);
       }
     };
 
     fetchSubjects();
+    fetchAssignmentTypes();
+    fetchTags();
   }, []);
 
-  useEffect(() => {
-    const fetchAssignments = async () => {
-      try {
-        const response = await axios.get("/api/assignmenttype");
-        setAssignments(response.data);
-      } catch (error) {
-        console.error("Error fetching assignments:", error);
-      }
+  const handleSubmit = async () => {
+    if (selectedAssignment === "") {
+      alert("Please select an assignment");
+      return;
+    }
+    if (tagName === "") {
+      alert("Please enter a tag name");
+      return;
+    }
+
+    const newTag = {
+      name: tagName,
+      parent: selectedAssignment,
+      type: "tag",
     };
 
-    fetchAssignments();
-  }, []);
-
-  useEffect(() => {
-    if (selectedSubject) {
-      // Filter assignments based on the selected subject
-      setFilteredTags(
-        assignments.filter(
-          (assignment) => assignment.parent === selectedSubject
-        )
-      );
-    }
-  }, [selectedSubject, assignments]);
-
-  const handleSubjectChange = (subjectId) => {
-    setSelectedSubject(subjectId);
-  };
-
-  const handleAssignmentChange = async (assignmentId) => {
-    setSelectedAssignment(assignmentId);
     try {
-      // Fetch tags based on selected assignment
-      const response = await axios.get(`/api/tags?assignment=${assignmentId}`);
-      setTags(response.data); // Set the tags for the selected assignment
+      const response = await axios.post("/api/tags", newTag);
+
+      if (response.status === 201) {
+        alert("Tag created successfully!");
+        setTagName("");
+      }
     } catch (error) {
-      console.error("Error fetching tags:", error);
+      console.error("Error creating tag:", error);
     }
   };
 
-  const handleAddTag = async () => {
-    if (!newTag.trim()) return;
-    try {
-      const response = await axios.post("/api/tags", {
-        name: newTag,
-        assignment: selectedAssignment,
-      });
-      setTags([...tags, response.data]);
-      setNewTag("");
-    } catch (error) {
-      console.error("Error adding tag:", error);
-    }
+  const handleChangeLearningSet = (value) => {
+    setFilteredAssignments(
+      assignments.filter((assignment) => {
+        return assignment.parent === value;
+      })
+    );
   };
 
-  const handleRemoveTag = async (tagId) => {
+  const handleChangeAssignmentType = (value) => {
+    setFilteredtags(
+      tags.filter((tag) => {
+        return tag.parent === value && tag.isactive;
+      })
+    );
+    setSelectedAssignment(value);
+  };
+
+  const handleRemoveTag = (tagId) => {
     try {
-      await axios.delete(`/api/tags/${tagId}`);
-      setTags(tags.filter((tag) => tag._id !== tagId));
+      axios.delete(`/api/tags/${tagId}`);
+      alert("Tag deleted successfully!");
     } catch (error) {
       console.error("Error deleting tag:", error);
     }
@@ -93,9 +112,12 @@ const EditTags = () => {
   return (
     <div className="edit-tags-container">
       <h1>Edit Tags</h1>
-      <Form form={form} layout="vertical">
+      <Form form={form} layout="vertical" onFinish={handleSubmit}>
         <Form.Item label="Subject">
-          <Select placeholder="Select a subject" onChange={handleSubjectChange}>
+          <Select
+            placeholder="Select a subject"
+            onChange={handleChangeLearningSet}
+          >
             {subjects.map((subject) => (
               <Option key={subject._id} value={subject._id}>
                 {subject.name}
@@ -107,22 +129,19 @@ const EditTags = () => {
         <Form.Item label="Assignment">
           <Select
             placeholder="Select an assignment"
-            onChange={handleAssignmentChange}
-            disabled={!selectedSubject}
+            onChange={handleChangeAssignmentType}
           >
-            {assignments
-              .filter((assignment) => assignment.parent === selectedSubject)
-              .map((assignment) => (
-                <Option key={assignment._id} value={assignment._id}>
-                  {assignment.name}
-                </Option>
-              ))}
+            {filteredAssignments.map((assignemnt) => (
+              <Option key={assignemnt._id} value={assignemnt._id}>
+                {assignemnt.name}
+              </Option>
+            ))}
           </Select>
         </Form.Item>
 
         <Form.Item label="Tags">
           <div className="tag-list">
-            {tags.map((tag) => (
+            {filteredTags.map((tag) => (
               <Tag
                 key={tag._id}
                 closable
@@ -136,15 +155,13 @@ const EditTags = () => {
 
         <Form.Item label="New Tag">
           <Input
-            value={newTag}
-            onChange={(e) => setNewTag(e.target.value)}
+            value={tagName}
+            onChange={(e) => setTagName(e.target.value)}
             placeholder="Enter new tag"
+            name="name"
+            id="name"
           />
-          <Button
-            type="primary"
-            onClick={handleAddTag}
-            disabled={!selectedAssignment}
-          >
+          <Button type="primary" htmlType="submit">
             Add Tag
           </Button>
         </Form.Item>

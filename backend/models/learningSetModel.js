@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const learningSetSchema = new mongoose.Schema({
   _id: {
@@ -13,9 +13,13 @@ const learningSetSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  isactive: {
+    type: Boolean,
+    default: true,
+  },
   parent: {
     type: Number,
   },
 });
 
-module.exports = mongoose.model('learningsets', learningSetSchema);
+module.exports = mongoose.model("learningsets", learningSetSchema);
