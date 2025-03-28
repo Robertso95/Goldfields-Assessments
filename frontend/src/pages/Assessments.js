@@ -1,387 +1,448 @@
-import React, { useState, useEffect } from 'react';
-import { Space, Table, Tag, Carousel, Select, Modal, Form, Input, Button, message } from 'antd';
-import { SearchOutlined } from '@ant-design/icons';
-import { Link } from 'react-router-dom';
-import '../assessments.css';
+import { useState, useEffect } from "react"
+import { Space, Table, Tag, Carousel, Select, Modal, Form, Input, Button, message } from "antd"
+import { SearchOutlined } from "@ant-design/icons"
+import StudentAssessmentView from "../components/StudentAssessmentView"
+import { Link, useNavigate } from "react-router-dom"
+import "../assessments.css"
 
-const { Option } = Select;
-const { Search } = Input;
+const { Option } = Select
+const { Search } = Input
 
 const Assessments = () => {
-  const [classes, setClasses] = useState([]);
-  const [selectedClass, setSelectedClass] = useState(null);
-  const [students, setStudents] = useState([]);
-  const [filteredStudents, setFilteredStudents] = useState([]);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [assignments, setAssignments] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [isModalVisible, setIsModalVisible] = useState(false);
-  const [editingStudent, setEditingStudent] = useState(null);
-  const [form] = Form.useForm();
+  const navigate = useNavigate()
+  const [classes, setClasses] = useState([])
+  const [selectedClass, setSelectedClass] = useState(null)
+  const [students, setStudents] = useState([])
+  const [filteredStudents, setFilteredStudents] = useState([])
+  const [searchQuery, setSearchQuery] = useState("")
+  const [assignments, setAssignments] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [isModalVisible, setIsModalVisible] = useState(false)
+  const [editingStudent, setEditingStudent] = useState(null)
+  const [form] = Form.useForm()
   
+  // New state for user information
+  const [currentUser, setCurrentUser] = useState({
+    name: "Admin",
+    role: "Admin",
+    teacherClassId: null
+  });
+
+  const getTagColor = (tag) => {
+    switch (tag.toLowerCase()) {
+      case "hardworking":
+        return "green"
+      case "dedicated":
+        return "blue"
+      case "focused":
+        return "orange"
+      case "creative":
+        return "purple"
+      case "team player":
+        return "cyan"
+      case "determined":
+        return "gold"
+      case "improving":
+        return "lime"
+      case "brilliant":
+        return "geekblue"
+      case "leadership":
+        return "red"
+      default:
+        return tag.length > 5 ? "geekblue" : "green" // Default color based on length
+    }
+  }
 
   useEffect(() => {
+    // Get user info from localStorage
+    const userRole = localStorage.getItem("role") || "Admin";
+    const userName = localStorage.getItem("name") || "Admin";
+    const email = localStorage.getItem("email");
+    
+    console.log("User role:", userRole);
+    console.log("User name:", userName);
+    
+    setCurrentUser({
+      name: userName,
+      role: userRole,
+      email: email
+    });
+    
     const fetchClasses = async () => {
       try {
-        const response = await fetch('/api/classes');
-        const data = await response.json();
-        setClasses(data);
-        setLoading(false);
+        const response = await fetch("/api/classes")
+        const data = await response.json()
+        setClasses(data)
+        setLoading(false)
+        
+        // If user is a teacher, fetch their assigned class
+        if (userRole === "Teacher" && email) {
+          fetchTeacherClass(data, email);
+        }
       } catch (error) {
-        console.error('Error fetching classes:', error);
-        setLoading(false);
+        console.error("Error fetching classes:", error)
+        setLoading(false)
       }
-    };
+    }
 
     const fetchAssignments = async () => {
       try {
-        const response = await fetch('/api/assignments');
-        const data = await response.json();
-        setAssignments(data);
+        const response = await fetch("/api/assignments")
+        const data = await response.json()
+        setAssignments(data)
       } catch (error) {
-        console.error('Error fetching assignments:', error);
+        console.error("Error fetching assignments:", error)
       }
-    };
+    }
 
-    fetchClasses();
-    fetchAssignments();
-  }, []);
+    fetchClasses()
+    fetchAssignments()
+  }, [])
 
-  // Initialize filtered students when students change
+  // Function to find a teacher's assigned class from the classes list
+  const fetchTeacherClass = (classesList, teacherEmail) => {
+    try {
+      // First find the teacher's user ID
+      fetch("/api/users/find-by-email", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ email: teacherEmail })
+      })
+      .then(response => response.json())
+      .then(userData => {
+        if (userData && userData._id) {
+          // Now find the class with this teacher ID
+          const teacherClass = classesList.find(c => c.teacherId === userData._id);
+          
+          if (teacherClass) {
+            console.log("Found teacher's class:", teacherClass.className);
+            setCurrentUser(prev => ({
+              ...prev,
+              teacherClassId: teacherClass._id
+            }));
+            
+            // Automatically load this class
+            handleClassChange(teacherClass._id);
+          } else {
+            console.log("No class assigned to this teacher");
+            message.info("You don't have any classes assigned yet.");
+          }
+        }
+      });
+    } catch (error) {
+      console.error("Error finding teacher's class:", error);
+    }
+  };
+
   useEffect(() => {
-    console.log("Students changed, setting filtered students:", students.length);
-    setFilteredStudents(students);
-  }, [students]);
+    console.log("Students changed, setting filtered students:", students.length)
+    setFilteredStudents(students)
+  }, [students])
 
-  // Enhanced search function with debugging
   const handleSearch = (value) => {
-    console.log("Search triggered with:", value);
-    console.log("Current students count:", students.length);
-    
-    setSearchQuery(value);
-    
+    console.log("Search triggered with:", value)
+    console.log("Current students count:", students.length)
+
+    setSearchQuery(value)
+
     if (!value) {
-      console.log("Empty search, showing all students");
-      setFilteredStudents(students);
+      console.log("Empty search, showing all students")
+      setFilteredStudents(students)
+      return
+    }
+
+    const lowercasedQuery = value.toLowerCase()
+    console.log("Lowercase query:", lowercasedQuery)
+
+    const filtered = students.filter((student) => {
+      const firstNameMatch = student.firstName && student.firstName.toLowerCase().includes(lowercasedQuery)
+      const lastNameMatch = student.lastName && student.lastName.toLowerCase().includes(lowercasedQuery)
+      const fullNameMatch = student.fullName && student.fullName.toLowerCase().includes(lowercasedQuery)
+      const classMatch = student.class && student.class.toLowerCase().includes(lowercasedQuery)
+
+      return firstNameMatch || lastNameMatch || fullNameMatch || classMatch
+    })
+
+    console.log("Filtered students count:", filtered.length)
+    setFilteredStudents(filtered)
+  }
+
+  const fetchAllStudents = async () => {
+    // Only allow admin to fetch all students
+    if (currentUser.role !== "Admin") {
+      message.error("You don't have permission to view all students");
       return;
     }
     
-    const lowercasedQuery = value.toLowerCase();
-    console.log("Lowercase query:", lowercasedQuery);
-    
-    // More robust filtering that checks for undefined properties
-    const filtered = students.filter(student => {
-      // Make sure properties exist before checking them
-      const firstNameMatch = student.firstName && 
-        student.firstName.toLowerCase().includes(lowercasedQuery);
-      
-      const lastNameMatch = student.lastName && 
-        student.lastName.toLowerCase().includes(lowercasedQuery);
-      
-      const fullNameMatch = student.fullName && 
-        student.fullName.toLowerCase().includes(lowercasedQuery);
-      
-      const classMatch = student.class && 
-        student.class.toLowerCase().includes(lowercasedQuery);
-      
-      return firstNameMatch || lastNameMatch || fullNameMatch || classMatch;
-    });
-    
-    console.log("Filtered students count:", filtered.length);
-    setFilteredStudents(filtered);
-  };
-
-  // New function to fetch all students from all classes
-  const fetchAllStudents = async () => {
-    setLoading(true);
+    setLoading(true)
     try {
-      const response = await fetch('/api/classes');
-      const allClasses = await response.json();
-      
-      // Set selected class to null to indicate "All Students" view
-      setSelectedClass(null);
-      
-      // Combine students from all classes
-      const allStudents = [];
-      
-      allClasses.forEach(classItem => {
+      const response = await fetch("/api/classes")
+      const allClasses = await response.json()
+
+      setSelectedClass(null)
+
+      const allStudents = []
+
+      allClasses.forEach((classItem) => {
         if (classItem.students && Array.isArray(classItem.students)) {
-          const classStudents = classItem.students.map(student => ({
+          const classStudents = classItem.students.map((student) => ({
             ...student,
             key: student._id,
             fullName: `${student.firstName} ${student.lastName}`,
             class: classItem.className, // Store the class name
             classId: classItem._id, // Store the class ID for editing/transferring
-            term: student.term || 'Term 1',
-            assessmentType: student.assessmentType || '',
-            tags: student.tags || ['hardworking']
-          }));
-          allStudents.push(...classStudents);
+            term: student.term || "Term 1",
+            assessmentType: student.assessmentType || "",
+            tags: student.tags || ["hardworking"],
+          }))
+          allStudents.push(...classStudents)
         }
-      });
-      
-      console.log("Total students loaded:", allStudents.length);
-      setStudents(allStudents);
-      setLoading(false);
+      })
+
+      console.log("Total students loaded:", allStudents.length)
+      setStudents(allStudents)
+      setLoading(false)
     } catch (error) {
-      console.error('Error fetching all students:', error);
-      setLoading(false);
+      console.error("Error fetching all students:", error)
+      setLoading(false)
     }
-  };
+  }
 
   const handleClassChange = async (classId) => {
-    if (classId === 'all') {
-      await fetchAllStudents();
-      return;
+    if (classId === "all") {
+      await fetchAllStudents()
+      return
     }
-    
-    setLoading(true);
+
+    setLoading(true)
     try {
-      const response = await fetch(`/api/classes/${classId}`);
-      const data = await response.json();
-      setSelectedClass(data);
+      const response = await fetch(`/api/classes/${classId}`)
+      const data = await response.json()
+      setSelectedClass(data)
       // Map the students data to include all necessary fields
-      const mappedStudents = data.students.map(student => ({
+      const mappedStudents = data.students.map((student) => ({
         ...student,
         key: student._id,
         fullName: `${student.firstName} ${student.lastName}`,
         class: data.className,
         classId: data._id, // Store the class ID consistently
-        term: student.term || 'Term 1',
-        assessmentType: student.assessmentType || '',
-        tags: student.tags || ['hardworking']
-      }));
-      setStudents(mappedStudents);
-      setLoading(false);
+        term: student.term || "Term 1",
+        assessmentType: student.assessmentType || "",
+        tags: student.tags || ["hardworking"],
+      }))
+      setStudents(mappedStudents)
+      setLoading(false)
     } catch (error) {
-      console.error('Error fetching class data:', error);
-      setLoading(false);
+      console.error("Error fetching class data:", error)
+      setLoading(false)
     }
-  };
+  }
+
+  // New function to navigate to student profile
+  const navigateToStudentProfile = (student) => {
+    if (student && student._id) {
+      const classId = student.classId || (selectedClass && selectedClass._id)
+      if (classId) {
+        navigate(`/class/${classId}/student/${student._id}`)
+      } else {
+        message.error("Cannot navigate to student profile: missing class ID")
+      }
+    } else {
+      message.error("Cannot navigate to student profile: missing student ID")
+    }
+  }
 
   const handleEdit = (record) => {
-    console.log('Editing student:', record); // Debug log
-    setEditingStudent(record);
-    
+    console.log("Editing student:", record) // Debug log
+    setEditingStudent(record)
+
     // In "All Students" view, we need to set the selectedClass for this specific student
     if (!selectedClass && record.classId) {
-      const studentClass = classes.find(c => c._id === record.classId);
+      const studentClass = classes.find((c) => c._id === record.classId)
       if (studentClass) {
-        setSelectedClass(studentClass);
+        setSelectedClass(studentClass)
       }
     }
-    
+
+    // Only set firstName, lastName, and transferToClass (removed term, assessmentType, tags)
     form.setFieldsValue({
       firstName: record.firstName,
       lastName: record.lastName,
-      term: record.term || 'Term 1',
-      assessmentType: record.assessmentType || '',
-      tags: record.tags ? record.tags.join(', ') : '',
-      transferToClass: '' // Initialize transfer dropdown to empty
-    });
-    setIsModalVisible(true);
-  };
+      transferToClass: "", // Initialize transfer dropdown to empty
+    })
+    setIsModalVisible(true)
+  }
 
   const handleCancel = () => {
-    setIsModalVisible(false);
-    setEditingStudent(null);
-    form.resetFields();
-  };
+    setIsModalVisible(false)
+    setEditingStudent(null)
+    form.resetFields()
+  }
 
-  // Function to handle student transfers
-  const handleTransferStudent = async (studentId, oldClassId, newClassId) => {
-    try {
-      const response = await fetch("/api/classes/transfer-student", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ studentId, oldClassId, newClassId }),
-      });
-      
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to transfer student");
-      }
-      
-      message.success("Student transferred successfully");
-      
-      // Check if we're in "All Students" view
-      const wasAllStudentsView = selectedClass === null;
-      
-      if (wasAllStudentsView) {
-        // If in "All Students" view, refresh the complete list
-        await fetchAllStudents();
-      } else {
-        // Otherwise just remove from current class view
-        setStudents(prevStudents => 
-          prevStudents.filter(student => student._id !== studentId)
-        );
-      }
-      
-      // Close the modal
-      setIsModalVisible(false);
-      setEditingStudent(null);
-      form.resetFields();
-    } catch (error) {
-      console.error("Error transferring student:", error);
-      message.error(error.message || "Error transferring student");
+  // First, update the handleTransferStudent function to allow teachers
+const handleTransferStudent = async (studentId, oldClassId, newClassId) => {
+  // Allow both admin and teacher to transfer students
+  if (currentUser.role !== "Admin" && currentUser.role !== "Teacher") {
+    message.error("You don't have permission to transfer students");
+    return;
+  }
+  
+  try {
+    const response = await fetch("/api/classes/transfer-student", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ studentId, oldClassId, newClassId }),
+    })
+
+    if (!response.ok) {
+      const errorData = await response.json()
+      throw new Error(errorData.error || "Failed to transfer student")
     }
-  };
+
+    message.success("Student transferred successfully")
+
+    const wasAllStudentsView = selectedClass === null
+
+    if (wasAllStudentsView) {
+      await fetchAllStudents()
+    } else {
+      setStudents((prevStudents) => prevStudents.filter((student) => student._id !== studentId))
+    }
+
+    setIsModalVisible(false)
+    setEditingStudent(null)
+    form.resetFields()
+  } catch (error) {
+    console.error("Error transferring student:", error)
+    message.error(error.message || "Error transferring student")
+  }
+}
 
   const handleSave = async () => {
     try {
-      const values = await form.validateFields();
-      
-      // Store if we're in "All Students" view
-      const wasAllStudentsView = selectedClass === null;
-      
-      // Check if transfer option was selected
+      const values = await form.validateFields()
+      const wasAllStudentsView = selectedClass === null
+
       if (values.transferToClass) {
         // For "All Students" view, we need the classId from the student record
-        const oldClassId = selectedClass ? selectedClass._id : editingStudent.classId;
-        
-        await handleTransferStudent(
-          editingStudent._id,
-          oldClassId,
-          values.transferToClass
-        );
-        return; // Exit early as transfer handles the rest
+        const oldClassId = selectedClass ? selectedClass._id : editingStudent.classId
+        await handleTransferStudent(editingStudent._id, oldClassId, values.transferToClass)
+        return // Exit early as transfer handles the rest
       }
-      
-      // Make sure assignments is available
+
       if (!assignments || assignments.length === 0) {
-        console.error('No assignments available');
+        console.error("No assignments available")
       }
-      
-      console.log('Form values:', values); // Debug log
-      console.log('Selected class ID:', selectedClass ? selectedClass._id : editingStudent.classId);
-      console.log('Editing student ID:', editingStudent._id);
-      
+
+      console.log("Form values:", values) // Debug log
+      console.log("Selected class ID:", selectedClass ? selectedClass._id : editingStudent.classId)
+      console.log("Editing student ID:", editingStudent._id)
+
+      // Keep existing student data - don't change anything if just viewing/transferring
       const updatedStudent = {
         firstName: editingStudent.firstName,
         lastName: editingStudent.lastName,
-        assessmentType: values.assessmentType,  // Make sure this is set correctly
-        term: values.term,
-        tags: values.tags ? values.tags.split(',').map(tag => tag.trim()) : ['hardworking']
-      };
-      
-      console.log('Sending updated student data:', updatedStudent); // Debug log
-  
-      // Use the class ID from either selectedClass or from the student record (for "All Students" view)
-      const classId = selectedClass ? selectedClass._id : editingStudent.classId;
-      
+        // Keep the existing values for these fields (don't update them)
+        term: editingStudent.term || "Term 1",
+        assessmentType: editingStudent.assessmentType || "",
+        tags: editingStudent.tags || ["hardworking"],
+      }
+
+      console.log("Sending updated student data:", updatedStudent) // Debug log
+      const classId = selectedClass ? selectedClass._id : editingStudent.classId
+
       const response = await fetch(`/api/classes/${classId}/students/${editingStudent._id}`, {
-        method: 'PATCH',
+        method: "PATCH",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(updatedStudent),
-      });
-  
+      })
+
       if (!response.ok) {
-        const errorData = await response.text();
-        console.error('Error response:', errorData);
-        throw new Error('Failed to update student');
+        const errorData = await response.text()
+        console.error("Error response:", errorData)
+        throw new Error("Failed to update student")
       }
-  
-      const updatedStudentData = await response.json();
-      console.log('Received updated student data:', updatedStudentData); // Debug log
-  
-      // If we were in "All Students" view, refresh the entire list
+
+      const updatedStudentData = await response.json()
+      console.log("Received updated student data:", updatedStudentData) // Debug log
+
       if (wasAllStudentsView) {
-        await fetchAllStudents();
+        await fetchAllStudents()
       } else {
-        // Otherwise just update the current student in the list
-        setStudents(prevStudents =>
-          prevStudents.map(student =>
+        setStudents((prevStudents) =>
+          prevStudents.map((student) =>
             student._id === editingStudent._id
               ? {
                   ...student,
                   ...updatedStudentData,
                   fullName: `${updatedStudentData.firstName} ${updatedStudentData.lastName}`,
-                  assessmentType: updatedStudentData.assessmentType
                 }
-              : student
-          )
-        );
+              : student,
+          ),
+        )
       }
-  
-      setIsModalVisible(false);
-      setEditingStudent(null);
-      form.resetFields();
+
+      setIsModalVisible(false)
+      setEditingStudent(null)
+      form.resetFields()
     } catch (error) {
-      console.error('Error saving student:', error);
+      console.error("Error saving student:", error)
     }
-  };
+  }
 
   const columns = [
     {
-      title: 'Full Name',
-      dataIndex: 'fullName',
-      key: 'fullName',
-      render: (text, record) => <a onClick={() => handleEdit(record)}>{text}</a>,
+      title: "Full Name",
+      dataIndex: "fullName",
+      key: "fullName",
+      render: (text, record) => <a onClick={() => navigateToStudentProfile(record)}>{text}</a>,
     },
     {
-      title: 'Class',
-      dataIndex: 'class',
-      key: 'class',
+      title: "Class",
+      dataIndex: "class",
+      key: "class",
     },
-    // {
-    //   title: 'Term',
-    //   dataIndex: 'term',
-    //   key: 'term',
-    // },
-    // {
-    //   title: 'Assessment Type',
-    //   dataIndex: 'assessmentType',
-    //   key: 'assessmentType',
-    // },
-    // {
-    //   title: 'Tags',
-    //   key: 'tags',
-    //   dataIndex: 'tags',
-    //   render: (tags) => (
-    //     <>
-    //       {tags.map((tag) => {
-    //         let color = 'green';
-    //         return (
-    //           <Tag color={color} key={tag}>
-    //             {tag.toUpperCase()}
-    //           </Tag>
-    //         );
-    //       })}
-    //     </>
-    //   ),
-    // },
     {
-      title: 'Actions',
-      key: 'action',
-      width: 250, // Set a fixed width for this column
+      title: "Term",
+      dataIndex: "term",
+      key: "term",
+    },
+    {
+      title: "Actions",
+      key: "action",
+      width: 250,
       render: (_, record) => (
-        <Space size="small"> {/* Change to small spacing */}
+        <Space size="small">
           <button className="action-button edit-button" onClick={() => handleEdit(record)}>
             Edit
           </button>
-          <button className="action-button view-button">
-            View Assessments
-          </button>
+          <StudentAssessmentView
+            student={record}
+            classId={record.classId || selectedClass?._id}
+            className="action-button view-button" 
+          />
         </Space>
       ),
     },
-  ];
+  ]
 
   const contentStyle = {
     margin: 0,
-    height: '200px',
-    color: '#fff',
-    lineHeight: '200px',
-    textAlign: 'center',
-    background: '#007bff',
-  };
+    height: "200px",
+    color: "#fff",
+    lineHeight: "200px",
+    textAlign: "center",
+    background: "#326C6F",
+  }
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <div>Loading...</div>
   }
 
   return (
@@ -401,7 +462,7 @@ const Assessments = () => {
       <div className="main-content">
         <div className="content-container">
           <div className="dummy-data">
-            <p>Hello, Admin</p>
+            <p>Hello, {currentUser.name}</p>
             <p>Goldfields School 01/01/2025</p>
           </div>
           <hr className="divider" />
@@ -411,7 +472,7 @@ const Assessments = () => {
             <div className="box">
               <Carousel arrows infinite={false}>
                 <div>
-                  <h3 style={contentStyle}>{selectedClass ? selectedClass.className : 'All Classes'}</h3>
+                  <h3 style={contentStyle}>{selectedClass ? selectedClass.className : "All Classes"}</h3>
                 </div>
                 <div>
                   <h3 style={contentStyle}>{filteredStudents.length} Students</h3>
@@ -438,52 +499,50 @@ const Assessments = () => {
         </div>
         <div className="content-container">
           <div className="filter-controls">
-            <div>
-              <h2 className="students-title">Select Class</h2>
-              <Select
-                style={{ width: 200 }}
-                placeholder="Select a class"
-                onChange={handleClassChange}
-              >
-                <Option key="all" value="all">All Students</Option>
-                {classes.map((classItem) => (
-                  <Option key={classItem._id} value={classItem._id}>
-                    {classItem.className}
+            {/* Only show class selector for Admins */}
+            {currentUser.role === "Admin" && (
+              <div>
+                <h2 className="students-title">Select Class</h2>
+                <Select style={{ width: 200 }} placeholder="Select a class" onChange={handleClassChange}>
+                  <Option key="all" value="all">
+                    All Students
                   </Option>
-                ))}
-              </Select>
-            </div>
-            
+                  {classes.map((classItem) => (
+                    <Option key={classItem._id} value={classItem._id}>
+                      {classItem.className}
+                    </Option>
+                  ))}
+                </Select>
+              </div>
+            )}
+
             <div>
               <h2 className="students-title">Search Students</h2>
               <Search
                 placeholder="Search by name..."
                 allowClear
-                enterButton={<SearchOutlined />}
+                enterButton={
+                  <Button Style={{backgroundColor: '#326c6f', borderColor: '#326c6f'}}>
+                    <SearchOutlined style={{color:'white'}}/>
+                  </Button>
+                }
                 style={{ width: 250 }}
                 onSearch={handleSearch}
-                onChange={e => handleSearch(e.target.value)}
+                onChange={(e) => handleSearch(e.target.value)}
               />
             </div>
           </div>
-          
-          {/* <h2 className="students-title">
-            Students: {filteredStudents.length} {searchQuery && `(Showing results for "${searchQuery}")`}
-          </h2> */}
+
           <div className="massive-box-container">
             <div className="massive-box">
-              <Table 
-                columns={columns} 
-                dataSource={filteredStudents} 
-                locale={{ emptyText: "No students found" }}
-              />
+              <Table columns={columns} dataSource={filteredStudents} locale={{ emptyText: "No students found" }} />
             </div>
           </div>
         </div>
       </div>
       <Modal
         title="Edit Student"
-        visible={isModalVisible}
+        open={isModalVisible}
         onCancel={handleCancel}
         footer={[
           <Button key="cancel" onClick={handleCancel}>
@@ -494,90 +553,48 @@ const Assessments = () => {
           </Button>,
         ]}
       >
-        <Form 
-          form={form} 
-          layout="vertical"
-          initialValues={editingStudent}
-        >
-          <Form.Item 
-            name="firstName" 
-            label="First Name"
-          >
+        <Form form={form} layout="vertical" initialValues={editingStudent}>
+          <Form.Item name="firstName" label="First Name">
             <Input disabled defaultValue={editingStudent?.firstName} />
           </Form.Item>
-          <Form.Item 
-            name="lastName" 
-            label="Last Name"
-          >
+          <Form.Item name="lastName" label="Last Name">
             <Input disabled defaultValue={editingStudent?.lastName} />
           </Form.Item>
-          {/* <Form.Item 
-            name="term" 
-            label="Term" 
-            rules={[{ required: true, message: 'Please enter the term' }]}
-          >
-            <Input />
-          </Form.Item> */}
-          {/* <Form.Item 
-            name="assessmentType" 
-            label="Assessment Type" 
-            rules={[{ required: true, message: 'Please select the assessment type' }]}
-          >
-            <Select>
-              {assignments.map((assignment) => (
-                <Option key={assignment._id} value={assignment.title}>
-                  {assignment.title}
-                </Option>
-              ))}
-            </Select>
-          </Form.Item>
-          <Form.Item 
-            name="Due Date" 
-            label="Due Date" 
-            rules={[{ required: true, message: 'Please enter the Date' }]}
-          >
-            <Input />
-          </Form.Item>
-          <Form.Item 
-            name="tags" 
-            label="Tags" 
-            rules={[{ required: true, message: 'Please enter the tags' }]}
-          >
-            <Input />
-          </Form.Item> */}
-         <>
-          {/* Warning message */}
-          <div style={{ marginBottom: '12px', color: '#ff4d4f', fontSize: '14px' }}>
-            <strong>Warning:</strong> Transferring a student will move all their assessments and data to the selected class.
-          </div>
+
+          {/* Show warning to both admins and teachers */}
+{(currentUser.role === "Admin" || currentUser.role === "Teacher") && (
+  <div style={{ marginBottom: "12px", color: "#ff4d4f", fontSize: "14px" }}>
+    <strong>Warning:</strong> Transferring a student will move all their assessments and data to the selected
+    class.
+  </div>
+)}
+
+{/* Allow both admins and teachers to transfer students */}
+{(currentUser.role === "Admin" || currentUser.role === "Teacher") && (
+  <Form.Item name="transferToClass" label="Transfer To Class">
+    <Select placeholder="Select class to transfer student (optional)">
+      <Option value="">-- No Transfer --</Option>
+      {classes
+        .filter((classItem) => {
+          if (!selectedClass && editingStudent) {
+            return classItem._id !== editingStudent.classId
+          }
+          return classItem._id !== selectedClass?._id
+        })
+        .map((classItem) => (
+          <Option key={classItem._id} value={classItem._id}>
+            {classItem.className}
+          </Option>
+        ))}
+    </Select>
+  </Form.Item>
+)}
           
-          <Form.Item 
-            name="transferToClass" 
-            label="Transfer To Class"
-          >
-            <Select placeholder="Select class to transfer student (optional)">
-              <Option value="">-- No Transfer --</Option>
-              {classes
-                .filter(classItem => {
-                  // When in "All Students" view, exclude the student's current class
-                  if (!selectedClass && editingStudent) {
-                    return classItem._id !== editingStudent.classId;
-                  }
-                  // Normal view, exclude the selected class
-                  return classItem._id !== selectedClass?._id;
-                })
-                .map((classItem) => (
-                  <Option key={classItem._id} value={classItem._id}>
-                    {classItem.className}
-                  </Option>
-                ))}
-            </Select>
-          </Form.Item>
-        </>
+          {/* Removed term, assessmentType, and tags form fields */}
         </Form>
       </Modal>
     </div>
-  );
-};
+  )
+}
 
-export default Assessments;
+export default Assessments

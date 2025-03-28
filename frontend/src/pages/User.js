@@ -10,6 +10,8 @@ function Class() {
     const [role, setRole] = useState("");
     const [list, setList] = useState([]);
     const [children, setChildren] = useState([]);
+    const [classes, setClasses] = useState([]);
+    const [teachers, setTeachers] = useState([]);
     const [deleteStatus, setDeleteStatus] = useState({
         status: "",
         msg: ""
@@ -17,17 +19,72 @@ function Class() {
 
     const [selecetUser, setSelecetUser] = useState({});
 
-    //Search user when enter key  is pressed, invoking the function of getData
+    //Search user when enter key is pressed, invoking the function of getData
     const [name, setName] = useState("");
 
 
     const nameHandler = (e) => {
         if (e.key === 'Enter') {
             getData();
-
         }
     }
 
+    // Fetch classes with teacher information
+    const fetchClasses = async () => {
+        try {
+            const response = await axios.get('/classes/list');
+            if (response.status === 200) {
+                console.log("Classes fetched:", response.data);
+                setClasses(response.data);
+            }
+        } catch (error) {
+            console.error("Error fetching classes:", error);
+        }
+    };
+
+    // Fetch teachers (users with Teacher role)
+    const fetchTeachers = async () => {
+        try {
+            // Get all users then filter for teachers
+            const response = await axios.post('/users/userList', {});
+            if (response.status === 200) {
+                const teachersList = response.data.filter(user => user.role === 'Teacher');
+                console.log("Teachers found:", teachersList.length);
+                setTeachers(teachersList);
+            }
+        } catch (error) {
+            console.error("Error fetching teachers:", error);
+        }
+    };
+
+    // Assign teacher to class
+    const assignTeacherToClass = async (classId, teacherId) => {
+        try {
+            console.log("Assigning teacher:", teacherId, "to class:", classId);
+            
+            const response = await axios.post('/classes/assign-teacher', { 
+                classId, 
+                teacherId 
+            });
+            
+            console.log("Assignment response:", response);
+            
+            if (response.status === 200) {
+                setDeleteStatus({ status: 200, msg: "Teacher assigned successfully!" });
+                setTimeout(() => {
+                    setDeleteStatus({ status: "", msg: "" });
+                }, 2000);
+                
+                // Refresh class data
+                await fetchClasses();
+            } else {
+                setDeleteStatus({ status: 400, msg: "Failed to assign teacher" });
+            }
+        } catch (error) {
+            console.error("Error assigning teacher:", error.response?.data || error.message);
+            setDeleteStatus({ status: 400, msg: "Error assigning teacher" });
+        }
+    };
 
     //Fetching stories from backend
     const fetchStories = async () => {
@@ -43,7 +100,6 @@ function Class() {
 
     //Userdata from backend
     async function getData() {
-
         try {
             const list = "/users/userList";
             // Make a POST request to login details
@@ -56,6 +112,7 @@ function Class() {
             }
             setList(response?.data);
         } catch (error) {
+            console.error("Error fetching user data:", error);
         }
     }
 
@@ -76,10 +133,11 @@ function Class() {
                     }, 2000);
                     //Refresh user data after being deleted
                     await getData();
+                    // Refresh teachers list in case we deleted a teacher
+                    await fetchTeachers();
                 }
                 else {
                     setDeleteStatus({ status: 400, msg: "something went wrong!" });
-
                 }
 
             } catch (error) {
@@ -91,7 +149,6 @@ function Class() {
     //Function to update user role
     const updateUser = async (id, role) => {
         try {
-
             const list = "/users/update";
             // Make a POST request to login endpoint of email and password
             const response = await axios.post(list, { id: id, role: role });
@@ -102,10 +159,11 @@ function Class() {
                     setDeleteStatus({ status: "", msg: "" });
                 }, 2000);
                 await getData();
+                // Refresh teachers list if we just added or removed a teacher
+                await fetchTeachers();
             }
             else {
                 setDeleteStatus({ status: 400, msg: "An Unexpected error occured!" });
-
             }
 
         } catch (error) {
@@ -139,13 +197,14 @@ function Class() {
         setRole(localStorage.getItem("role"));
         getData();
         fetchStories();
+        fetchClasses();
+        fetchTeachers();
     }, [])
+    
     //Display all users, each user gets a small shape format which has name email current role and delete user
     return (
         <div className="class-page-container">
             <div className="classes-container" style={{ marginTop: "5rem" }}>
-                {/* <h3 style={{ fontSize: "30px" }}>All Registered Users
-                </h3> */}
                 <p style={{ color: parseInt(deleteStatus?.status) === 200 ? "green" : "red" }}>{deleteStatus?.msg}</p>
                 <div>
                     {/* Creating the the search container with an icon, name handler gets called when pressed*/}
@@ -173,7 +232,7 @@ function Class() {
                                     if (localStorage.getItem("email") !== row?.email) {
                                         return (
                                             //Table row for users
-                                            <tr style={{ border: "solid", borderWidth: "1px 0" }}>
+                                            <tr key={row?._id} style={{ border: "solid", borderWidth: "1px 0" }}>
                                                 <td style={{ padding: "30px", textAlign: "center" }}>{row?.name}</td>
                                                 <td style={{ padding: "30px", textAlign: "center" }}>{row?.email}</td>
                                                 <td style={{ padding: "30px", textAlign: "center" }}>{row?.role}</td>
@@ -236,6 +295,56 @@ function Class() {
                                 <td colSpan="6" style={{ padding: "30px", textAlign: "center" }}>No Data Found</td>
                             </tr>
                             }
+                        </tbody>
+                    </table>
+                </div>
+
+                {/* Teacher-Class Assignment Section */}
+                <div style={{ marginTop: "50px" }}>
+                    <h3 style={{ fontSize: "24px" }}>Assign Teachers to Classes</h3>
+                    
+                    <table style={{ width: "100%", border: "solid 1px", borderCollapse: "collapse", borderRadius: "15px", padding: "30px", background: "white", marginTop: "10px" }}>
+                        <thead>
+                            <tr style={{ border: "solid", borderWidth: "1px 0" }}>
+                                <th style={{ padding: "20px" }}>Class Name</th>
+                                <th style={{ padding: "20px" }}>Current Teacher</th>
+                                <th style={{ padding: "20px" }}>Assign Teacher</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {classes.length > 0 ? (
+                                classes.map((classItem) => {
+                                    // Find the current teacher for this class
+                                    const currentTeacher = teachers.find(teacher => teacher._id === classItem.teacherId);
+                                    
+                                    return (
+                                        <tr key={classItem._id} style={{ border: "solid", borderWidth: "1px 0" }}>
+                                            <td style={{ padding: "20px", textAlign: "center" }}>{classItem.className}</td>
+                                            <td style={{ padding: "20px", textAlign: "center" }}>
+                                                {currentTeacher ? currentTeacher.name : "No teacher assigned"}
+                                            </td>
+                                            <td style={{ padding: "20px", textAlign: "center" }}>
+                                                <select 
+                                                    value={classItem.teacherId || ""}
+                                                    onChange={(e) => assignTeacherToClass(classItem._id, e.target.value)}
+                                                    style={{ padding: "10px", cursor: "pointer" }}
+                                                >
+                                                    <option value="">Select Teacher</option>
+                                                    {teachers.map(teacher => (
+                                                        <option key={teacher._id} value={teacher._id}>
+                                                            {teacher.name}
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                            </td>
+                                        </tr>
+                                    );
+                                })
+                            ) : (
+                                <tr>
+                                    <td colSpan="3" style={{ padding: "20px", textAlign: "center" }}>No Classes Found</td>
+                                </tr>
+                            )}
                         </tbody>
                     </table>
                 </div>

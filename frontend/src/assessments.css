@@ -22,14 +22,16 @@
   margin: 10px 0;
   padding: 10px;
   text-decoration: none;
+  font-family: 'Poppins', sans-serif;
   color: #fff;
-  background-color: #007bff;
+  background-color: #326C6F;
   text-align: center;
-  border-radius: 4px;
+  border: none;
+  border-radius: 20px;
 }
 
 .sidebar .button:hover {
-  background-color: #0056b3;
+  background-color: #224957;
 }
 
 .main-content {
@@ -141,31 +143,59 @@
 /* New button styles for table actions */
 .action-button {
   border: none;
-  padding: 6px 12px;
+  padding: 6px 15px;
+  min-width: 60px;
+  height: 32px;
   border-radius: 4px;
   cursor: pointer;
   font-size: 12px;
+  font-family: 'Poppins', sans-serif;
   font-weight: 500;
   transition: all 0.3s ease;
   white-space: nowrap;
+  text-align: center;
+  line-height: 20px;
 }
 
 .edit-button {
-  background-color: #007bff;
+  background-color: #326C6F;
   color: white;
 }
 
 .edit-button:hover {
-  background-color: #0056b3;
+  background-color: #224957;
 }
 
 .view-button {
-  background-color: #28a745;
-  color: white;
+  background-color: #326C6F;
+  color: white 
 }
 
 .view-button:hover {
-  background-color: #218838;
+  background-color: #224957 !important;
+}
+
+.ant-btn-primary {
+  background-color: #326c6f !important;
+  border-color: #326c6f !important;
+}
+
+.ant-btn-primary:hover {
+  background-color: #224957 !important;
+}
+/*Ant Design Search*/
+.ant-input-search-button {
+  background-color: #326C6F !important; 
+  border-color: #326C6F !important; 
+}
+
+.ant-input-search-button:hover {
+  background-color: #224957 !important; 
+  border-color: #224957 !important;
+}
+
+.ant-input-search-button .anticon-search {
+  color: #fff !important; 
 }
 
 /* Table styling improvements */

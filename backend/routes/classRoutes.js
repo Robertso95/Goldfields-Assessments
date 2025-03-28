@@ -14,6 +14,9 @@ const {
   updateStudentAssessment,
   deleteStudent,
   getStudentInClass,
+  getStudentAssessments,
+  getClassByTeacherId,
+  assignTeacherToClass,
   getStudentList
 } = require('../controllers/classController');
 
@@ -31,4 +34,11 @@ router.put('/:classId/students/:studentId', updateStudent); // Update a student 
 router.delete('/:classId/students/:studentId', deleteStudent); // Delete a student from a class
 router.get('/:classId/students/:studentId', getStudentInClass); // Get a student in a class
 router.patch('/:classId/students/:studentId', updateStudentAssessment);
+router.get('/classes/:classId/students/:studentId/assessments', getStudentAssessments);
+// Add this to your classRoutes.js file
+router.post('/assign-teacher', assignTeacherToClass);
+// Add this new route
+router.get('/teacher/:teacherId', getClassByTeacherId);
+
+
 module.exports = router;
