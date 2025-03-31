@@ -9,6 +9,7 @@ const {
     validateUpdateUser,
     deleteUser,
     updateUser,
+    findUserByEmail,
     validateDeleteUser,
     getParentsByChildName
 } = require('../controllers/userController');
@@ -38,4 +39,5 @@ router.post('/userList', UserList);
 // GET parents by child's name using URL parameters
 router.get('/parent/:childName', getParentsByChildName);
 
+router.post('/find-by-email', findUserByEmail);
 module.exports = router;
