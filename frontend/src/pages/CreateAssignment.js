@@ -1,23 +1,26 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Button, DatePicker, Form, Select, Modal, Tag } from 'antd';
-import ReactQuill from 'react-quill';
-import 'react-quill/dist/quill.snow.css';
-import axios from 'axios';
-import '../createAssignment.css';
-import CheckboxTagList from '../components/CheckboxTagList/CheckboxTagList';
+import React, { useState, useEffect, useRef } from "react";
+import { Button, DatePicker, Form, Select, Modal, Tag } from "antd";
+import ReactQuill from "react-quill";
+import "react-quill/dist/quill.snow.css";
+import axios from "axios";
+import "../createAssignment.css";
+import CheckboxTagList from "../components/CheckboxTagList/CheckboxTagList";
 
 const { Option } = Select;
 
 const CreateAssignment = () => {
   const [form] = Form.useForm();
   const [selectedStudents, setSelectedStudents] = useState([]);
-  const [description, setDescription] = useState('');
+  const [description, setDescription] = useState("");
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [learningSets, setLearningSets] = useState([]);
   const [assignmentTypes, setAssignmentTypes] = useState([]);
   const [filteredAssignments, setFilteredAssignments] = useState([]);
   const [tags, setTags] = useState([]);
   const [filteredTags, setFilteredtags] = useState([]);
+  /**
+   * @type {[string[], React.Dispatch<React.SetStateAction<string[]>>]}
+   */
   const [images, setImages] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedTags, setSelectedTags] = useState([]);
@@ -25,101 +28,87 @@ const CreateAssignment = () => {
   const [classes, setClasses] = useState([]);
   const [classStudents, setClassStudents] = useState([]);
 
+  useEffect(() => {
+    cloudinaryWidgetRef.current = window.cloudinary.createUploadWidget(
+      {
+        cloudName: "drpnvb7qc",
+        uploadPreset: "tetlineq",
+        sources: ["local"],
+        clientAllowedFormats: ["image", "video"],
+        multiple: true,
+      },
+      // The function the widget runs after you upload an image
+      async (error, result) => {
+        if (!error && result && result.event === "success") {
+          setImages([...images, result.info.secure_url]);
+          setCurrentIndex((prevIndex) => prevIndex + 1);
+        }
+      }
+    );
+  }, []);
 
-
-    useEffect(() => {
-        cloudinaryWidgetRef.current = window.cloudinary.createUploadWidget({
-          cloudName: "drpnvb7qc",
-          uploadPreset: "tetlineq",
-          sources: ["local"],
-          clientAllowedFormats: ["image", "video"],
-          multiple: true
-        }, async (error, result) => {
-          if (!error && result && result.event === "success") {
-            try {
-              const response = await fetch('/api/images', {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ imageUrl: result.info.secure_url }),
-              });
-              if (!response.ok) {
-                throw new Error('Failed to save the image to the backend');
-              }
-              const newImage = await response.json();
-              setImages(prevImages => [...prevImages, newImage]);
-              setCurrentIndex(prevIndex => prevIndex + 1);
-            } catch (error) {
-              console.error("Error saving the image:", error);
-            }
-          }
-        });
-      }, []);
-
-        const handleImageUpload = () => {
+  const handleImageUpload = () => {
     cloudinaryWidgetRef.current.open();
   };
 
   useEffect(() => {
-  const fetchClasses = async () => {
-    try {
-      const response = await axios.get('/api/classes'); // Adjust API endpoint
-      if (response.status === 200) {
-        setClasses(response.data); // Assuming response.data is an array of classes
+    const fetchClasses = async () => {
+      try {
+        const response = await axios.get("/api/classes"); // Adjust API endpoint
+        if (response.status === 200) {
+          setClasses(response.data); // Assuming response.data is an array of classes
+        }
+      } catch (error) {
+        console.error("Error fetching classes:", error);
       }
-    } catch (error) {
-      console.error('Error fetching classes:', error);
+    };
+
+    fetchClasses();
+  }, []);
+
+  const handleClassChange = (classId) => {
+    const selectedClass = classes.find((cls) => cls._id === classId);
+    if (selectedClass) {
+      setClassStudents(selectedClass.students);
+    } else {
+      setClassStudents([]);
     }
   };
 
-  fetchClasses();
-}, []);
-
-  const handleClassChange = (classId) => {
-  const selectedClass = classes.find(cls => cls._id === classId);
-  if (selectedClass) {
-    setClassStudents(selectedClass.students);
-  } else {
-    setClassStudents([]);
-  }
-};
-
-
   // Fetch assignment titles from MongoDB
   useEffect(() => {
-    const fetchLearningSets= async () => {
+    const fetchLearningSets = async () => {
       try {
-        const response = await axios.get('/api/learningsets'); // Adjust API endpoint
+        const response = await axios.get("/api/learningsets"); // Adjust API endpoint
         if (response.status === 200) {
           setLearningSets(response.data); // Assuming response.data is an array of titles
         }
       } catch (error) {
-        console.error('Error fetching assignment titles:', error);
+        console.error("Error fetching assignment titles:", error);
       }
     };
 
-    const fetchAssignmentTypes= async () => {
+    const fetchAssignmentTypes = async () => {
       try {
-        const response = await axios.get('/api/assignmenttype'); // Adjust API endpoint
+        const response = await axios.get("/api/assignmenttype"); // Adjust API endpoint
         if (response.status === 200) {
           setAssignmentTypes(response.data); // Assuming response.data is an array of titles
         }
       } catch (error) {
-        console.error('Error fetching assignment titles:', error);
+        console.error("Error fetching assignment titles:", error);
       }
-    }
+    };
 
     const fetchTags = async () => {
       try {
-        const response = await axios.get('/api/tags'); // Adjust API endpoint
+        const response = await axios.get("/api/tags"); // Adjust API endpoint
         if (response.status === 200) {
           setTags(response.data); // Assuming response.data is an array of titles
         }
       } catch (error) {
-        console.error('Error fetching tags:', error);
+        console.error("Error fetching tags:", error);
       }
-    }
+    };
 
     fetchLearningSets();
     fetchAssignmentTypes();
@@ -127,23 +116,29 @@ const CreateAssignment = () => {
   }, []);
 
   const handleSubmit = async (values) => {
-    const newAssignment = { ...values, studentNames: selectedStudents, description, tags: selectedTags, evidence: images };
+    const newAssignment = {
+      ...values,
+      studentNames: selectedStudents,
+      description,
+      tags: selectedTags,
+      evidence: images,
+    };
 
     try {
-      const response = await axios.post('/api/assignments', newAssignment);
+      const response = await axios.post("/api/assignments", newAssignment);
 
       if (response.status === 201) {
-        alert('Assignment created successfully!');
+        alert("Assignment created successfully!");
         form.resetFields();
         setSelectedStudents([]);
-        setDescription('');
+        setDescription("");
         setSelectedTags([]);
         setImages([]);
       } else {
-        alert('Failed to create assignment.');
+        alert("Failed to create assignment.");
       }
     } catch (error) {
-      console.error('Error creating assignment:', error);
+      console.error("Error creating assignment:", error);
     }
   };
 
@@ -157,18 +152,20 @@ const CreateAssignment = () => {
   };
 
   const handleChangeLearningSet = (value) => {
-    setFilteredAssignments(assignmentTypes.filter((assignment) => {
-      return assignment.parent === value
-    }))
-    
-  }
+    setFilteredAssignments(
+      assignmentTypes.filter((assignment) => {
+        return assignment.parent === value;
+      })
+    );
+  };
 
   const handleChangeAssignmentType = (value) => {
-    setFilteredtags(tags.filter((tag) => {
-      return tag.parent === value
-    }
-    ))
-  }
+    setFilteredtags(
+      tags.filter((tag) => {
+        return tag.parent === value && tag.isactive;
+      })
+    );
+  };
 
   return (
     <div className="create-assignment-container">
@@ -180,13 +177,15 @@ const CreateAssignment = () => {
           onFinish={handleSubmit}
           className="create-assignment-form"
         >
-
           <Form.Item
             label="Class Name"
             name="className"
-            rules={[{ required: true, message: 'Please select a class name!' }]}
+            rules={[{ required: true, message: "Please select a class name!" }]}
           >
-            <Select placeholder="Select class name" onChange={handleClassChange}>
+            <Select
+              placeholder="Select class name"
+              onChange={handleClassChange}
+            >
               {classes.map((cls) => (
                 <Option key={cls._id} value={cls._id}>
                   {cls.className}
@@ -195,11 +194,10 @@ const CreateAssignment = () => {
             </Select>
           </Form.Item>
 
-
           <Form.Item
             label="Student Name"
             name="studentNames"
-            rules={[{ required: true, message: 'Please select a student!' }]}
+            rules={[{ required: true, message: "Please select a student!" }]}
           >
             <Select
               placeholder="Select student"
@@ -217,23 +215,33 @@ const CreateAssignment = () => {
           <Form.Item
             label="Subject"
             name="subject"
-            rules={[{ required: true, message: 'Please select the title!' }]}
+            rules={[{ required: true, message: "Please select the title!" }]}
           >
-            <Select placeholder="Select a subject" onChange={(value) => {handleChangeLearningSet(value)}}>
-              {learningSets.map((subject) => 
+            <Select
+              placeholder="Select a subject"
+              onChange={(value) => {
+                handleChangeLearningSet(value);
+              }}
+            >
+              {learningSets.map((subject) => (
                 <Option key={subject._id} value={subject._id}>
                   {subject.name}
                 </Option>
-              )}
+              ))}
             </Select>
           </Form.Item>
 
           <Form.Item
             label="Assignment"
             name="assignment"
-            rules={[{ required: true, message: 'Please select an assignemnt' }]}
+            rules={[{ required: true, message: "Please select an assignemnt" }]}
           >
-            <Select placeholder="Select an assignment" onChange={(value) => {handleChangeAssignmentType(value)}}>
+            <Select
+              placeholder="Select an assignment"
+              onChange={(value) => {
+                handleChangeAssignmentType(value);
+              }}
+            >
               {filteredAssignments.map((assignment) => (
                 <Option key={assignment._id} value={assignment._id}>
                   {assignment.name}
@@ -242,25 +250,19 @@ const CreateAssignment = () => {
             </Select>
           </Form.Item>
           <Form.Item label="Tags">
-            <CheckboxTagList 
-              tags={filteredTags} 
-              selectedTags={selectedTags} 
-              setSelectedTags={setSelectedTags} 
+            <CheckboxTagList
+              tags={filteredTags}
+              selectedTags={selectedTags}
+              setSelectedTags={setSelectedTags}
             />
           </Form.Item>
 
-          <Form.Item
-            label="Additional Comments"
-            name="additionalComments"
-          >
+          <Form.Item label="Additional Comments" name="additionalComments">
             <input type="text" />
           </Form.Item>
 
           <Form.Item>
-            <Button 
-              type="primary" 
-              onClick={handleImageUpload}
-            >
+            <Button type="primary" onClick={handleImageUpload}>
               Upload Evidence
             </Button>
           </Form.Item>
@@ -268,7 +270,9 @@ const CreateAssignment = () => {
           <Form.Item
             label="Completed Date"
             name="completedDate"
-            rules={[{ required: false, message: 'Please select the completed date!' }]}
+            rules={[
+              { required: false, message: "Please select the completed date!" },
+            ]}
           >
             <DatePicker />
           </Form.Item>
@@ -289,9 +293,13 @@ const CreateAssignment = () => {
         onCancel={() => setIsModalVisible(false)}
         width="80%"
         style={{ top: 20 }}
-        bodyStyle={{ height: '70vh', overflowY: 'auto' }}
+        bodyStyle={{ height: "70vh", overflowY: "auto" }}
       >
-        <ReactQuill value={description} onChange={handleDescriptionChange} className="description-editor-modal" />
+        <ReactQuill
+          value={description}
+          onChange={handleDescriptionChange}
+          className="description-editor-modal"
+        />
       </Modal>
     </div>
   );

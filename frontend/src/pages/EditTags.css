@@ -1,0 +1,71 @@
+/* Center the form on the page */
+.edit-tags-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #f9f9f9;
+    padding: 20px;
+}
+
+/* Style the form container */
+.edit-tags-form-container {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 600px;
+    box-sizing: border-box;
+}
+
+/* Style form items */
+.ant-form-item {
+    margin-bottom: 16px;
+}
+
+/* Style the form labels */
+.ant-form-item-label>label {
+    font-weight: bold;
+}
+
+/* Style the submit button */
+.edit-tags-form .ant-btn-primary {
+    width: 100%;
+}
+
+/* Add some spacing between the form items */
+.edit-tags-form .ant-form-item {
+    margin-bottom: 24px;
+}
+
+/* Style the title */
+.edit-tags-container h1 {
+    font-size: 2em;
+    margin-bottom: 10px;
+    color: #333;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .edit-tags-form-container {
+        padding: 15px;
+        max-width: 90%;
+    }
+
+    .edit-tags-container h1 {
+        font-size: 1.5em;
+    }
+}
+
+@media (max-width: 480px) {
+    .edit-tags-form-container {
+        padding: 10px;
+        max-width: 100%;
+    }
+
+    .edit-tags-container h1 {
+        font-size: 1.2em;
+    }
+}
