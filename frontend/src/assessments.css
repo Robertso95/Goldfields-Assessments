@@ -1,3 +1,4 @@
+
 .container {
   display: flex;
   margin-top: 60px; /* Space below the navbar */
@@ -167,18 +168,19 @@
 /* New button styles for table actions */
 .action-button {
   border: none;
-  padding: 6px 15px;
-  min-width: 60px;
+  padding: 6px 12px;
+  min-width: 100px; /* Increased minimum width */
   height: 32px;
   border-radius: 4px;
   cursor: pointer;
-  font-size: 12px;
+  font-size: 14px; /* Slightly larger font */
   font-family: 'Poppins', sans-serif;
   font-weight: 500;
   transition: all 0.3s ease;
   white-space: nowrap;
   text-align: center;
   line-height: 20px;
+  margin-right: 8px; /* Add some space between buttons */
 }
 
 .edit-button {
@@ -186,8 +188,13 @@
   color: white;
 }
 
+.view-button {
+  background-color: #326C6F;
+  color: white;
+}
+
 .edit-button:hover {
-  background-color: #224957;
+  background-color: #224957 !important;
 }
 
 .view-button {
@@ -198,6 +205,7 @@
 .view-button:hover {
   background-color: #224957 !important;
 }
+
 
 .ant-btn-primary {
   background-color: #326c6f !important;
@@ -256,6 +264,94 @@
 
 .filter-controls .students-title {
   margin-bottom: 8px;
+}
+
+.box {
+  flex: 2;
+  padding: 0; /* Remove padding */
+  margin: 20px; /* Keep the space between boxes */
+  background-color: transparent; /* Make background transparent */
+  text-align: center;
+  box-shadow: none; /* Remove box shadow */
+  max-width: 450px; /* Width for larger screens */
+  overflow: hidden; /* Prevent content from flowing outside */
+}
+
+
+/* Add these new styles for the watermark effect */
+.box h3 {
+  position: relative;
+  color: white;
+  padding: 100px;
+  min-height: 250px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(50, 108, 111, 0.9);
+}
+
+.watermarked {
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.watermarked::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 70%; /* Move more to the right (was 50%) */
+  transform: translate(-50%, -50%);
+  width: 70%;
+  height: 70%;
+  background-image: url('./components/goldfieldslogoV2.png');
+  background-size: contain;
+  background-position: right; /* Align to the right */
+  background-repeat: no-repeat;
+  opacity: 0.15; /* Adjust for watermark visibility */
+  z-index: -1;
+}
+
+.search-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding: 0 5px;
+}
+
+.search-header .students-title {
+  margin: 0;
+  flex-grow: 1;
+}
+
+.ant-input-search {
+  max-width: 300px;
+}
+
+/* Make the table look more consistent with the rest of the UI */
+.massive-box .ant-table-wrapper {
+  margin-top: 15px;
+}
+
+.massive-box {
+  background-color: #f4f4f4;
+  padding: 25px;
+  border-radius: 5px;
+}
+
+/* For the carousel arrows */
+.ant-carousel .slick-prev,
+.ant-carousel .slick-next {
+  color: white;
+}
+
+.ant-carousel .slick-dots li button {
+  background: #E9AF0C;
+}
+
+.ant-carousel .slick-dots li.slick-active button {
+  background: #E9AF0C;
 }
 
 /* Media Queries for Responsive Design */

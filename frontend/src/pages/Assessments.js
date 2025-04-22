@@ -514,49 +514,49 @@ const handleTransferStudent = async (studentId, oldClassId, newClassId) => {
       <Logo />
     </div>
     <div className="dummy-data">
-  <p>{getTimeBasedGreeting()}, <strong>{currentUser.name}</strong></p>
-  <p><strong>{currentDate}</strong></p>
-</div>
-  </div>
-  <hr className="divider" style={{ borderColor: "#E9AF0C" }} />
-</div>
-        <div className="boxes-container">
-          <div className="boxes">
-            <div className="box">
-              <Carousel arrows infinite={false}>
-                <div>
-                  <h3 style={contentStyle}>
-                    {selectedClass ? selectedClass.className : "All Classes"}
-                  </h3>
-                </div>
-                <div>
-                  <h3 style={contentStyle}>
-                    {filteredStudents.length} Students
-                  </h3>
-                </div>
-              </Carousel>
-            </div>
-            <div className="box">
-              <Carousel arrows infinite={false}>
-                <div>
-                  <h3 style={contentStyle}>Assignment Now</h3>
-                </div>
-                <div>
-                  <h3 style={contentStyle}>Assignment due</h3>
-                </div>
-                <div>
-                  <h3 style={contentStyle}>Assignment Next</h3>
-                </div>
-                <div>
-                  <h3 style={contentStyle}>Assignment Analysis</h3>
-                </div>
-              </Carousel>
-            </div>
+        <p style={{ fontSize: "1.4rem" }}>{getTimeBasedGreeting()}, <strong>{currentUser.name}</strong></p>
+        <p style={{ fontSize: "1.0rem" }}><strong>{currentDate}</strong></p>
           </div>
         </div>
-        <div className="content-container">
-          <div className="filter-controls">
-            {/* Only show class selector for Admins */}
+        <hr className="divider" style={{ borderColor: "#E9AF0C" }} />
+      </div>
+          <div className="boxes-container">
+            <div className="boxes">
+            <div className="box">
+        <Carousel arrows infinite={false}>
+          <div>
+        <h3 className="watermarked" style={{ fontSize: "1.3rem" }}>
+          Class {selectedClass ? selectedClass.className : "All Classes" }
+        </h3>
+          </div>
+          <div>
+        <h3 className="watermarked" style={{ fontSize: "1.3rem" }}>
+          {filteredStudents.length} Students
+        </h3>
+          </div>
+        </Carousel>
+      </div>
+      <div className="box">
+        <Carousel arrows infinite={false}>
+          <div>
+        <h3 className="watermarked" style={{ fontSize: "1.3rem" }}>Assignment Now</h3>
+          </div>
+          <div>
+        <h3 className="watermarked" style={{ fontSize: "1.3rem" }}>Assignment due</h3>
+          </div>
+          <div>
+        <h3 className="watermarked" style={{ fontSize: "1.3rem" }}>Assignment Next</h3>
+          </div>
+          <div>
+        <h3 className="watermarked" style={{ fontSize: "1.3rem" }}>Assignment Analysis</h3>
+          </div>
+        </Carousel>
+      </div>
+            </div>
+          </div>
+          <div className="content-container">
+            <div className="filter-controls">
+          {/* Only show class selector for Admins */}
             {currentUser.role === "Admin" && (
               <div>
                 <h2 className="students-title">Select Class</h2>
@@ -573,35 +573,36 @@ const handleTransferStudent = async (studentId, oldClassId, newClassId) => {
               </div>
             )}
 
-            <div>
-              <h2 className="students-title">Search Students</h2>
-              <Search
-                placeholder="Search by name..."
-                allowClear
-                enterButton={
-                  <Button
-                    Style={{
-                      backgroundColor: "#326c6f",
-                      borderColor: "#326c6f",
-                    }}
-                  >
-                    <SearchOutlined style={{ color: "white" }} />
-                  </Button>
-                }
-                style={{ width: 250 }}
-                onSearch={handleSearch}
-                onChange={(e) => handleSearch(e.target.value)}
-              />
-            </div>
+            
           </div>
 
           <div className="massive-box-container">
-            <div className="massive-box">
-              <Table
-                columns={columns}
-                dataSource={filteredStudents}
-                locale={{ emptyText: "No students found" }}
-              />
+  <div className="massive-box">
+    <div className="search-header">
+      <h2 className="students-title">Search Students</h2>
+      <Search
+        placeholder="Search by name..."
+        allowClear
+        enterButton={
+          <Button
+            style={{
+              backgroundColor: "#326c6f",
+              borderColor: "#326c6f",
+            }}
+          >
+            <SearchOutlined style={{ color: "white" }} />
+          </Button>
+        }
+        style={{ width: 300 }}
+        onSearch={handleSearch}
+        onChange={(e) => handleSearch(e.target.value)}
+      />
+    </div>
+    <Table
+      columns={columns}
+      dataSource={filteredStudents}
+      locale={{ emptyText: "No students found" }}
+    />
             </div>
           </div>
         </div>
