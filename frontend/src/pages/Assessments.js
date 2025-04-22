@@ -15,6 +15,9 @@ import { SearchOutlined } from "@ant-design/icons";
 import StudentAssessmentView from "../components/StudentAssessmentView";
 import { Link, useNavigate } from "react-router-dom";
 import "../assessments.css";
+import { format } from "date-fns";
+// Import Logo component instead of direct image path
+import Logo from "../components/logov3";
 
 const { Option } = Select;
 const { Search } = Input;
@@ -476,6 +479,19 @@ const handleTransferStudent = async (studentId, oldClassId, newClassId) => {
   if (loading) {
     return <div>Loading...</div>;
   }
+  // date
+  const currentDate = format(new Date(), "dd/MM/yyyy");
+
+  const getTimeBasedGreeting = () => {
+    const hours = new Date().getHours();
+    if (hours < 12) {
+      return "Good morning";
+    } else if (hours >= 12 && hours < 17) {
+      return "Good afternoon";
+    } else {
+      return "Good evening";
+    }
+  };
 
   return (
     <div className="container">
@@ -492,13 +508,18 @@ const handleTransferStudent = async (studentId, oldClassId, newClassId) => {
         </Link>
       </div>
       <div className="main-content">
-        <div className="content-container">
-          <div className="dummy-data">
-            <p>Hello, {currentUser.name}</p>
-            <p>Goldfields School 01/01/2025</p>
-          </div>
-          <hr className="divider" />
-        </div>
+      <div className="content-container">
+  <div className="greeting-container">
+    <div className="logo-container">
+      <Logo />
+    </div>
+    <div className="dummy-data">
+  <p>{getTimeBasedGreeting()}, <strong>{currentUser.name}</strong></p>
+  <p><strong>{currentDate}</strong></p>
+</div>
+  </div>
+  <hr className="divider" style={{ borderColor: "#E9AF0C" }} />
+</div>
         <div className="boxes-container">
           <div className="boxes">
             <div className="box">

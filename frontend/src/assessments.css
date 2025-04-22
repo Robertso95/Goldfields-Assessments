@@ -47,20 +47,44 @@
 
 .dummy-data {
   margin-top: 20px;
-  text-align: left; /* Align text to the left */
+  text-align: left;
+  white-space: nowrap; /* Prevent text wrapping */
 }
 
 .dummy-data p {
-  margin: 5px 0;
+  margin: 5px 0; /* Reduced margin between paragraphs */
+  white-space: nowrap; /* Ensure each paragraph stays on one line */
+}
+
+.greeting-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  flex-direction: row-reverse;
+}
+
+
+.logo-container {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding-top: 0; /* Remove any top padding */
+}
+
+/* Add this to the logo img if needed */
+.logo-container img {
+  vertical-align: top; /* Align the image to the top */
 }
 
 .divider {
   margin: 30px 0;
   border: 0;
-  border-top: 5px solid #000000;
+  border-top: 5px solid #E9AF0C; /* Changed to match your inline style */
   width: 100%;
-  background-color: #000000;
+  background-color: #E9AF0C; /* Changed to match your inline style */
 }
+
 
 .boxes-container {
   display: flex;
