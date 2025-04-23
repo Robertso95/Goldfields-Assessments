@@ -39,17 +39,17 @@ const studentSchema = new mongoose.Schema({
   }
 });
 
+// Fix the variable name to match the export
 const classSchema = new mongoose.Schema({
-  className: {
-    type: String,
-    required: true,
-  },
-  students: [studentSchema],
-  teacherId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: false
-  }
-});
+  className: { type: String, required: true },
+  // Main teacher remains as is
+  teacherId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  // Add an array for additional teachers
+  additionalTeachers: [{ 
+    type: mongoose.Schema.Types.ObjectId, 
+    ref: 'User' 
+  }],
+  students: [studentSchema], // Include the student schema here
+}, { timestamps: true });
 
 module.exports = mongoose.model('Class', classSchema);

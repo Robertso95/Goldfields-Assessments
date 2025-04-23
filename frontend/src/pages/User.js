@@ -192,6 +192,64 @@ function Class() {
         }
     }
 
+    const [selectedAdditionalTeacher, setSelectedAdditionalTeacher] = useState({});
+
+// Function to add an additional teacher
+const assignAdditionalTeacher = async (classId, teacherId) => {
+  if (!teacherId) return;
+  
+  try {
+    const response = await axios.post('/classes/assign-additional-teacher', {
+      classId,
+      teacherId,
+      action: 'add'
+    });
+    
+    if (response.status === 200) {
+      setDeleteStatus({ status: 200, msg: "Additional teacher added successfully!" });
+      setTimeout(() => {
+        setDeleteStatus({ status: "", msg: "" });
+      }, 2000);
+      
+      // Refresh class data
+      await fetchClasses();
+      
+      // Reset the selection
+      setSelectedAdditionalTeacher({
+        ...selectedAdditionalTeacher,
+        [classId]: ""
+      });
+    }
+  } catch (error) {
+    console.error("Error adding additional teacher:", error);
+    setDeleteStatus({ status: 400, msg: "Error adding additional teacher" });
+  }
+};
+
+// Function to remove an additional teacher
+const removeAdditionalTeacher = async (classId, teacherId) => {
+  try {
+    const response = await axios.post('/classes/assign-additional-teacher', {
+      classId,
+      teacherId,
+      action: 'remove'
+    });
+    
+    if (response.status === 200) {
+      setDeleteStatus({ status: 200, msg: "Teacher removed successfully!" });
+      setTimeout(() => {
+        setDeleteStatus({ status: "", msg: "" });
+      }, 2000);
+      
+      // Refresh class data
+      await fetchClasses();
+    }
+  } catch (error) {
+    console.error("Error removing teacher:", error);
+    setDeleteStatus({ status: 400, msg: "Error removing teacher" });
+  }
+};
+
 
     useEffect(() => {
         setRole(localStorage.getItem("role"));
@@ -304,49 +362,112 @@ function Class() {
                     <h3 style={{ fontSize: "24px" }}>Assign Teachers to Classes</h3>
                     
                     <table style={{ width: "100%", border: "solid 1px", borderCollapse: "collapse", borderRadius: "15px", padding: "30px", background: "white", marginTop: "10px" }}>
-                        <thead>
-                            <tr style={{ border: "solid", borderWidth: "1px 0" }}>
-                                <th style={{ padding: "20px" }}>Class Name</th>
-                                <th style={{ padding: "20px" }}>Current Teacher</th>
-                                <th style={{ padding: "20px" }}>Assign Teacher</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {classes.length > 0 ? (
-                                classes.map((classItem) => {
-                                    // Find the current teacher for this class
-                                    const currentTeacher = teachers.find(teacher => teacher._id === classItem.teacherId);
-                                    
-                                    return (
-                                        <tr key={classItem._id} style={{ border: "solid", borderWidth: "1px 0" }}>
-                                            <td style={{ padding: "20px", textAlign: "center" }}>{classItem.className}</td>
-                                            <td style={{ padding: "20px", textAlign: "center" }}>
-                                                {currentTeacher ? currentTeacher.name : "No teacher assigned"}
-                                            </td>
-                                            <td style={{ padding: "20px", textAlign: "center" }}>
-                                                <select 
-                                                    value={classItem.teacherId || ""}
-                                                    onChange={(e) => assignTeacherToClass(classItem._id, e.target.value)}
-                                                    style={{ padding: "10px", cursor: "pointer" }}
-                                                >
-                                                    <option value="">Select Teacher</option>
-                                                    {teachers.map(teacher => (
-                                                        <option key={teacher._id} value={teacher._id}>
-                                                            {teacher.name}
-                                                        </option>
-                                                    ))}
-                                                </select>
-                                            </td>
-                                        </tr>
-                                    );
-                                })
-                            ) : (
-                                <tr>
-                                    <td colSpan="3" style={{ padding: "20px", textAlign: "center" }}>No Classes Found</td>
-                                </tr>
-                            )}
-                        </tbody>
-                    </table>
+  <thead>
+    <tr style={{ border: "solid", borderWidth: "1px 0" }}>
+      <th style={{ padding: "20px" }}>Class Name</th>
+      <th style={{ padding: "20px" }}>Main Teacher</th>
+      <th style={{ padding: "20px" }}>Additional Teachers</th>
+      <th style={{ padding: "20px" }}>Assign Teachers</th>
+    </tr>
+  </thead>
+  <tbody>
+    {classes.length > 0 ? (
+      classes.map((classItem) => {
+        // Find the current teacher for this class
+        const mainTeacher = teachers.find(teacher => teacher._id === classItem.teacherId);
+        
+        return (
+          <tr key={classItem._id} style={{ border: "solid", borderWidth: "1px 0" }}>
+            <td style={{ padding: "20px", textAlign: "center" }}>{classItem.className}</td>
+            <td style={{ padding: "20px", textAlign: "center" }}>
+              {mainTeacher ? mainTeacher.name : "No teacher assigned"}
+              <br />
+              <select 
+                value={classItem.teacherId || ""}
+                onChange={(e) => assignTeacherToClass(classItem._id, e.target.value)}
+                style={{ padding: "10px", cursor: "pointer", marginTop: "10px" }}
+              >
+                <option value="">Change Main Teacher</option>
+                {teachers.map(teacher => (
+                  <option key={teacher._id} value={teacher._id}>
+                    {teacher.name}
+                  </option>
+                ))}
+              </select>
+            </td>
+            <td style={{ padding: "20px", textAlign: "center" }}>
+              {/* Display all additional teachers with remove buttons */}
+              <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                {classItem.additionalTeachers && classItem.additionalTeachers.length > 0 ? (
+                  classItem.additionalTeachers.map(teacherId => {
+                    const teacher = teachers.find(t => t._id === teacherId);
+                    return teacher ? (
+                      <div key={teacherId} style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "10px" }}>
+                        <span>{teacher.name}</span>
+                        <button 
+                          onClick={() => removeAdditionalTeacher(classItem._id, teacherId)}
+                          style={{ background: "red", color: "white", border: "none", borderRadius: "5px", padding: "5px 10px", cursor: "pointer" }}
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    ) : null;
+                  })
+                ) : (
+                  <span>No additional teachers</span>
+                )}
+              </div>
+            </td>
+            <td style={{ padding: "20px", textAlign: "center" }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                <select 
+                  value={selectedAdditionalTeacher[classItem._id] || ""}
+                  onChange={(e) => setSelectedAdditionalTeacher({
+                    ...selectedAdditionalTeacher,
+                    [classItem._id]: e.target.value
+                  })}
+                  style={{ padding: "10px", cursor: "pointer" }}
+                >
+                  <option value="">Select Additional Teacher</option>
+                  {teachers
+                    .filter(teacher => 
+                      // Don't show main teacher or already assigned additional teachers
+                      teacher._id !== classItem.teacherId && 
+                      (!classItem.additionalTeachers || !classItem.additionalTeachers.includes(teacher._id))
+                    )
+                    .map(teacher => (
+                      <option key={teacher._id} value={teacher._id}>
+                        {teacher.name}
+                      </option>
+                    ))
+                  }
+                </select>
+                <button 
+                  onClick={() => assignAdditionalTeacher(classItem._id, selectedAdditionalTeacher[classItem._id])}
+                  disabled={!selectedAdditionalTeacher[classItem._id]}
+                  style={{ 
+                    background: !selectedAdditionalTeacher[classItem._id] ? "#cccccc" : "#326C6F", 
+                    color: "white", 
+                    border: "none", 
+                    borderRadius: "5px", 
+                    padding: "10px", 
+                    cursor: !selectedAdditionalTeacher[classItem._id] ? "not-allowed" : "pointer"
+                  }}
+                >
+                  Add Teacher
+                </button>
+              </div>
+            </td>
+          </tr>
+        );
+      })
+    ) : (
+      <tr>
+        <td colSpan="4" style={{ padding: "20px", textAlign: "center" }}>No Classes Found</td>
+      </tr>
+    )}
+  </tbody>
+</table>
                 </div>
             </div>
         </div>

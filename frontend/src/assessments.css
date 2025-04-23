@@ -279,21 +279,26 @@
 
 
 /* Add these new styles for the watermark effect */
+/* Change this in your CSS file */
+.watermarked {
+  position: relative; /* Change from fixed to relative */
+  overflow: hidden;
+  z-index: 1;
+}
+
+/* Add these styles to ensure consistent sizing */
 .box h3 {
   position: relative;
   color: white;
-  padding: 100px;
+  padding: 30px; /* Reduce padding */
+  height: 250px; /* Fixed height */
   min-height: 250px;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   background-color: rgba(50, 108, 111, 0.9);
-}
-
-.watermarked {
-  position: relative;
-  overflow: hidden;
-  z-index: 1;
+  box-sizing: border-box; /* Include padding in height calculation */
 }
 
 .watermarked::before {
@@ -329,6 +334,41 @@
   max-width: 300px;
 }
 
+.welcome-tags {
+  position: absolute;
+  bottom: 10px; /* Position at bottom of greeting container */
+  left: 0;
+  display: flex;
+  gap: 8px; /* Space between tags */
+  flex-wrap: wrap;
+}
+
+.greeting-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start; /* Align items at the top */
+  width: 100%;
+  flex-direction: row-reverse;
+  position: relative; /* For absolute positioning of welcome tags */
+  padding-bottom: 45px; /* Add space at bottom for the tags */
+  min-height: 120px; /* Ensure enough height for the container */
+}
+
+.dummy-data {
+  margin-top: 0px; /* Reduced top margin */
+  text-align: left;
+  white-space: nowrap; /* Prevent text wrapping */
+  align-self: flex-start; /* Align at the top */
+}
+
+/* Make tags stand out better */
+.ant-tag {
+  font-size: 14px;
+  padding: 4px 8px;
+  margin-bottom: 8px;
+}
+
+
 /* Make the table look more consistent with the rest of the UI */
 .massive-box .ant-table-wrapper {
   margin-top: 15px;
@@ -357,7 +397,7 @@
 /* Media Queries for Responsive Design */
 @media (max-width: 1200px) {
   .box {
-    max-width: 300px; /* Adjust width for medium screens */
+    max-width: 500px; /* Adjust width for medium screens */
   }
   .sidebar {
     width: 150px; /* Reduce sidebar width */
@@ -382,7 +422,7 @@
 
 @media (max-width: 480px) {
   .box {
-    max-width: 80%; /* Full width for extra small screens */
+    max-width: 50%; /* Full width for extra small screens */
   }
   .content-container {
     padding-left: 10px; /* Further reduce padding */
