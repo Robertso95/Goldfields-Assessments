@@ -1,15 +1,15 @@
 const Class = require("../models/classModel"); 
 const mongoose = require('mongoose');
 
-// Get all classes
-const getClasses = async (req, res) => {
-  const classes = await Class.find({}).sort({ createdAt: -1 });
-  const classesWithId = classes.map((c) => ({
-    ...c.toJSON(),
-    id: c._id.toString(),
-  }));
-  res.status(200).json(classesWithId);
-};
+// // Get all classes
+// const getClasses = async (req, res) => {
+//   const classes = await Class.find({}).sort({ createdAt: -1 });
+//   const classesWithId = classes.map((c) => ({
+//     ...c.toJSON(),
+//     id: c._id.toString(),
+//   }));
+//   res.status(200).json(classesWithId);
+// };
 
 // Get a single class
 const getClass = async (req, res) => {
@@ -339,6 +339,163 @@ const getClassByTeacherId = async (req, res) => {
 };
 
 
+// Assign additional teacher to a class
+const assignAdditionalTeacherToClass = async (req, res) => {
+  const { classId, teacherId, action } = req.body;
+  
+  if (!mongoose.Types.ObjectId.isValid(classId)) {
+    return res.status(404).json({ error: "Class not found" });
+  }
+  
+  if (!teacherId || teacherId === '') {
+    return res.status(400).json({ error: "Teacher ID is required" });
+  }
+
+  try {
+    const classDoc = await Class.findById(classId);
+    
+    if (!classDoc) {
+      return res.status(404).json({ error: "Class not found" });
+    }
+    
+    // Initialize additionalTeachers if it doesn't exist
+    if (!classDoc.additionalTeachers) {
+      classDoc.additionalTeachers = [];
+    }
+    
+    let updatedClass;
+    
+    if (action === 'add') {
+      // Check if teacher is already in the array
+      const teacherExists = classDoc.additionalTeachers.some(id => 
+        id.toString() === teacherId.toString()
+      );
+      
+      if (!teacherExists) {
+        // Add the teacher to additionalTeachers array
+        updatedClass = await Class.findByIdAndUpdate(
+          classId,
+          { $push: { additionalTeachers: teacherId } },
+          { new: true }
+        ).populate('teacherId', 'name email')
+         .populate('additionalTeachers', 'name email');
+      } else {
+        return res.status(400).json({ error: "Teacher is already assigned to this class" });
+      }
+    } else if (action === 'remove') {
+      // Remove the teacher from additionalTeachers array
+      updatedClass = await Class.findByIdAndUpdate(
+        classId,
+        { $pull: { additionalTeachers: teacherId } },
+        { new: true }
+      ).populate('teacherId', 'name email')
+       .populate('additionalTeachers', 'name email');
+    } else {
+      return res.status(400).json({ error: "Invalid action" });
+    }
+    
+    res.status(200).json({
+      message: action === 'add' ? "Teacher added successfully" : "Teacher removed successfully",
+      class: updatedClass
+    });
+  } catch (error) {
+    console.error('Error managing additional teachers:', error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Get all classes a teacher is assigned to (as main or additional)
+const getClassesByTeacher = async (req, res) => {
+  const { teacherId } = req.params;
+  
+  if (!mongoose.Types.ObjectId.isValid(teacherId)) {
+    return res.status(404).json({ error: "Invalid teacher ID format" });
+  }
+  
+  try {
+    // Find classes where teacher is the main teacher
+    const mainClasses = await Class.find({ teacherId: teacherId });
+    
+    // Find classes where teacher is an additional teacher
+    const additionalClasses = await Class.find({ 
+      additionalTeachers: { $in: [teacherId] }
+    });
+    
+    // Combine and deduplicate results
+    const allClasses = [...mainClasses];
+    
+    // Add additional classes only if they're not already in the list
+    additionalClasses.forEach(additionalClass => {
+      if (!allClasses.some(c => c._id.toString() === additionalClass._id.toString())) {
+        allClasses.push(additionalClass);
+      }
+    });
+    
+    // Add a property to indicate the teacher's role in each class
+    const classesWithRole = allClasses.map(classItem => {
+      const isMainTeacher = classItem.teacherId && classItem.teacherId.toString() === teacherId;
+      return {
+        ...classItem.toObject(),
+        teacherRole: isMainTeacher ? 'main' : 'additional'
+      };
+    });
+    
+    res.status(200).json(classesWithRole);
+  } catch (error) {
+    console.error("Error finding classes for teacher:", error);
+    res.status(500).json({ error: error.message });
+  }
+};
+// Get all teachers for a class
+const getClassTeachers = async (req, res) => {
+  const { classId } = req.params;
+  
+  if (!mongoose.Types.ObjectId.isValid(classId)) {
+    return res.status(404).json({ error: "Invalid class ID" });
+  }
+  
+  try {
+    const classDoc = await Class.findById(classId)
+      .populate('teacherId', 'name email _id')
+      .populate('additionalTeachers', 'name email _id');
+    
+    if (!classDoc) {
+      return res.status(404).json({ error: "Class not found" });
+    }
+    
+    const teachers = {
+      mainTeacher: classDoc.teacherId,
+      additionalTeachers: classDoc.additionalTeachers || []
+    };
+    
+    res.status(200).json(teachers);
+  } catch (error) {
+    console.error('Error fetching class teachers:', error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Update your getClasses and getClass methods to populate teacher information
+const getClasses = async (req, res) => {
+  try {
+    const classes = await Class.find({})
+      .populate('teacherId', 'name email')
+      .populate('additionalTeachers', 'name email')
+      .sort({ createdAt: -1 });
+      
+    const classesWithId = classes.map((c) => ({
+      ...c.toJSON(),
+      id: c._id.toString(),
+    }));
+    
+    res.status(200).json(classesWithId);
+  } catch (error) {
+    console.error('Error fetching classes:', error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+
 const getStudentAssessments = async (req, res) => {
   const { classId, studentId } = req.params;
   
@@ -411,5 +568,9 @@ module.exports = {
   getStudentList,
   assignTeacherToClass, // sam
   getClassByTeacherId, // sam
-  getStudentAssessments
+  getStudentAssessments,
+  getClassTeachers,
+  assignAdditionalTeacherToClass,
+  getClassesByTeacher,
+  
 };

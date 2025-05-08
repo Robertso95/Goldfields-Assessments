@@ -1,3 +1,4 @@
+
 .container {
   display: flex;
   margin-top: 60px; /* Space below the navbar */
@@ -47,20 +48,44 @@
 
 .dummy-data {
   margin-top: 20px;
-  text-align: left; /* Align text to the left */
+  text-align: left;
+  white-space: nowrap; /* Prevent text wrapping */
 }
 
 .dummy-data p {
-  margin: 5px 0;
+  margin: 5px 0; /* Reduced margin between paragraphs */
+  white-space: nowrap; /* Ensure each paragraph stays on one line */
+}
+
+.greeting-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  flex-direction: row-reverse;
+}
+
+
+.logo-container {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding-top: 0; /* Remove any top padding */
+}
+
+/* Add this to the logo img if needed */
+.logo-container img {
+  vertical-align: top; /* Align the image to the top */
 }
 
 .divider {
   margin: 30px 0;
   border: 0;
-  border-top: 5px solid #000000;
+  border-top: 5px solid #E9AF0C; /* Changed to match your inline style */
   width: 100%;
-  background-color: #000000;
+  background-color: #E9AF0C; /* Changed to match your inline style */
 }
+
 
 .boxes-container {
   display: flex;
@@ -143,18 +168,19 @@
 /* New button styles for table actions */
 .action-button {
   border: none;
-  padding: 6px 15px;
-  min-width: 60px;
+  padding: 6px 12px;
+  min-width: 100px; /* Increased minimum width */
   height: 32px;
   border-radius: 4px;
   cursor: pointer;
-  font-size: 12px;
+  font-size: 14px; /* Slightly larger font */
   font-family: 'Poppins', sans-serif;
   font-weight: 500;
   transition: all 0.3s ease;
   white-space: nowrap;
   text-align: center;
   line-height: 20px;
+  margin-right: 8px; /* Add some space between buttons */
 }
 
 .edit-button {
@@ -162,8 +188,13 @@
   color: white;
 }
 
+.view-button {
+  background-color: #326C6F;
+  color: white;
+}
+
 .edit-button:hover {
-  background-color: #224957;
+  background-color: #224957 !important;
 }
 
 .view-button {
@@ -174,6 +205,7 @@
 .view-button:hover {
   background-color: #224957 !important;
 }
+
 
 .ant-btn-primary {
   background-color: #326c6f !important;
@@ -234,10 +266,138 @@
   margin-bottom: 8px;
 }
 
+.box {
+  flex: 2;
+  padding: 0; /* Remove padding */
+  margin: 20px; /* Keep the space between boxes */
+  background-color: transparent; /* Make background transparent */
+  text-align: center;
+  box-shadow: none; /* Remove box shadow */
+  max-width: 450px; /* Width for larger screens */
+  overflow: hidden; /* Prevent content from flowing outside */
+}
+
+
+/* Add these new styles for the watermark effect */
+/* Change this in your CSS file */
+.watermarked {
+  position: relative; /* Change from fixed to relative */
+  overflow: hidden;
+  z-index: 1;
+}
+
+/* Add these styles to ensure consistent sizing */
+.box h3 {
+  position: relative;
+  color: white;
+  padding: 30px; /* Reduce padding */
+  height: 250px; /* Fixed height */
+  min-height: 250px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(50, 108, 111, 0.9);
+  box-sizing: border-box; /* Include padding in height calculation */
+}
+
+.watermarked::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 70%; /* Move more to the right (was 50%) */
+  transform: translate(-50%, -50%);
+  width: 70%;
+  height: 70%;
+  background-image: url('./components/goldfieldslogoV2.png');
+  background-size: contain;
+  background-position: right; /* Align to the right */
+  background-repeat: no-repeat;
+  opacity: 0.15; /* Adjust for watermark visibility */
+  z-index: -1;
+}
+
+.search-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding: 0 5px;
+}
+
+.search-header .students-title {
+  margin: 0;
+  flex-grow: 1;
+}
+
+.ant-input-search {
+  max-width: 300px;
+}
+
+.welcome-tags {
+  position: absolute;
+  bottom: 10px; /* Position at bottom of greeting container */
+  left: 0;
+  display: flex;
+  gap: 8px; /* Space between tags */
+  flex-wrap: wrap;
+}
+
+.greeting-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start; /* Align items at the top */
+  width: 100%;
+  flex-direction: row-reverse;
+  position: relative; /* For absolute positioning of welcome tags */
+  padding-bottom: 45px; /* Add space at bottom for the tags */
+  min-height: 120px; /* Ensure enough height for the container */
+}
+
+.dummy-data {
+  margin-top: 0px; /* Reduced top margin */
+  text-align: left;
+  white-space: nowrap; /* Prevent text wrapping */
+  align-self: flex-start; /* Align at the top */
+}
+
+/* Make tags stand out better */
+.ant-tag {
+  font-size: 14px;
+  padding: 4px 8px;
+  margin-bottom: 8px;
+}
+
+
+/* Make the table look more consistent with the rest of the UI */
+.massive-box .ant-table-wrapper {
+  margin-top: 15px;
+}
+
+.massive-box {
+  background-color: #f4f4f4;
+  padding: 25px;
+  border-radius: 5px;
+}
+
+/* For the carousel arrows */
+.ant-carousel .slick-prev,
+.ant-carousel .slick-next {
+  color: white;
+}
+
+.ant-carousel .slick-dots li button {
+  background: #E9AF0C;
+}
+
+.ant-carousel .slick-dots li.slick-active button {
+  background: #E9AF0C;
+}
+
 /* Media Queries for Responsive Design */
 @media (max-width: 1200px) {
   .box {
-    max-width: 300px; /* Adjust width for medium screens */
+    max-width: 500px; /* Adjust width for medium screens */
   }
   .sidebar {
     width: 150px; /* Reduce sidebar width */
@@ -262,7 +422,7 @@
 
 @media (max-width: 480px) {
   .box {
-    max-width: 80%; /* Full width for extra small screens */
+    max-width: 50%; /* Full width for extra small screens */
   }
   .content-container {
     padding-left: 10px; /* Further reduce padding */

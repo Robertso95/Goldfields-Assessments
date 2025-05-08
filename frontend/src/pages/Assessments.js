@@ -11,10 +11,13 @@ import {
   Button,
   message,
 } from "antd";
-import { SearchOutlined } from "@ant-design/icons";
+import { SearchOutlined, CloseCircleOutlined } from "@ant-design/icons";
 import StudentAssessmentView from "../components/StudentAssessmentView";
 import { Link, useNavigate } from "react-router-dom";
 import "../assessments.css";
+import { format } from "date-fns";
+// Import Logo component instead of direct image path
+import Logo from "../components/logov3";
 
 const { Option } = Select;
 const { Search } = Input;
@@ -64,88 +67,155 @@ const Assessments = () => {
     }
   };
 
-  useEffect(() => {
-    // Get user info from localStorage
-    const userRole = localStorage.getItem("role") || "Admin";
-    const userName = localStorage.getItem("name") || "Admin";
-    const email = localStorage.getItem("email");
-    
-    console.log("User role:", userRole);
-    console.log("User name:", userName);
-    
-    setCurrentUser({
-      name: userName,
-      role: userRole,
-      email: email
-    });
-    
-    const fetchClasses = async () => {
-      try {
-        const response = await fetch("/api/classes")
-        const data = await response.json()
-        setClasses(data)
-        setLoading(false)
-        
-        // If user is a teacher, fetch their assigned class
-        if (userRole === "Teacher" && email) {
-          fetchTeacherClass(data, email);
-        }
-      } catch (error) {
-        console.error("Error fetching classes:", error);
-        setLoading(false);
-      }
-    };
+  // In Assessments.js, modify your useEffect:
 
-    const fetchAssignments = async () => {
-      try {
-        const response = await fetch("/api/assignments");
-        const data = await response.json();
-        setAssignments(data);
-      } catch (error) {
-        console.error("Error fetching assignments:", error);
-      }
-    };
-
-    fetchClasses();
-    fetchAssignments();
-  }, []);
-
-  // Function to find a teacher's assigned class from the classes list
-  const fetchTeacherClass = (classesList, teacherEmail) => {
+useEffect(() => {
+  // Get user info from localStorage
+  const userRole = localStorage.getItem("role") || "Admin";
+  const userName = localStorage.getItem("name") || "Admin";
+  const email = localStorage.getItem("email");
+  
+  console.log("User role:", userRole);
+  console.log("User name:", userName);
+  
+  setCurrentUser({
+    name: userName,
+    role: userRole,
+    email: email
+  });
+  
+  const fetchClasses = async () => {
     try {
-      // First find the teacher's user ID
-      fetch("/api/users/find-by-email", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ email: teacherEmail })
-      })
-      .then(response => response.json())
-      .then(userData => {
-        if (userData && userData._id) {
-          // Now find the class with this teacher ID
-          const teacherClass = classesList.find(c => c.teacherId === userData._id);
-          
-          if (teacherClass) {
-            console.log("Found teacher's class:", teacherClass.className);
-            setCurrentUser(prev => ({
-              ...prev,
-              teacherClassId: teacherClass._id
-            }));
-            
-            // Automatically load this class
-            handleClassChange(teacherClass._id);
-          } else {
-            console.log("No class assigned to this teacher");
-            message.info("You don't have any classes assigned yet.");
-          }
-        }
-      });
+      const response = await fetch("/api/classes")
+      const data = await response.json()
+      setClasses(data)
+      setLoading(false)
+      
+      // If user is a teacher, fetch their assigned classes (both main and additional)
+      if (userRole === "Teacher" && email) {
+        fetchTeacherClasses(email);
+      }
     } catch (error) {
-      console.error("Error finding teacher's class:", error);
+      console.error("Error fetching classes:", error);
+      setLoading(false);
     }
   };
+
+  const fetchAssignments = async () => {
+    try {
+      const response = await fetch("/api/assignments");
+      const data = await response.json();
+      setAssignments(data);
+    } catch (error) {
+      console.error("Error fetching assignments:", error);
+    }
+  };
+
+  fetchClasses();
+  fetchAssignments();
+}, []);
+
+// Replace fetchTeacherClass with this new function
+const fetchTeacherClasses = async (teacherEmail) => {
+  try {
+    // First find the teacher's user ID
+    const userResponse = await fetch("/api/users/find-by-email", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ email: teacherEmail })
+    });
+    
+    const userData = await userResponse.json();
+    if (!userData || !userData._id) {
+      console.log("Could not find teacher user data");
+      return;
+    }
+    
+    // Now find all classes this teacher is assigned to
+    const classesResponse = await fetch(`/api/classes/teacher/${userData._id}/all-classes`);
+    const teacherClasses = await classesResponse.json();
+    
+    if (teacherClasses && teacherClasses.length > 0) {
+      console.log("Found teacher's classes:", teacherClasses.length);
+      
+      // Store the classes the teacher is assigned to
+      setCurrentUser(prev => ({
+        ...prev,
+        teacherClasses: teacherClasses,
+        teacherClassId: teacherClasses.find(c => c.teacherRole === 'main')?._id || teacherClasses[0]._id
+      }));
+      
+      // Load students from ALL classes the teacher is assigned to
+      await fetchAllTeacherStudents(teacherClasses);
+      
+      // Optionally, you can still set a selected class for UI purposes
+      const primaryClass = teacherClasses.find(c => c.teacherRole === 'main') || teacherClasses[0];
+      setSelectedClass(primaryClass);
+    } else {
+      console.log("No classes assigned to this teacher");
+      message.info("You don't have any classes assigned yet.");
+    }
+  } catch (error) {
+    console.error("Error finding teacher's classes:", error);
+  }
+};
+// Add this new function to fetch students from all assigned classes for a teacher
+const fetchAllTeacherStudents = async (teacherClasses) => {
+  if (!teacherClasses || teacherClasses.length === 0) {
+    setStudents([]);
+    return;
+  }
+
+  setLoading(true);
+  try {
+    // Create an array to hold all students
+    let allStudents = [];
+    
+    // Fetch students from each class the teacher is assigned to
+    for (const classItem of teacherClasses) {
+      const response = await fetch(`/api/classes/${classItem._id}`);
+      const classData = await response.json();
+      
+      // Map the students with their class info
+      if (classData.students && Array.isArray(classData.students)) {
+        const classStudents = classData.students.map((student) => ({
+          ...student,
+          key: student._id,
+          fullName: `${student.firstName} ${student.lastName}`,
+          class: classData.className,
+          classId: classData._id,
+          term: student.term || "Term 1",
+          assessmentType: student.assessmentType || "",
+          tags: student.tags || ["hardworking"],
+        }));
+        allStudents = [...allStudents, ...classStudents];
+      }
+    }
+    
+    console.log(`Total students from ${teacherClasses.length} classes:`, allStudents.length);
+    setStudents(allStudents);
+    setFilteredStudents(allStudents);
+    setLoading(false);
+  } catch (error) {
+    console.error("Error fetching teacher's students:", error);
+    setLoading(false);
+  }
+};
+
+const toggleClassView = (classId) => {
+  if (!classId || classId === 'all') {
+    // View all classes the teacher is assigned to
+    fetchAllTeacherStudents(currentUser.teacherClasses);
+    setSelectedClass(null);
+  } else {
+    // View a specific class
+    handleClassChange(classId);
+  }
+};
+
+
 
   useEffect(() => {
     console.log(
@@ -260,6 +330,13 @@ const Assessments = () => {
       setLoading(false);
     }
   };
+
+  // Add this function to let teachers switch between classes they're assigned to
+const switchClass = (classId) => {
+  if (classId) {
+    handleClassChange(classId);
+  }
+};
 
   // New function to navigate to student profile
   const navigateToStudentProfile = (student) => {
@@ -476,6 +553,19 @@ const handleTransferStudent = async (studentId, oldClassId, newClassId) => {
   if (loading) {
     return <div>Loading...</div>;
   }
+  // date
+  const currentDate = format(new Date(), "dd/MM/yyyy");
+
+  const getTimeBasedGreeting = () => {
+    const hours = new Date().getHours();
+    if (hours < 12) {
+      return "Good morning";
+    } else if (hours >= 12 && hours < 17) {
+      return "Good afternoon";
+    } else {
+      return "Good evening";
+    }
+  };
 
   return (
     <div className="container">
@@ -492,50 +582,101 @@ const handleTransferStudent = async (studentId, oldClassId, newClassId) => {
         </Link>
       </div>
       <div className="main-content">
-        <div className="content-container">
-          <div className="dummy-data">
-            <p>Hello, {currentUser.name}</p>
-            <p>Goldfields School 01/01/2025</p>
+      <div className="content-container">
+  <div className="greeting-container">
+    <div className="logo-container">
+      <Logo />
+    </div>
+    <div className="welcome-tags">
+  
+  {/* For teachers, show simplified class options */}
+  {currentUser.role === "Teacher" && currentUser.teacherClasses && (
+    <>
+      {/* All My Classes option */}
+      <Tag 
+        color={!selectedClass ? "red" : "default"}
+        style={{cursor: "pointer"}}
+        onClick={() => toggleClassView('all')}
+      >
+        All My Classes
+      </Tag>
+      
+      {/* Only show main classes and co-teacher classes with simplified labels */}
+      {currentUser.teacherClasses.map(classItem => (
+        <Tag 
+          key={classItem._id} 
+          color={selectedClass && selectedClass._id === classItem._id 
+            ? (classItem.teacherRole === 'main' ? "purple" : "blue") 
+            : (classItem.teacherRole === 'main' ? "purple-inverse" : "blue-inverse")
+          }
+          style={{cursor: "pointer"}}
+          onClick={() => toggleClassView(classItem._id)}
+        >
+          {classItem.className} {classItem.teacherRole === 'main' ? "(Main)" : "(Co-Teacher)"}
+        </Tag>
+      ))}
+    </>
+  )}
+  
+</div>
+    <div className="dummy-data">
+        <p style={{ fontSize: "1.4rem" }}>{getTimeBasedGreeting()}, <strong>{currentUser.name}</strong></p>
+        <p style={{ fontSize: "1.0rem" }}><strong>{currentDate}</strong></p>
           </div>
-          <hr className="divider" />
         </div>
-        <div className="boxes-container">
-          <div className="boxes">
+        <hr className="divider" style={{ borderColor: "#E9AF0C" }} />
+      </div>
+          <div className="boxes-container">
+            <div className="boxes">
             <div className="box">
-              <Carousel arrows infinite={false}>
-                <div>
-                  <h3 style={contentStyle}>
-                    {selectedClass ? selectedClass.className : "All Classes"}
-                  </h3>
-                </div>
-                <div>
-                  <h3 style={contentStyle}>
-                    {filteredStudents.length} Students
-                  </h3>
-                </div>
-              </Carousel>
+  <Carousel arrows infinite={false}>
+    <div>
+      <h3 className="watermarked" style={{ fontSize: "1.3rem" }}>
+        {/* When selectedClass is null, show all classes the teacher is assigned to */}
+        {!selectedClass ? "All My Classes" : `Class ${selectedClass.className}`}
+      </h3>
+    </div>
+    <div>
+      <h3 className="watermarked" style={{ fontSize: "1.3rem" }}>
+        {filteredStudents.length} Students
+      </h3>
+    </div>
+    {/* Add a third slide to show class breakdown */}
+    {currentUser.role === "Teacher" && currentUser.teacherClasses && currentUser.teacherClasses.length > 1 && (
+      <div>
+        <h3 className="watermarked" style={{ fontSize: "1.3rem" }}>
+          Class Breakdown:
+          {currentUser.teacherClasses.map(c => 
+            <div key={c._id} style={{fontSize: "0.9rem", margin: "3px 0"}}>
+              {c.className}: {students.filter(s => s.classId === c._id).length} students
             </div>
-            <div className="box">
-              <Carousel arrows infinite={false}>
-                <div>
-                  <h3 style={contentStyle}>Assignment Now</h3>
-                </div>
-                <div>
-                  <h3 style={contentStyle}>Assignment due</h3>
-                </div>
-                <div>
-                  <h3 style={contentStyle}>Assignment Next</h3>
-                </div>
-                <div>
-                  <h3 style={contentStyle}>Assignment Analysis</h3>
-                </div>
-              </Carousel>
+          )}
+        </h3>
+      </div>
+    )}
+  </Carousel>
+</div>
+      <div className="box">
+        <Carousel arrows infinite={false}>
+          <div>
+        <h3 className="watermarked" style={{ fontSize: "1.3rem" }}>Assignment Now</h3>
+          </div>
+          <div>
+        <h3 className="watermarked" style={{ fontSize: "1.3rem" }}>Assignment due</h3>
+          </div>
+          <div>
+        <h3 className="watermarked" style={{ fontSize: "1.3rem" }}>Assignment Next</h3>
+          </div>
+          <div>
+        <h3 className="watermarked" style={{ fontSize: "1.3rem" }}>Assignment Analysis</h3>
+          </div>
+        </Carousel>
+      </div>
             </div>
           </div>
-        </div>
-        <div className="content-container">
-          <div className="filter-controls">
-            {/* Only show class selector for Admins */}
+          <div className="content-container">
+            <div className="filter-controls">
+          {/* Only show class selector for Admins */}
             {currentUser.role === "Admin" && (
               <div>
                 <h2 className="students-title">Select Class</h2>
@@ -552,35 +693,36 @@ const handleTransferStudent = async (studentId, oldClassId, newClassId) => {
               </div>
             )}
 
-            <div>
-              <h2 className="students-title">Search Students</h2>
-              <Search
-                placeholder="Search by name..."
-                allowClear
-                enterButton={
-                  <Button
-                    Style={{
-                      backgroundColor: "#326c6f",
-                      borderColor: "#326c6f",
-                    }}
-                  >
-                    <SearchOutlined style={{ color: "white" }} />
-                  </Button>
-                }
-                style={{ width: 250 }}
-                onSearch={handleSearch}
-                onChange={(e) => handleSearch(e.target.value)}
-              />
-            </div>
+            
           </div>
 
           <div className="massive-box-container">
-            <div className="massive-box">
-              <Table
-                columns={columns}
-                dataSource={filteredStudents}
-                locale={{ emptyText: "No students found" }}
-              />
+  <div className="massive-box">
+    <div className="search-header">
+      <h2 className="students-title">Search Students</h2>
+      <Search
+        placeholder="Search by name..."
+        allowClear
+        enterButton={
+          <Button
+            style={{
+              backgroundColor: "#326c6f",
+              borderColor: "#326c6f",
+            }}
+          >
+            <SearchOutlined style={{ color: "white" }} />
+          </Button>
+        }
+        style={{ width: 300 }}
+        onSearch={handleSearch}
+        onChange={(e) => handleSearch(e.target.value)}
+      />
+    </div>
+    <Table
+      columns={columns}
+      dataSource={filteredStudents}
+      locale={{ emptyText: "No students found" }}
+    />
             </div>
           </div>
         </div>

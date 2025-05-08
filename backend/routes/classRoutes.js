@@ -17,7 +17,10 @@ const {
   getStudentAssessments,
   getClassByTeacherId,
   assignTeacherToClass,
-  getStudentList
+  getStudentList,
+  assignAdditionalTeacherToClass,
+  getClassTeachers,
+  getClassesByTeacher
 } = require('../controllers/classController');
 
 // Routes for the Class model
@@ -37,6 +40,10 @@ router.patch('/:classId/students/:studentId', updateStudentAssessment);
 router.get('/classes/:classId/students/:studentId/assessments', getStudentAssessments);
 router.post('/assign-teacher', assignTeacherToClass);
 router.get('/teacher/:teacherId', getClassByTeacherId);
+router.post('/assign-additional-teacher', assignAdditionalTeacherToClass);
+router.get('/:classId/teachers', getClassTeachers);
+// Add this route
+router.get('/teacher/:teacherId/all-classes', getClassesByTeacher);
 
 
 module.exports = router;
