@@ -12,4 +12,13 @@ router.post("/tags", assignmentController.createTag);
 router.post("/assignmentimages", assignmentController.createAssignmentImage);
 router.delete("/tags/:id", assignmentController.deleteTag);
 
+// Original routes
+router.put("/assignments/:id", assignmentController.updateAssignment);
+router.patch("/assignments/:id", assignmentController.updateAssignment);
+router.delete("/assignments/:id", assignmentController.deleteAssignment);
+
+// Alternative routes for testing
+router.post("/assignments/update/:id", assignmentController.updateAssignmentPost);
+router.post("/assignments/delete/:id", assignmentController.deleteAssignmentPost);
+
 module.exports = router;

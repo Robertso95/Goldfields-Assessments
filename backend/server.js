@@ -22,6 +22,17 @@ app.use((req, res, next) => {
   next();
 });
 
+app.use((req, res, next) => {
+  console.log(`${req.method} ${req.url}`);
+  if (req.method === 'PUT' || req.method === 'DELETE' || req.method === 'POST') {
+    console.log('Request params:', req.params);
+    if (Object.keys(req.body).length > 0) {
+      console.log('Request body:', JSON.stringify(req.body, null, 2));
+    }
+  }
+  next();
+});
+
 app.use("/api/stories", storyRoutes);
 app.use("/api/classes", classRoutes);
 app.use("/api/images", homeRoutes);

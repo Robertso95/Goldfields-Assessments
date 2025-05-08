@@ -24,10 +24,10 @@ import StudentDetail from "./pages/StudentDetail"
 import InviteParent from "./pages/inviteParent"
 import ChangePassword from "./pages/changePassword"
 import Assessments from "./pages/Assessments"
-import CreateAssignment from "./pages/CreateAssignment"
 import ViewAssignments from "./pages/ViewAssignments"
 import EditTags from "./pages/EditTags"
 import StudentAssessmentPage from "./pages/StudentAssessmentPage"
+import CreateAssignment from "./pages/CreateAssignment"
 
 function App() {
   const [role, setRole] = useState("")
@@ -101,9 +101,9 @@ function App() {
                 <Route path="/class/:classId/student/:studentId" element={<StudentDetail />} />
                 <Route path="/class/:classId/student-assessment/:studentId" element={<StudentAssessmentPage />} />
                 <Route path="/assessments" element={<Assessments />} />
-                <Route path="/create-assignment" element={<CreateAssignment />} />
                 <Route path="/view-assignments" element={<ViewAssignments />} />
                 <Route path="/edit-tags" element={<EditTags />} />
+                <Route path="/create-assignment" element={<CreateAssignment />} />
               </Routes>
             </div>
           </BrowserRouter>
@@ -130,4 +130,3 @@ function App() {
 }
 
 export default App
-

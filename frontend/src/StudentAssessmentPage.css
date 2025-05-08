@@ -1,25 +1,13 @@
-.assessment-page-wrapper {
-    padding-top: 20px; 
-    margin-top: 20px; 
-  }
-  
-  .top-spacer {
-    height: 20px; 
-    width: 100%;
-  }
-  
-  .assessment-page-container {
+.student-page-container {
     max-width: 1200px;
     margin: 0 auto;
     padding: 20px;
     background-color: #f9f9f9;
-    min-height: calc(100vh - 120px);
+    min-height: calc(100vh - 60px);
     font-family: Arial, sans-serif;
-    position: relative;
-    top: 0;
   }
   
-  .assessment-header {
+  .student-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -28,7 +16,7 @@
     border-bottom: 1px solid #e0e0e0;
   }
   
-  .assessment-header h1 {
+  .student-header h1 {
     margin: 0;
     font-size: 28px;
     color: #333;
@@ -40,15 +28,6 @@
     gap: 10px;
   }
   
-  .action-btn {
-    min-width: 100px;
-  }
-  
-  .save-btn {
-    background-color: #4caf50;
-    border-color: #4caf50;
-  }
-  
   .back-button {
     margin-right: 20px;
     background-color: #f5f5f5;
@@ -56,8 +35,9 @@
     color: #333;
   }
   
-  .student-info-section {
+  .student-profile-section {
     display: flex;
+    align-items: center;
     margin-bottom: 30px;
     background-color: white;
     padding: 20px;
@@ -66,23 +46,19 @@
   }
   
   .student-avatar {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-right: 30px;
+    margin-right: 20px;
   }
   
   .student-avatar img {
-    width: 100px;
-    height: 100px;
+    width: 80px;
+    height: 80px;
     border-radius: 50%;
     object-fit: cover;
-    margin-bottom: 10px;
   }
   
   .avatar-placeholder {
-    width: 100px;
-    height: 100px;
+    width: 80px;
+    height: 80px;
     border-radius: 50%;
     background-color: #1890ff;
     color: white;
@@ -91,143 +67,32 @@
     align-items: center;
     font-size: 24px;
     font-weight: bold;
-    margin-bottom: 10px;
   }
   
-  .student-details {
-    flex: 1;
+  .student-name h2 {
+    margin: 0;
+    font-size: 24px;
+    color: #333;
   }
   
-  .detail-item {
-    margin-bottom: 10px;
-    display: flex;
-    align-items: center;
+  .student-class {
+    margin: 5px 0 0;
+    color: #666;
+    font-size: 16px;
   }
   
-  .label {
-    font-weight: bold;
-    margin-right: 10px;
-    min-width: 100px;
-  }
-  
-  .detail-value {
-    padding: 5px 10px;
-    background-color: #f5f5f5;
-    border-radius: 4px;
-    min-width: 200px;
-  }
-  
-  /* Table styles */
-  .assessment-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-bottom: 30px;
+  .assignments-section {
     background-color: white;
+    padding: 20px;
+    border-radius: 8px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   }
   
-  .header-cell {
-    padding: 15px;
-    font-weight: bold;
+  .assignments-section h2 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    font-size: 20px;
     color: #333;
-    text-align: center;
-    font-size: 16px;
-    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
-    border: 1px solid rgba(0, 0, 0, 0.1);
-  }
-  
-  .content-cell {
-    padding: 15px;
-    border: 1px solid #e0e0e0;
-    min-height: 100px;
-    vertical-align: top;
-  }
-  
-  .empty-cell {
-    height: 20px;
-    background-color: #f9f9f9;
-  }
-  
-  .team-cell {
-    padding: 15px;
-  }
-  
-  .team-member,
-  .staff-detail {
-    margin-bottom: 8px;
-  }
-  
-  
-  .whanau-wishes,
-  .celebrations,
-  .actions,
-  .long-term-goal-1,
-  .goal-1,
-  .staff-1,
-  .term-2-progress-1,
-  .term-3-progress-1,
-  .term-4-summary-1 {
-    background-color: #ffedd5;
-    border: 1px solid #f0b27a;
-  }
-  
-  .class-team,
-  .student-voice,
-  .plans,
-  .long-term-goal-2,
-  .goal-2,
-  .staff-2,
-  .term-2-progress-2,
-  .term-3-progress-2,
-  .term-4-summary-2 {
-    background-color: #fce7f3;
-    border: 1px solid #f8bbd0;
-  }
-  
-  .other-programmes,
-  .attendees,
-  .long-term-goal-3,
-  .goal-3,
-  .staff-3,
-  .term-2-progress-3,
-  .term-3-progress-3,
-  .term-4-summary-3 {
-    background-color: #dcfce7;
-    border: 1px solid #a5d6a7;
-  }
-  
-  /* Editable cell styles */
-  .editable-cell {
-    min-height: 24px;
-    padding: 4px 8px;
-    border: 1px dashed #d9d9d9;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: all 0.3s;
-    display: inline-block;
-    min-width: 150px;
-  }
-  
-  .editable-cell:hover {
-    border-color: #1890ff;
-    background-color: #f0f8ff;
-  }
-  
-  .editable-cell:focus {
-    outline: none;
-    border-color: #1890ff;
-    background-color: #f0f8ff;
-    box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
-  }
-  
-  .content-cell:hover {
-    background-color: #f0f8ff;
-  }
-  
-  .content-cell:focus {
-    outline: none;
-    background-color: #f0f8ff;
-    box-shadow: inset 0 0 0 2px rgba(24, 144, 255, 0.2);
   }
   
   .loading-container,
@@ -240,4 +105,71 @@
     gap: 20px;
   }
   
+  /* Ant Design table customizations */
+  .ant-table-thead > tr > th {
+    background-color: #f5f5f5;
+    font-weight: bold;
+  }
+  
+  .ant-table-tbody > tr:hover > td {
+    background-color: #f0f8ff;
+  }
+  
+  .ant-btn-primary {
+    background-color: #1890ff;
+  }
+  
+  .ant-btn-primary.ant-btn-dangerous {
+    background-color: #ff4d4f;
+  }
+  
+  /* Tag styling */
+  .tag-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+  }
+  
+  .assignment-tag {
+    display: inline-block;
+    padding: 2px 8px;
+    background-color: #f0f0f0;
+    border-radius: 4px;
+    font-size: 12px;
+    color: #333;
+    border: 1px solid #d9d9d9;
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+  
+  .assignment-tag:hover {
+    background-color: #e6f7ff;
+    border-color: #1890ff;
+  }
+  
+  /* Filter styling */
+  .filter-row {
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+  }
+  
+  .filter-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  .filter-icon {
+    color: #1890ff;
+    font-size: 16px;
+  }
+  
+  /* Empty state customization */
+  .ant-empty-description {
+    color: #666;
+  }
+  
+
+
   

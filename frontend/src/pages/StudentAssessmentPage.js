@@ -1,16 +1,180 @@
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect } from "react"
 import { useParams, useNavigate } from "react-router-dom"
-import { Spin, Button, message } from "antd"
+import { Spin, Button, Table, Space, Modal, message, Empty, Tooltip, Select, Row, Col } from "antd"
+import { EditOutlined, DeleteOutlined, ExclamationCircleOutlined, FilterOutlined } from "@ant-design/icons"
 import axios from "axios"
 import "../StudentAssessmentPage.css"
+
+const { confirm } = Modal
+const { Option } = Select
 
 const StudentAssessmentPage = () => {
   const { classId, studentId } = useParams()
   const navigate = useNavigate()
   const [student, setStudent] = useState(null)
-  const [classInfo, setClassInfo] = useState(null)
+  const [assignments, setAssignments] = useState([])
+  const [filteredAssignments, setFilteredAssignments] = useState([])
   const [loading, setLoading] = useState(true)
-  const containerRef = useRef(null)
+  const [learningSets, setLearningSets] = useState([])
+  const [assignmentTypes, setAssignmentTypes] = useState([])
+  const [tags, setTags] = useState([])
+  const [subjectFilter, setSubjectFilter] = useState("all")
+  const [uniqueSubjects, setUniqueSubjects] = useState([])
+  const [tagMap, setTagMap] = useState({}) // Add a state for tag mapping
+
+  // Function to simplify subject names
+  const simplifySubjectName = (fullSubjectName) => {
+    // Map of common subject patterns to simplified names
+    const subjectMappings = {
+      "Te Ara Whakapuawai - Reading": "Reading",
+      Reading: "Reading",
+      Literacy: "Reading",
+      English: "Reading",
+      "Te Ara Whakapuawai - Writing": "Writing",
+      Writing: "Writing",
+      "Te Ara Whakapuawai - Mathematics": "Numeracy",
+      Mathematics: "Numeracy",
+      Math: "Numeracy",
+      Maths: "Numeracy",
+      Numeracy: "Numeracy",
+      Science: "Science",
+      "Social Studies": "Social Studies",
+      "Physical Education": "Physical Education",
+      PE: "Physical Education",
+      Art: "Art",
+      Music: "Music",
+      Technology: "Technology",
+      Languages: "Languages",
+      "Te Reo Māori": "Te Reo Māori",
+    }
+
+    // Check if we have a direct mapping
+    if (subjectMappings[fullSubjectName]) {
+      return subjectMappings[fullSubjectName]
+    }
+
+    // Check for partial matches
+    for (const [pattern, simplified] of Object.entries(subjectMappings)) {
+      if (fullSubjectName.toLowerCase().includes(pattern.toLowerCase())) {
+        return simplified
+      }
+    }
+
+    // If no match found, return the original name
+    return fullSubjectName
+  }
+
+  // Fetch reference data for display purposes
+  useEffect(() => {
+    const fetchReferenceData = async () => {
+      try {
+        // Fetch learning sets (subjects)
+        const learningSetsResponse = await axios.get("/api/learningsets")
+        if (learningSetsResponse.status === 200) {
+          setLearningSets(learningSetsResponse.data)
+        }
+
+        // Fetch assignment types
+        const assignmentTypesResponse = await axios.get("/api/assignmenttype")
+        if (assignmentTypesResponse.status === 200) {
+          setAssignmentTypes(assignmentTypesResponse.data)
+        }
+
+        // Fetch tags
+        const tagsResponse = await axios.get("/api/tags")
+        if (tagsResponse.status === 200) {
+          setTags(tagsResponse.data)
+
+          // Create a mapping of tag IDs to tag names
+          const tagMapping = {}
+          tagsResponse.data.forEach((tag) => {
+            tagMapping[tag._id] = tag.name
+          })
+          setTagMap(tagMapping)
+        }
+      } catch (error) {
+        console.error("Error fetching reference data:", error)
+      }
+    }
+
+    fetchReferenceData()
+  }, [])
+
+  const fetchAssignments = async () => {
+    try {
+      // Fetch all assignments
+      const assignmentsResponse = await axios.get("/api/assignments")
+
+      if (assignmentsResponse.status === 200) {
+        // Filter assignments for this student
+        const studentAssignments = assignmentsResponse.data.filter((assignment) => {
+          return (
+            assignment.studentNames === studentId ||
+            (Array.isArray(assignment.studentNames) && assignment.studentNames.includes(studentId))
+          )
+        })
+
+        console.log("Filtered assignments:", studentAssignments)
+
+        // Fetch all reference data at once to avoid multiple API calls
+        const [allSubjects, allAssignments, allTags] = await Promise.all([
+          axios.get("/api/learningsets"),
+          axios.get("/api/assignmenttype"),
+          axios.get("/api/tags"),
+        ])
+
+        // Create lookup maps for faster access
+        const subjectMap = {}
+        allSubjects.data.forEach((subject) => {
+          subjectMap[subject._id] = subject.name
+        })
+
+        const assignmentMap = {}
+        allAssignments.data.forEach((assignment) => {
+          assignmentMap[assignment._id] = assignment.name
+        })
+
+        const tagMap = {}
+        allTags.data.forEach((tag) => {
+          tagMap[tag._id] = tag.name
+        })
+
+        // Update the tag map state
+        setTagMap(tagMap)
+
+        // Enrich assignments with names from the lookup maps
+        const enrichedAssignments = studentAssignments.map((assignment) => {
+          const fullSubjectName = subjectMap[assignment.subject] || "Unknown Subject"
+          const simplifiedSubjectName = simplifySubjectName(fullSubjectName)
+
+          return {
+            ...assignment,
+            subjectName: fullSubjectName,
+            simplifiedSubject: simplifiedSubjectName, // Add simplified subject name
+            assignmentName: assignmentMap[assignment.assignment] || "Unknown Assignment",
+            tagNames: Array.isArray(assignment.tags)
+              ? assignment.tags.map((tagId) => tagMap[tagId] || `Tag ${tagId}`)
+              : [],
+          }
+        })
+
+        setAssignments(enrichedAssignments)
+        setFilteredAssignments(enrichedAssignments)
+
+        // Extract unique simplified subjects for the filter
+        const subjects = new Set()
+        enrichedAssignments.forEach((assignment) => {
+          if (assignment.simplifiedSubject) {
+            subjects.add(assignment.simplifiedSubject)
+          }
+        })
+        setUniqueSubjects(Array.from(subjects))
+      }
+    } catch (error) {
+      console.error("Error fetching assignments:", error)
+      message.error("Failed to load assignments")
+    }
+  }
 
   useEffect(() => {
     const fetchData = async () => {
@@ -20,28 +184,11 @@ const StudentAssessmentPage = () => {
         const studentResponse = await axios.get(`/api/classes/${classId}/students/${studentId}`)
         setStudent(studentResponse.data)
 
-        // Fetch class details
-        const classResponse = await axios.get(`/api/classes/${classId}`)
-        setClassInfo(classResponse.data)
+        // Fetch assignments separately
+        await fetchAssignments()
       } catch (error) {
         console.error("Error fetching data:", error)
-        message.error("Failed to load data")
-
-        // Set mock data for development/testing
-        setStudent({
-          _id: studentId,
-          firstName: "Grace",
-          lastName: "Thompson",
-          class: "Room 5",
-          term: "Term 3",
-          assessmentType: "Number & Algebra 2-3",
-          tags: ["hardworking", "focused"],
-        })
-
-        setClassInfo({
-          _id: classId,
-          className: "Room 5",
-        })
+        message.error("Failed to load student data")
       } finally {
         setLoading(false)
       }
@@ -49,48 +196,183 @@ const StudentAssessmentPage = () => {
 
     fetchData()
 
-    // Force scroll to top when component mounts
+    // Scroll to top when component mounts
     window.scrollTo(0, 0)
-
-    // Add a small delay and scroll again to ensure it works
-    setTimeout(() => {
-      window.scrollTo(0, 0)
-    }, 100)
   }, [classId, studentId])
+
+  // Apply subject filter when it changes
+  useEffect(() => {
+    if (subjectFilter === "all") {
+      setFilteredAssignments(assignments)
+    } else {
+      const filtered = assignments.filter((assignment) => assignment.simplifiedSubject === subjectFilter)
+      setFilteredAssignments(filtered)
+    }
+  }, [subjectFilter, assignments])
 
   const handleBack = () => {
     navigate(-1)
   }
 
-  const handleSave = () => {
-    message.success("Assessment saved successfully")
+  const handleEditAssignment = (assignmentId) => {
+    // Navigate to the create assignment page with the assignment ID
+    navigate(`/create-assignment?edit=${assignmentId}&studentId=${studentId}&classId=${classId}`)
   }
 
-  const handleCellEdit = (e) => {
-    // Make the cell editable on click
-    e.currentTarget.contentEditable = true
-    e.currentTarget.focus()
+  // Updated to use the new delete endpoint
+  const handleDeleteAssignment = (assignmentId) => {
+    confirm({
+      title: "Are you sure you want to delete this assignment?",
+      icon: <ExclamationCircleOutlined />,
+      content: "This action cannot be undone.",
+      okText: "Yes",
+      okType: "danger",
+      cancelText: "No",
+      onOk: async () => {
+        try {
+          setLoading(true)
+          console.log("Deleting assignment with ID:", assignmentId)
+
+          const response = await axios.delete(`/api/assignments/${assignmentId}`)
+          console.log("Delete response:", response)
+
+          if (response.status === 200) {
+            // Remove from local state
+            const updatedAssignments = assignments.filter((a) => a._id !== assignmentId)
+            setAssignments(updatedAssignments)
+            setFilteredAssignments(
+              updatedAssignments.filter((a) => subjectFilter === "all" || a.simplifiedSubject === subjectFilter),
+            )
+
+            message.success("Assignment deleted successfully")
+          } else {
+            throw new Error(`Unexpected response status: ${response.status}`)
+          }
+        } catch (error) {
+          console.error("Error deleting assignment:", error)
+          const errorMsg = error.response?.data?.error || error.response?.data?.details || error.message
+          message.error(`Failed to delete assignment: ${errorMsg}`)
+        } finally {
+          setLoading(false)
+        }
+      },
+    })
   }
 
-  const handleCellBlur = (e) => {
-    // Save the content when focus is lost
-    e.currentTarget.contentEditable = false
-    // Here you would typically save the data to your backend
-    console.log("Cell updated:", e.currentTarget.textContent)
+  // Handle subject filter change
+  const handleSubjectFilterChange = (value) => {
+    setSubjectFilter(value)
   }
 
-  const handleCellKeyDown = (e) => {
-    // Save on Enter key
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault()
-      e.currentTarget.blur()
+  // Format the date to a more readable format
+  const formatDate = (dateString) => {
+    if (!dateString) return "N/A"
+    const date = new Date(dateString)
+    return date.toLocaleDateString()
+  }
+
+  // Improved function to extract tag prefix
+  const getTagPrefix = (tagName) => {
+    if (!tagName) return ""
+
+    // Check for common tag patterns
+
+    // Pattern 1: "READ/AP 1A: ..." or "READ/R 1A"
+    const readMatch = tagName.match(/^(READ\/[A-Z]+\s+\d+[A-Z]*)/)
+    if (readMatch) return readMatch[1]
+
+    // Pattern 2: "WRITE/ENG 1B" or similar
+    const writeMatch = tagName.match(/^(WRITE\/[A-Z]+\s+\d+[A-Z]*)/)
+    if (writeMatch) return writeMatch[1]
+
+    // Pattern 3: "NumN/E 1A." or "Num/N L4.14."
+    const numMatch = tagName.match(/^(Num[A-Z]*\/[A-Z]+\s+[A-Z0-9.]+)/)
+    if (numMatch) return numMatch[1]
+
+    // If no specific pattern matches, try to get the first part before a period, colon, or semicolon
+    const generalMatch = tagName.match(/^([^.;:]+)/)
+    if (generalMatch) {
+      // Limit to first 15 characters if it's too long
+      const prefix = generalMatch[1].trim()
+      return prefix.length > 15 ? prefix.substring(0, 15) + "..." : prefix
     }
+
+    // Fallback: return first 15 chars if nothing else works
+    return tagName.length > 15 ? tagName.substring(0, 15) + "..." : tagName
   }
+
+  const columns = [
+    {
+      title: "Subject",
+      dataIndex: "simplifiedSubject", // Use simplified subject name in the table
+      key: "simplifiedSubject",
+      render: (text) => text || "N/A",
+    },
+    {
+      title: "Assignment",
+      dataIndex: "assignmentName",
+      key: "assignmentName",
+      render: (text) => text || "N/A",
+    },
+    {
+      title: "Tags",
+      dataIndex: "tags",
+      key: "tags",
+      render: (tagIds, record) => {
+        if (!tagIds || !Array.isArray(tagIds) || tagIds.length === 0) {
+          return "No tags"
+        }
+
+        return (
+          <div className="tag-container">
+            {tagIds.map((tagId) => {
+              // Get the full tag name from the mapping
+              const fullTagName = tagMap[tagId] || `Tag ${tagId}`
+              // Get just the prefix using our improved function
+              const tagPrefix = getTagPrefix(fullTagName)
+
+              return (
+                <Tooltip key={tagId} title={fullTagName}>
+                  <span className="assignment-tag">{tagPrefix}</span>
+                </Tooltip>
+              )
+            })}
+          </div>
+        )
+      },
+    },
+    {
+      title: "Completed Date",
+      dataIndex: "completedDate",
+      key: "completedDate",
+      render: (date) => formatDate(date),
+    },
+    {
+      title: "Additional Comments",
+      dataIndex: "additionalComments",
+      key: "additionalComments",
+      ellipsis: true,
+    },
+    {
+      title: "Actions",
+      key: "actions",
+      render: (_, record) => (
+        <Space size="small">
+          <Button type="primary" icon={<EditOutlined />} onClick={() => handleEditAssignment(record._id)}>
+            Edit
+          </Button>
+          <Button type="primary" danger icon={<DeleteOutlined />} onClick={() => handleDeleteAssignment(record._id)}>
+            Delete
+          </Button>
+        </Space>
+      ),
+    },
+  ]
 
   if (loading) {
     return (
       <div className="loading-container">
-        <Spin size="large" tip="Loading student assessment..." />
+        <Spin size="large" tip="Loading student data..." />
       </div>
     )
   }
@@ -99,6 +381,7 @@ const StudentAssessmentPage = () => {
     return (
       <div className="error-container">
         <h2>Student not found</h2>
+        <p>Could not find student information. Please try again.</p>
         <Button type="primary" onClick={handleBack}>
           Go Back
         </Button>
@@ -107,443 +390,74 @@ const StudentAssessmentPage = () => {
   }
 
   return (
-    <div className="assessment-page-wrapper">
-      <div className="top-spacer"></div>
-      <div className="assessment-page-container" ref={containerRef}>
-        <div className="assessment-header">
-          <Button className="back-button" onClick={handleBack}>
-            Back
-          </Button>
-          <h1>
-            {student.firstName} {student.lastName} - IEP
-          </h1>
-          <div className="header-actions">
-            <Button type="primary" className="action-btn">
-              Print / PDF
-            </Button>
-            <Button className="action-btn">Archive</Button>
-            <Button type="primary" danger className="action-btn">
-              Delete
-            </Button>
-            <Button type="primary" className="action-btn save-btn">
-              Save and exit
-            </Button>
-          </div>
+    <div className="student-page-container">
+      <div className="student-header">
+        <Button className="back-button" onClick={handleBack}>
+          Back
+        </Button>
+        <h1>Student Assignments</h1>
+        {/* Removed the Create New Assignment button as requested */}
+      </div>
+
+      <div className="student-profile-section">
+        <div className="student-avatar">
+          {student.image ? (
+            <img src={student.image || "/placeholder.svg"} alt={`${student.firstName} ${student.lastName}`} />
+          ) : (
+            <div className="avatar-placeholder">
+              {student.firstName.charAt(0)}
+              {student.lastName.charAt(0)}
+            </div>
+          )}
         </div>
-
-        <div className="student-info-section">
-          <div className="student-avatar">
-            {student.image ? (
-              <img src={student.image || "/placeholder.svg"} alt={`${student.firstName} ${student.lastName}`} />
-            ) : (
-              <div className="avatar-placeholder">
-                {student.firstName.charAt(0)}
-                {student.lastName.charAt(0)}
-              </div>
-            )}
-            <h2>
-              {student.firstName} {student.lastName}
-            </h2>
-          </div>
-
-          <div className="student-details">
-            <div className="detail-item">
-              <span className="label">Class:</span>
-              <span className="detail-value">{classInfo?.className || student.class || "Not assigned"}</span>
-            </div>
-            <div className="detail-item">
-              <span className="label">ORS Number:</span>
-              <span
-                className="editable-cell"
-                onClick={handleCellEdit}
-                onBlur={handleCellBlur}
-                onKeyDown={handleCellKeyDown}
-              >
-                Click to edit...
-              </span>
-            </div>
-            <div className="detail-item">
-              <span className="label">ORS Status:</span>
-              <span
-                className="editable-cell"
-                onClick={handleCellEdit}
-                onBlur={handleCellBlur}
-                onKeyDown={handleCellKeyDown}
-              >
-                Click to edit...
-              </span>
-            </div>
-          </div>
+        <div className="student-name">
+          <h2>
+            {student.firstName} {student.lastName}
+          </h2>
+          <p className="student-class">{student.class}</p>
         </div>
+      </div>
 
-        <table className="assessment-table">
-          <tbody>
-            <tr>
-              <th className="header-cell whanau-wishes">Whanau wishes for their tamaiti</th>
-              <th className="header-cell class-team">Class team</th>
-            </tr>
-            <tr>
-              <td
-                className="content-cell"
-                onClick={handleCellEdit}
-                onBlur={handleCellBlur}
-                onKeyDown={handleCellKeyDown}
+      <div className="assignments-section">
+        <Row className="filter-row" align="middle" justify="space-between">
+          <Col>
+            <h2>Assignments</h2>
+          </Col>
+          <Col>
+            <div className="filter-container">
+              <FilterOutlined className="filter-icon" />
+              <Select
+                defaultValue="all"
+                style={{ width: 200 }}
+                onChange={handleSubjectFilterChange}
+                placeholder="Filter by subject"
               >
-                Click to edit...
-              </td>
-              <td className="content-cell team-cell">
-                <div className="team-member">
-                  <span className="label">Teacher:</span>
-                  <span
-                    className="editable-cell"
-                    onClick={handleCellEdit}
-                    onBlur={handleCellBlur}
-                    onKeyDown={handleCellKeyDown}
-                  >
-                    Click to edit...
-                  </span>
-                </div>
-                <div className="team-member">
-                  <span className="label">Teacher Aides:</span>
-                  <span
-                    className="editable-cell"
-                    onClick={handleCellEdit}
-                    onBlur={handleCellBlur}
-                    onKeyDown={handleCellKeyDown}
-                  >
-                    Click to edit...
-                  </span>
-                </div>
-                <div className="team-member">
-                  <span className="label">SLT:</span>
-                  <span
-                    className="editable-cell"
-                    onClick={handleCellEdit}
-                    onBlur={handleCellBlur}
-                    onKeyDown={handleCellKeyDown}
-                  >
-                    Click to edit...
-                  </span>
-                </div>
-                <div className="team-member">
-                  <span className="label">PT:</span>
-                  <span
-                    className="editable-cell"
-                    onClick={handleCellEdit}
-                    onBlur={handleCellBlur}
-                    onKeyDown={handleCellKeyDown}
-                  >
-                    Click to edit...
-                  </span>
-                </div>
-                <div className="team-member">
-                  <span className="label">OT:</span>
-                  <span
-                    className="editable-cell"
-                    onClick={handleCellEdit}
-                    onBlur={handleCellBlur}
-                    onKeyDown={handleCellKeyDown}
-                  >
-                    Click to edit...
-                  </span>
-                </div>
-              </td>
-            </tr>
+                <Option value="all">All Subjects</Option>
+                {uniqueSubjects.map((subject) => (
+                  <Option key={subject} value={subject}>
+                    {subject}
+                  </Option>
+                ))}
+              </Select>
+            </div>
+          </Col>
+        </Row>
 
-            <tr>
-              <th className="header-cell celebrations">Celebrations and Strengths</th>
-              <th className="header-cell student-voice">Student Voice</th>
-              <th className="header-cell other-programmes">Other Programmes that support my learning and Hauora</th>
-            </tr>
-            <tr>
-              <td
-                className="content-cell"
-                onClick={handleCellEdit}
-                onBlur={handleCellBlur}
-                onKeyDown={handleCellKeyDown}
-              >
-                Click to edit...
-              </td>
-              <td
-                className="content-cell"
-                onClick={handleCellEdit}
-                onBlur={handleCellBlur}
-                onKeyDown={handleCellKeyDown}
-              >
-                Click to edit...
-              </td>
-              <td
-                className="content-cell"
-                onClick={handleCellEdit}
-                onBlur={handleCellBlur}
-                onKeyDown={handleCellKeyDown}
-              >
-                Click to edit...
-              </td>
-            </tr>
-
-            <tr>
-              <th className="header-cell actions">Actions and Responsibilities</th>
-              <th className="header-cell plans">Plans to be reviewed - Seizure/Eating plans</th>
-              <th className="header-cell attendees">Attendees of the Brainstorming IEP meeting</th>
-            </tr>
-            <tr>
-              <td
-                className="content-cell"
-                onClick={handleCellEdit}
-                onBlur={handleCellBlur}
-                onKeyDown={handleCellKeyDown}
-              >
-                Click to edit...
-              </td>
-              <td
-                className="content-cell"
-                onClick={handleCellEdit}
-                onBlur={handleCellBlur}
-                onKeyDown={handleCellKeyDown}
-              >
-                Click to edit...
-              </td>
-              <td
-                className="content-cell"
-                onClick={handleCellEdit}
-                onBlur={handleCellBlur}
-                onKeyDown={handleCellKeyDown}
-              >
-                Click to edit...
-              </td>
-            </tr>
-
-            <tr>
-              <th className="header-cell long-term-goal-1">Long Term Goals 1</th>
-              <th className="header-cell long-term-goal-2">Long Term Goal 2</th>
-              <th className="header-cell long-term-goal-3">Long Term Goal 3</th>
-            </tr>
-            <tr>
-              <td
-                className="content-cell"
-                onClick={handleCellEdit}
-                onBlur={handleCellBlur}
-                onKeyDown={handleCellKeyDown}
-              >
-                Click to edit...
-              </td>
-              <td
-                className="content-cell"
-                onClick={handleCellEdit}
-                onBlur={handleCellBlur}
-                onKeyDown={handleCellKeyDown}
-              >
-                Click to edit...
-              </td>
-              <td
-                className="content-cell"
-                onClick={handleCellEdit}
-                onBlur={handleCellBlur}
-                onKeyDown={handleCellKeyDown}
-              >
-                Click to edit...
-              </td>
-            </tr>
-
-            <tr>
-              <td className="empty-cell"></td>
-              <td className="empty-cell"></td>
-              <td className="empty-cell"></td>
-            </tr>
-
-            <tr>
-              <th className="header-cell goal-1">Goal 1</th>
-              <th className="header-cell goal-2">Goal 2</th>
-              <th className="header-cell goal-3">Goal 3</th>
-            </tr>
-            <tr>
-              <td
-                className="content-cell"
-                onClick={handleCellEdit}
-                onBlur={handleCellBlur}
-                onKeyDown={handleCellKeyDown}
-              >
-                Click to edit...
-              </td>
-              <td
-                className="content-cell"
-                onClick={handleCellEdit}
-                onBlur={handleCellBlur}
-                onKeyDown={handleCellKeyDown}
-              >
-                Click to edit...
-              </td>
-              <td
-                className="content-cell"
-                onClick={handleCellEdit}
-                onBlur={handleCellBlur}
-                onKeyDown={handleCellKeyDown}
-              >
-                Click to edit...
-              </td>
-            </tr>
-
-            <tr>
-              <td className="empty-cell"></td>
-              <td className="empty-cell"></td>
-              <td className="empty-cell"></td>
-            </tr>
-
-            <tr>
-              <th className="header-cell staff-1">Staff responsible for Goal development:</th>
-              <th className="header-cell staff-2">Staff responsible for Goal development:</th>
-              <th className="header-cell staff-3">Staff responsible for Goal development:</th>
-            </tr>
-            <tr>
-              <td className="content-cell">
-                <div className="staff-detail">
-                  <span className="label">Name:</span>
-                  <span
-                    className="editable-cell"
-                    onClick={handleCellEdit}
-                    onBlur={handleCellBlur}
-                    onKeyDown={handleCellKeyDown}
-                  >
-                    Click to edit...
-                  </span>
-                </div>
-              </td>
-              <td className="content-cell">
-                <div className="staff-detail">
-                  <span className="label">Name:</span>
-                  <span
-                    className="editable-cell"
-                    onClick={handleCellEdit}
-                    onBlur={handleCellBlur}
-                    onKeyDown={handleCellKeyDown}
-                  >
-                    Click to edit...
-                  </span>
-                </div>
-              </td>
-              <td className="content-cell">
-                <div className="staff-detail">
-                  <span className="label">Name:</span>
-                  <span
-                    className="editable-cell"
-                    onClick={handleCellEdit}
-                    onBlur={handleCellBlur}
-                    onKeyDown={handleCellKeyDown}
-                  >
-                    Click to edit...
-                  </span>
-                </div>
-              </td>
-            </tr>
-
-            <tr>
-              <td className="empty-cell"></td>
-              <td className="empty-cell"></td>
-              <td className="empty-cell"></td>
-            </tr>
-
-            <tr>
-              <th className="header-cell term-2-progress-1">Term 2 Progress</th>
-              <th className="header-cell term-2-progress-2">Term 2 Progress</th>
-              <th className="header-cell term-2-progress-3">Term 2 Progress</th>
-            </tr>
-            <tr>
-              <td
-                className="content-cell"
-                onClick={handleCellEdit}
-                onBlur={handleCellBlur}
-                onKeyDown={handleCellKeyDown}
-              >
-                Click to edit...
-              </td>
-              <td
-                className="content-cell"
-                onClick={handleCellEdit}
-                onBlur={handleCellBlur}
-                onKeyDown={handleCellKeyDown}
-              >
-                Click to edit...
-              </td>
-              <td
-                className="content-cell"
-                onClick={handleCellEdit}
-                onBlur={handleCellBlur}
-                onKeyDown={handleCellKeyDown}
-              >
-                Click to edit...
-              </td>
-            </tr>
-
-            <tr>
-              <th className="header-cell term-3-progress-1">Term 3 Progress</th>
-              <th className="header-cell term-3-progress-2">Term 3 Progress</th>
-              <th className="header-cell term-3-progress-3">Term 3 Progress</th>
-            </tr>
-            <tr>
-              <td
-                className="content-cell"
-                onClick={handleCellEdit}
-                onBlur={handleCellBlur}
-                onKeyDown={handleCellKeyDown}
-              >
-                Click to edit...
-              </td>
-              <td
-                className="content-cell"
-                onClick={handleCellEdit}
-                onBlur={handleCellBlur}
-                onKeyDown={handleCellKeyDown}
-              >
-                Click to edit...
-              </td>
-              <td
-                className="content-cell"
-                onClick={handleCellEdit}
-                onBlur={handleCellBlur}
-                onKeyDown={handleCellKeyDown}
-              >
-                Click to edit...
-              </td>
-            </tr>
-
-            <tr>
-              <th className="header-cell term-4-summary-1">Term 4 End of Year Summary</th>
-              <th className="header-cell term-4-summary-2">Term 4 End of Year Summary</th>
-              <th className="header-cell term-4-summary-3">Term 4 End of Year Summary</th>
-            </tr>
-            <tr>
-              <td
-                className="content-cell"
-                onClick={handleCellEdit}
-                onBlur={handleCellBlur}
-                onKeyDown={handleCellKeyDown}
-              >
-                Click to edit...
-              </td>
-              <td
-                className="content-cell"
-                onClick={handleCellEdit}
-                onBlur={handleCellBlur}
-                onKeyDown={handleCellKeyDown}
-              >
-                Click to edit...
-              </td>
-              <td
-                className="content-cell"
-                onClick={handleCellEdit}
-                onBlur={handleCellBlur}
-                onKeyDown={handleCellKeyDown}
-              >
-                Click to edit...
-              </td>
-            </tr>
-          </tbody>
-        </table>
+        {filteredAssignments.length > 0 ? (
+          <Table columns={columns} dataSource={filteredAssignments} rowKey="_id" pagination={{ pageSize: 10 }} />
+        ) : (
+          <Empty
+            description={
+              subjectFilter === "all"
+                ? "No assignments found for this student"
+                : `No assignments found for subject: ${subjectFilter}`
+            }
+            image={Empty.PRESENTED_IMAGE_SIMPLE}
+          />
+        )}
       </div>
     </div>
   )
 }
 
 export default StudentAssessmentPage
-

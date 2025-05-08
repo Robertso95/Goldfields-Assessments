@@ -1,6 +1,7 @@
 const Assignment = require("../models/assignmentModel");
 const learningsets = require("../models/learningSetModel");
 const counters = require("../models/countersModel");
+const mongoose = require('mongoose'); // Add this import
 
 // Create a new assignment
 const createAssignment = async (req, res) => {
@@ -113,6 +114,84 @@ const createAssignmentImage = async (req, res) => {
   }
 };
 
+// Update an assignment - Enhanced with better error handling
+const updateAssignment = async (req, res) => {
+  try {
+    const id = req.params.id;
+    console.log("Updating assignment with ID:", id);
+    
+    // Check if it's a valid ObjectId
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      console.log("Invalid ObjectId format:", id);
+      return res.status(400).json({ error: "Invalid assignment ID format" });
+    }
+    
+    const updatedAssignment = await Assignment.findByIdAndUpdate(
+      id,
+      req.body,
+      { new: true, runValidators: true }
+    );
+    
+    if (!updatedAssignment) {
+      console.log("Assignment not found:", id);
+      return res.status(404).json({ error: "Assignment not found" });
+    }
+    
+    console.log("Assignment updated successfully:", updatedAssignment);
+    res.status(200).json(updatedAssignment);
+  } catch (error) {
+    console.error("Error updating assignment:", error);
+    res.status(500).json({ 
+      error: "Failed to update assignment", 
+      details: error.message 
+    });
+  }
+};
+
+// Delete an assignment - Enhanced with better error handling
+const deleteAssignment = async (req, res) => {
+  try {
+    const id = req.params.id;
+    console.log("Deleting assignment with ID:", id);
+    
+    // Check if it's a valid ObjectId
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      console.log("Invalid ObjectId format:", id);
+      return res.status(400).json({ error: "Invalid assignment ID format" });
+    }
+    
+    const deletedAssignment = await Assignment.findByIdAndDelete(id);
+    
+    if (!deletedAssignment) {
+      console.log("Assignment not found:", id);
+      return res.status(404).json({ error: "Assignment not found" });
+    }
+    
+    console.log("Assignment deleted successfully:", deletedAssignment);
+    res.status(200).json({ 
+      message: "Assignment deleted successfully",
+      id: id
+    });
+  } catch (error) {
+    console.error("Error deleting assignment:", error);
+    res.status(500).json({ 
+      error: "Failed to delete assignment", 
+      details: error.message 
+    });
+  }
+};
+
+// Add alternative routes for testing
+const updateAssignmentPost = async (req, res) => {
+  // This is a duplicate of updateAssignment but using POST
+  return updateAssignment(req, res);
+};
+
+const deleteAssignmentPost = async (req, res) => {
+  // This is a duplicate of deleteAssignment but using POST
+  return deleteAssignment(req, res);
+};
+
 module.exports = {
   createAssignment,
   getAssignments,
@@ -122,4 +201,8 @@ module.exports = {
   createAssignmentImage,
   createTag,
   deleteTag,
+  updateAssignment,  
+  deleteAssignment,
+  updateAssignmentPost,  // Add these alternative methods
+  deleteAssignmentPost,  // Add these alternative methods
 };

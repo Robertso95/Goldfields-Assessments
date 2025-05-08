@@ -2,10 +2,6 @@
 const mongoose = require('mongoose');
 
 const assignmentSchema = new mongoose.Schema({
-  _id: {
-    type: mongoose.Schema.Types.ObjectId,
-    auto: true,
-  },
   subject: {
     type: String,
     required: true,
