@@ -34,7 +34,7 @@ const CreateAssignment = () => {
   const [isEditing, setIsEditing] = useState(false)
   const [editingAssignmentId, setEditingAssignmentId] = useState(null)
   const [originalAssignment, setOriginalAssignment] = useState(null)
-  // Add these state variables to store original subject and assignment
+  // Add these state variables to store original subject and assessment
   const [originalSubject, setOriginalSubject] = useState(null)
   const [originalAssignmentType, setOriginalAssignmentType] = useState(null)
   // Add state for completed date
@@ -65,7 +65,7 @@ const CreateAssignment = () => {
     )
   }, [images])
 
-  // Check if we're editing an existing assignment
+  // Check if we're editing an existing assessment
   useEffect(() => {
     if (editAssignmentId) {
       setIsEditing(true)
@@ -77,19 +77,19 @@ const CreateAssignment = () => {
   const fetchAssignmentDetails = async (assignmentId) => {
     setLoading(true)
     try {
-      // Get all assignments
+      // Get all assessments - keep the original API endpoint
       const response = await axios.get("/api/assignments")
 
       if (response.status === 200) {
-        // Find the specific assignment by ID
+        // Find the specific assessment by ID
         const assignmentData = response.data.find((assignment) => assignment._id === assignmentId)
 
         if (assignmentData) {
-          // Store the original assignment data for reference
+          // Store the original assessment data for reference
           setOriginalAssignment(assignmentData)
-          console.log("Original assignment data:", assignmentData)
+          console.log("Original assessment data:", assignmentData)
 
-          // Store original subject and assignment for submission
+          // Store original subject and assessment for submission
           setOriginalSubject(assignmentData.subject)
           setOriginalAssignmentType(assignmentData.assignment)
 
@@ -99,13 +99,13 @@ const CreateAssignment = () => {
             setCompletedDate(assignmentData.completedDate)
           }
 
-          // Set form values - but don't set subject and assignment
+          // Set form values - but don't set subject and assessment
           form.setFieldsValue({
             className: assignmentData.className,
             studentNames: Array.isArray(assignmentData.studentNames)
               ? assignmentData.studentNames
               : [assignmentData.studentNames],
-            // Don't set subject and assignment here
+            // Don't set subject and assessment here
             additionalComments: assignmentData.additionalComments,
             // Don't set completedDate in the form
           })
@@ -123,7 +123,7 @@ const CreateAssignment = () => {
             await handleClassChange(assignmentData.className)
           }
 
-          // We'll still load the filtered assignments and tags
+          // We'll still load the filtered assessments and tags
           // but we won't set the form values
           if (assignmentData.subject) {
             await handleChangeLearningSet(assignmentData.subject)
@@ -134,11 +134,11 @@ const CreateAssignment = () => {
             await handleChangeAssignmentType(assignmentData.assignment)
           }
         } else {
-          message.error("Assignment not found")
+          message.error("Assessment not found")
         }
       }
     } catch (error) {
-      console.error("Error fetching assignment details:", error)
+      console.error("Error fetching assessment details:", error)
       // Don't show error message to user, just log it
       // Instead, initialize with empty form for editing
 
@@ -207,7 +207,7 @@ const CreateAssignment = () => {
     }
   }
 
-  // Fetch assignment titles from MongoDB
+  // Fetch assessment titles from MongoDB
   useEffect(() => {
     const fetchReferenceData = async () => {
       try {
@@ -245,7 +245,7 @@ const CreateAssignment = () => {
   const handleSubmit = async (values) => {
     setLoading(true)
     try {
-      // Create the assignment data object
+      // Create the assessment data object
       const assignmentData = {
         ...values,
         studentNames: selectedStudents,
@@ -255,9 +255,9 @@ const CreateAssignment = () => {
         completedDate: completedDate, // Use the state variable
       }
 
-      // If we're editing, make sure to include the original subject and assignment
+      // If we're editing, make sure to include the original subject and assessment
       if (isEditing && editingAssignmentId) {
-        // Use the original values for subject and assignment if they're not provided in the form
+        // Use the original values for subject and assessment if they're not provided in the form
         if (!values.subject && originalSubject) {
           assignmentData.subject = originalSubject
         }
@@ -266,27 +266,27 @@ const CreateAssignment = () => {
         }
       }
 
-      console.log("Submitting assignment data:", assignmentData)
+      console.log("Submitting assessment data:", assignmentData)
 
       if (isEditing && editingAssignmentId) {
-        console.log("Updating assignment with ID:", editingAssignmentId)
+        console.log("Updating assessment with ID:", editingAssignmentId)
 
-        // Use the update endpoint
+        // Use the update endpoint - keep the original API endpoint
         const response = await axios.put(`/api/assignments/${editingAssignmentId}`, assignmentData)
         console.log("Update response:", response)
 
         if (response.status === 200) {
-          message.success("Assignment updated successfully!")
+          message.success("Assessment updated successfully!")
         } else {
           throw new Error(`Unexpected response status: ${response.status}`)
         }
       } else {
-        // Creating a new assignment
+        // Creating a new assessment - keep the original API endpoint
         const response = await axios.post("/api/assignments", assignmentData)
         console.log("Create response:", response)
 
         if (response.status === 201) {
-          message.success("Assignment created successfully!")
+          message.success("Assessment created successfully!")
         } else {
           throw new Error(`Unexpected response status: ${response.status}`)
         }
@@ -297,15 +297,15 @@ const CreateAssignment = () => {
         // Navigate back to the student's assessment page
         navigate(`/class/${preSelectedClassId}/student-assessment/${preSelectedStudentId}`)
       } else {
-        // Navigate to the assignments list
+        // Navigate to the assessments list
         navigate("/view-assignments")
       }
     } catch (error) {
-      console.error(`Error ${isEditing ? "updating" : "creating"} assignment:`, error)
+      console.error(`Error ${isEditing ? "updating" : "creating"} assessment:`, error)
 
       // Show more detailed error message
       const errorMsg = error.response?.data?.error || error.response?.data?.details || error.message
-      message.error(`Failed to ${isEditing ? "update" : "create"} assignment: ${errorMsg}`)
+      message.error(`Failed to ${isEditing ? "update" : "create"} assessment: ${errorMsg}`)
     } finally {
       setLoading(false)
     }
@@ -342,14 +342,14 @@ const CreateAssignment = () => {
       // Navigate back to the student's assessment page
       navigate(`/class/${preSelectedClassId}/student-assessment/${preSelectedStudentId}`)
     } else {
-      // Navigate to the assignments list
+      // Navigate to the assessments list
       navigate("/view-assignments")
     }
   }
 
   return (
     <div className="create-assignment-container">
-      <h1>{isEditing ? "Edit Assignment" : "Create Assignment"}</h1>
+      <h1>{isEditing ? "Edit Assessment" : "Create Assessment"}</h1>
       <div className="form-container">
         <Spin spinning={loading}>
           <Form form={form} layout="vertical" onFinish={handleSubmit} className="create-assignment-form">
@@ -406,12 +406,12 @@ const CreateAssignment = () => {
             </Form.Item>
 
             <Form.Item
-              label="Assignment"
+              label="Assessment"
               name="assignment"
-              rules={[{ required: !isEditing, message: "Please select an assignemnt" }]}
+              rules={[{ required: !isEditing, message: "Please select an assessment" }]}
             >
               <Select
-                placeholder="Select an assignment"
+                placeholder="Select an assessment"
                 onChange={(value) => {
                   handleChangeAssignmentType(value)
                 }}
