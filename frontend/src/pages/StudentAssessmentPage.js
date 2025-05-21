@@ -353,9 +353,6 @@ const StudentAssessmentPage = () => {
           <span class="label">Additional Comments:</span> ${assignment.additionalComments || "N/A"}
         </div>
         
-        <div class="section">
-          <span class="label">Description:</span> ${assignment.description || "N/A"}
-        </div>
     `
 
     // Add evidence if available
@@ -855,18 +852,24 @@ const StudentAssessmentPage = () => {
   return (
     <div className="student-page-container">
       <div className="student-header">
-        <Button className="back-button" onClick={handleBack}>
-          Back
-        </Button>
-        <h1>Student Assessments</h1>
-        <Button
-          type="primary"
-          icon={<PrinterOutlined />}
-          onClick={handlePrintAllAssignments}
-          className="print-all-button"
-        >
-          Print All
-        </Button>
+        <div className="header-left">
+          <Button className="back-button" onClick={handleBack}>
+            Back
+          </Button>
+        </div>
+        <div className="header-center">
+          <h1>Student Assessments</h1>
+        </div>
+        <div className="header-right">
+          <Button
+            type="primary"
+            icon={<PrinterOutlined />}
+            onClick={handlePrintAllAssignments}
+            className="print-all-button"
+          >
+            Print All
+          </Button>
+        </div>
       </div>
 
       <div className="student-profile-section">
