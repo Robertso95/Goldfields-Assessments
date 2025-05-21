@@ -28,6 +28,9 @@ import ViewAssignments from "./pages/ViewAssignments"
 import EditTags from "./pages/EditTags"
 import StudentAssessmentPage from "./pages/StudentAssessmentPage"
 import CreateAssignment from "./pages/CreateAssignment"
+import { LoadingProvider } from './context/LoadingContext'
+import LoadingOverlay from './components/LoadingOverlay'
+import RouterListener from './components/RouterListener';
 
 function App() {
   const [role, setRole] = useState("")
@@ -71,62 +74,62 @@ function App() {
     } catch (ex) {}
   }, [])
 
-  if (login) {
-    return (
+  return (
+    <LoadingProvider>
       <ClassesProvider>
         <div className="App">
-          <BrowserRouter>
-            <Navbar role={role} />
-            <div className="pages">
-              <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/stories" element={<Stories />} />
-                <Route path="/pending" element={<PendingStories />} />
-                <Route path="/class" element={<Class />} />
-                <Route path="/createstory" element={<CreateStory />} />
-                <Route path="/editstory/:storyid" element={<CreateStory />} />
-                <Route path="/classeslist" element={<ClassesList />} />
-                <Route path="/class/:classId" element={<ClassDetails />} />
-                <Route path="/class/:classId/addstudent" element={<AddStudentPage />} />
-                <Route path="/stories/:storyid" element={<StoryPage />} />
-                <Route path="/pending/:storyid" element={<StoryPage />} />
-                <Route path="/class/:classId/editstudent/:studentId" element={<EditStudentPage />} />
-                <Route path="/manage_accounts" element={<User />} />
-                <Route path="/home" element={<Home />} />
-                <Route path="/createfamilystory" element={<CreateFamilyStory />} />
-                <Route path="/search" element={<SearchStories />} />
-                <Route path="/invite_family" element={<InviteFamily />} />
-                <Route path="/invite_parent" element={<InviteParent />} />
-                <Route path="/change_password" element={<ChangePassword />} />
-                <Route path="/class/:classId/student/:studentId" element={<StudentDetail />} />
-                <Route path="/class/:classId/student-assessment/:studentId" element={<StudentAssessmentPage />} />
-                <Route path="/assessments" element={<Assessments />} />
-                <Route path="/view-assignments" element={<ViewAssignments />} />
-                <Route path="/edit-tags" element={<EditTags />} />
-                <Route path="/create-assignment" element={<CreateAssignment />} />
-              </Routes>
-            </div>
-          </BrowserRouter>
+          {login ? (
+            <BrowserRouter>
+              <LoadingOverlay />
+              <RouterListener /> 
+              <Navbar role={role} />
+              <div className="pages">
+                <Routes>
+                  <Route path="/" element={<Home />} />
+                  <Route path="/stories" element={<Stories />} />
+                  <Route path="/pending" element={<PendingStories />} />
+                  <Route path="/class" element={<Class />} />
+                  <Route path="/createstory" element={<CreateStory />} />
+                  <Route path="/editstory/:storyid" element={<CreateStory />} />
+                  <Route path="/classeslist" element={<ClassesList />} />
+                  <Route path="/class/:classId" element={<ClassDetails />} />
+                  <Route path="/class/:classId/addstudent" element={<AddStudentPage />} />
+                  <Route path="/stories/:storyid" element={<StoryPage />} />
+                  <Route path="/pending/:storyid" element={<StoryPage />} />
+                  <Route path="/class/:classId/editstudent/:studentId" element={<EditStudentPage />} />
+                  <Route path="/manage_accounts" element={<User />} />
+                  <Route path="/home" element={<Home />} />
+                  <Route path="/createfamilystory" element={<CreateFamilyStory />} />
+                  <Route path="/search" element={<SearchStories />} />
+                  <Route path="/invite_family" element={<InviteFamily />} />
+                  <Route path="/invite_parent" element={<InviteParent />} />
+                  <Route path="/change_password" element={<ChangePassword />} />
+                  <Route path="/class/:classId/student/:studentId" element={<StudentDetail />} />
+                  <Route path="/class/:classId/student-assessment/:studentId" element={<StudentAssessmentPage />} />
+                  <Route path="/assessments" element={<Assessments />} />
+                  <Route path="/view-assignments" element={<ViewAssignments />} />
+                  <Route path="/edit-tags" element={<EditTags />} />
+                  <Route path="/create-assignment" element={<CreateAssignment />} />
+                </Routes>
+              </div>
+            </BrowserRouter>
+          ) : (
+            <BrowserRouter>
+              <LoadingOverlay />
+              <RouterListener />
+              <NavbarLogin />
+              <div className="pages">
+                <Routes>
+                  <Route path="/login" element={<Login />} />
+                  <Route path="/signup" element={<Signup />} />
+                </Routes>
+              </div>
+            </BrowserRouter>
+          )}
         </div>
       </ClassesProvider>
-    )
-  } else {
-    return (
-      <ClassesProvider>
-        <div className="App">
-          <BrowserRouter>
-            <NavbarLogin />
-            <div className="pages">
-              <Routes>
-                <Route path="/login" element={<Login />} />
-                <Route path="/signup" element={<Signup />} />
-              </Routes>
-            </div>
-          </BrowserRouter>
-        </div>
-      </ClassesProvider>
-    )
-  }
+    </LoadingProvider>
+  )
 }
 
 export default App
