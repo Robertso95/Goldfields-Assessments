@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+
 import {
   Space,
   Table,
@@ -10,19 +11,21 @@ import {
   Input,
   Button,
   message,
+  Spin,
 } from "antd";
-import { SearchOutlined, CloseCircleOutlined } from "@ant-design/icons";
+import { SearchOutlined, CloseCircleOutlined, LoadingOutlined } from "@ant-design/icons";
 import StudentAssessmentView from "../components/StudentAssessmentView";
 import { Link, useNavigate } from "react-router-dom";
 import "../assessments.css";
 import { format } from "date-fns";
 // Import Logo component instead of direct image path
 import Logo from "../components/logov3";
-
+import { useLoading } from '../context/LoadingContext';
 const { Option } = Select;
 const { Search } = Input;
 
 const Assessments = () => {
+  const { setIsPageLoading } = useLoading();
   const navigate = useNavigate()
   const [classes, setClasses] = useState([])
   const [selectedClass, setSelectedClass] = useState(null)
@@ -34,7 +37,11 @@ const Assessments = () => {
   const [isModalVisible, setIsModalVisible] = useState(false)
   const [editingStudent, setEditingStudent] = useState(null)
   const [form] = Form.useForm()
-  
+  const [learningSets, setLearningSets] = useState([]);
+  const [loadingSubjects, setLoadingSubjects] = useState(true);
+  const [classLoading, setClassLoading] = useState(false);
+
+
   // New state for user information
   const [currentUser, setCurrentUser] = useState({
     name: "Admin",
@@ -67,7 +74,19 @@ const Assessments = () => {
     }
   };
 
-  // In Assessments.js, modify your useEffect:
+const fetchLearningSets = async () => {
+  setLoadingSubjects(true);
+  try {
+    const response = await fetch("/api/learningsets");
+    const data = await response.json();
+    console.log("Fetched learning sets:", data);
+    setLearningSets(data);
+  } catch (error) {
+    console.error("Error fetching learning sets:", error);
+  } finally {
+    setLoadingSubjects(false);
+  }
+};
 
 useEffect(() => {
   // Get user info from localStorage
@@ -113,6 +132,8 @@ useEffect(() => {
 
   fetchClasses();
   fetchAssignments();
+  fetchLearningSets(); 
+     setIsPageLoading(false);
 }, []);
 
 // Replace fetchTeacherClass with this new function
@@ -162,13 +183,14 @@ const fetchTeacherClasses = async (teacherEmail) => {
   }
 };
 // Add this new function to fetch students from all assigned classes for a teacher
+// Updated fetchAllTeacherStudents function
 const fetchAllTeacherStudents = async (teacherClasses) => {
   if (!teacherClasses || teacherClasses.length === 0) {
     setStudents([]);
-    return;
+    setFilteredStudents([]);
+    return Promise.resolve();
   }
 
-  setLoading(true);
   try {
     // Create an array to hold all students
     let allStudents = [];
@@ -197,21 +219,30 @@ const fetchAllTeacherStudents = async (teacherClasses) => {
     console.log(`Total students from ${teacherClasses.length} classes:`, allStudents.length);
     setStudents(allStudents);
     setFilteredStudents(allStudents);
-    setLoading(false);
+    return Promise.resolve();
   } catch (error) {
     console.error("Error fetching teacher's students:", error);
-    setLoading(false);
+    return Promise.reject(error);
   }
 };
 
-const toggleClassView = (classId) => {
-  if (!classId || classId === 'all') {
-    // View all classes the teacher is assigned to
-    fetchAllTeacherStudents(currentUser.teacherClasses);
-    setSelectedClass(null);
-  } else {
-    // View a specific class
-    handleClassChange(classId);
+// Updated toggleClassView function
+const toggleClassView = async (classId) => {
+  setClassLoading(true);
+  
+  try {
+    if (!classId || classId === 'all') {
+      // View all classes the teacher is assigned to
+      setSelectedClass(null); // Set to null first to ensure UI updates
+      await fetchAllTeacherStudents(currentUser.teacherClasses);
+    } else {
+      // View a specific class
+      await handleClassChange(classId);
+    }
+  } catch (error) {
+    console.error("Error toggling class view:", error);
+  } finally {
+    setClassLoading(false);
   }
 };
 
@@ -302,34 +333,35 @@ const toggleClassView = (classId) => {
   };
 
   const handleClassChange = async (classId) => {
+  setClassLoading(true);
+  try {
     if (classId === "all") {
       await fetchAllStudents();
+      setClassLoading(false);
       return;
     }
 
-    setLoading(true);
-    try {
-      const response = await fetch(`/api/classes/${classId}`);
-      const data = await response.json();
-      setSelectedClass(data);
-      // Map the students data to include all necessary fields
-      const mappedStudents = data.students.map((student) => ({
-        ...student,
-        key: student._id,
-        fullName: `${student.firstName} ${student.lastName}`,
-        class: data.className,
-        classId: data._id, // Store the class ID consistently
-        term: student.term || "Term 1",
-        assessmentType: student.assessmentType || "",
-        tags: student.tags || ["hardworking"],
-      }));
-      setStudents(mappedStudents);
-      setLoading(false);
-    } catch (error) {
-      console.error("Error fetching class data:", error);
-      setLoading(false);
-    }
-  };
+    const response = await fetch(`/api/classes/${classId}`);
+    const data = await response.json();
+    setSelectedClass(data);
+    // Map the students data to include all necessary fields
+    const mappedStudents = data.students.map((student) => ({
+      ...student,
+      key: student._id,
+      fullName: `${student.firstName} ${student.lastName}`,
+      class: data.className,
+      classId: data._id, // Store the class ID consistently
+      term: student.term || "Term 1",
+      assessmentType: student.assessmentType || "",
+      tags: student.tags || ["hardworking"],
+    }));
+    setStudents(mappedStudents);
+  } catch (error) {
+    console.error("Error fetching class data:", error);
+  } finally {
+    setClassLoading(false);
+  }
+};
 
   // Add this function to let teachers switch between classes they're assigned to
 const switchClass = (classId) => {
@@ -514,11 +546,11 @@ const handleTransferStudent = async (studentId, oldClassId, newClassId) => {
       dataIndex: "class",
       key: "class",
     },
-    {
-      title: "Term",
-      dataIndex: "term",
-      key: "term",
-    },
+    // {
+    //   title: "Term",
+    //   dataIndex: "term",
+    //   key: "term",
+    // },
     {
       title: "Actions",
       key: "action",
@@ -572,11 +604,11 @@ const handleTransferStudent = async (studentId, oldClassId, newClassId) => {
       <div className="sidebar">
         <h2>My Dashboard</h2>
         <Link to="/create-assignment" className="button">
-          + Create New Assignment
+          + Create New Assessments
         </Link>
-        <Link to="/view-assignments" className="button">
+        {/* <Link to="/view-assignments" className="button">
           View Assignments
-        </Link>
+        </Link> */}
         <Link to="/edit-tags" className="button">
           Edit Tags
         </Link>
@@ -588,36 +620,61 @@ const handleTransferStudent = async (studentId, oldClassId, newClassId) => {
       <Logo />
     </div>
     <div className="welcome-tags">
-  
   {/* For teachers, show simplified class options */}
   {currentUser.role === "Teacher" && currentUser.teacherClasses && (
     <>
+      {/* Add instructional prompt */}
+      <div 
+  style={{
+    display: "flex",
+    alignItems: "center",
+    marginBottom: "12px", 
+    fontSize: "0.95rem", 
+    color: "#326c6f",
+  }}
+>
+  <span 
+    style={{ 
+      fontWeight: "700", 
+      borderBottom: "2px solid #E9AF0C",
+      paddingBottom: "2px",
+      marginRight: "10px"
+    }}
+  >
+    FILTER:
+  </span>
+</div>
+
       {/* All My Classes option */}
       <Tag 
-        color={!selectedClass ? "red" : "default"}
-        style={{cursor: "pointer"}}
-        onClick={() => toggleClassView('all')}
-      >
-        All My Classes
-      </Tag>
-      
-      {/* Only show main classes and co-teacher classes with simplified labels */}
-      {currentUser.teacherClasses.map(classItem => (
-        <Tag 
-          key={classItem._id} 
-          color={selectedClass && selectedClass._id === classItem._id 
-            ? (classItem.teacherRole === 'main' ? "purple" : "blue") 
-            : (classItem.teacherRole === 'main' ? "purple-inverse" : "blue-inverse")
-          }
-          style={{cursor: "pointer"}}
-          onClick={() => toggleClassView(classItem._id)}
-        >
-          {classItem.className} {classItem.teacherRole === 'main' ? "(Main)" : "(Co-Teacher)"}
-        </Tag>
+  color={!selectedClass ? "red" : "default"}
+  style={{cursor: "pointer"}}
+  onClick={() => toggleClassView('all')}
+  icon={classLoading && !selectedClass ? <LoadingOutlined /> : null}
+>
+  {classLoading && !selectedClass ? "Loading..." : "All My Classes"}
+</Tag>
+
+{/* Only show main classes and co-teacher classes with simplified labels */}
+{currentUser.teacherClasses.map(classItem => (
+  <Tag 
+    key={classItem._id} 
+    color={selectedClass && selectedClass._id === classItem._id 
+      ? (classItem.teacherRole === 'main' ? "purple" : "blue") 
+      : (classItem.teacherRole === 'main' ? "purple-inverse" : "blue-inverse")
+    }
+    style={{cursor: "pointer"}}
+    onClick={() => toggleClassView(classItem._id)}
+    icon={classLoading && selectedClass && selectedClass._id === classItem._id 
+      ? <LoadingOutlined /> : null}
+  >
+    {classLoading && selectedClass && selectedClass._id === classItem._id 
+      ? "Loading..." 
+      : `${classItem.className} ${classItem.teacherRole === 'main' ? "(Main)" : "(Co-Teacher)"}`}
+  </Tag>
       ))}
     </>
   )}
-  
 </div>
     <div className="dummy-data">
         <p style={{ fontSize: "1.4rem" }}>{getTimeBasedGreeting()}, <strong>{currentUser.name}</strong></p>
@@ -657,21 +714,40 @@ const handleTransferStudent = async (studentId, oldClassId, newClassId) => {
   </Carousel>
 </div>
       <div className="box">
-        <Carousel arrows infinite={false}>
-          <div>
-        <h3 className="watermarked" style={{ fontSize: "1.3rem" }}>Assignment Now</h3>
+  <Carousel arrows infinite={false}>
+    {learningSets.length > 0 ? (
+      learningSets.map(subject => (
+        <div key={subject._id}>
+          <h3 className="watermarked" style={{ fontSize: "1.3rem" }}>
+            <div style={{ 
+              fontSize: "1.1rem", 
+              fontWeight: "bold", 
+              marginBottom: "10px",
+              color: "#E9AF0C"
+            }}>
+              Current Learning Sets
+            </div>
+            {subject.name}
+          </h3>
+        </div>
+      ))
+    ) : (
+      <div>
+        <h3 className="watermarked" style={{ fontSize: "1.3rem" }}>
+          <div style={{ 
+            fontSize: "1.1rem", 
+            fontWeight: "bold", 
+            marginBottom: "10px",
+            color: "white" 
+          }}>
+            Current Learning Sets
           </div>
-          <div>
-        <h3 className="watermarked" style={{ fontSize: "1.3rem" }}>Assignment due</h3>
-          </div>
-          <div>
-        <h3 className="watermarked" style={{ fontSize: "1.3rem" }}>Assignment Next</h3>
-          </div>
-          <div>
-        <h3 className="watermarked" style={{ fontSize: "1.3rem" }}>Assignment Analysis</h3>
-          </div>
-        </Carousel>
+          Loading Learning sets...
+        </h3>
       </div>
+    )}
+  </Carousel>
+</div>
             </div>
           </div>
           <div className="content-container">
@@ -718,13 +794,16 @@ const handleTransferStudent = async (studentId, oldClassId, newClassId) => {
         onChange={(e) => handleSearch(e.target.value)}
       />
     </div>
-    <Table
-      columns={columns}
-      dataSource={filteredStudents}
-      locale={{ emptyText: "No students found" }}
-    />
-            </div>
-          </div>
+    
+    <Spin spinning={classLoading} tip="Loading students...">
+      <Table
+        columns={columns}
+        dataSource={filteredStudents}
+        locale={{ emptyText: "No students found" }}
+      />
+    </Spin>
+  </div>
+</div>
         </div>
       </div>
       <Modal

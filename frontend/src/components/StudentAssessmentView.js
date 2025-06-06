@@ -10,7 +10,7 @@ const StudentAssessmentView = ({ student, classId, className = "blue-button" }) 
       return
     }
 
-    // Navigate to the assessment page
+    // Navigate to the assessment page with the actual student data
     navigate(`/class/${classId}/student-assessment/${student._id}`)
 
     // Force scroll to top (this will run after navigation)
@@ -27,4 +27,3 @@ const StudentAssessmentView = ({ student, classId, className = "blue-button" }) 
 }
 
 export default StudentAssessmentView
-
