@@ -604,7 +604,7 @@ const handleTransferStudent = async (studentId, oldClassId, newClassId) => {
       <div className="sidebar">
         <h2>My Dashboard</h2>
         <Link to="/create-assignment" className="button">
-          + Create New Assignment
+          + Create New Assessments
         </Link>
         {/* <Link to="/view-assignments" className="button">
           View Assignments
