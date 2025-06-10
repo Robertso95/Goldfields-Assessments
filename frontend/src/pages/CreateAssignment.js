@@ -364,8 +364,8 @@ const CreateAssignment = () => {
         `/class/${preSelectedClassId}/student-assessment/${preSelectedStudentId}`
       );
     } else {
-      // Navigate to the assessments list
-      navigate("/view-assignments");
+      // Navigate to the assessments dashboard
+      navigate("/assessments");
     }
   };
 

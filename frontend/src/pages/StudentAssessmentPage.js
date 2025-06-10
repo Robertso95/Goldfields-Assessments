@@ -1,6 +1,20 @@
-import { useState, useEffect } from "react"
-import { useParams, useNavigate } from "react-router-dom"
-import { Spin, Button, Table, Space, Modal, message, Empty, Tooltip, Select, Row, Col, Image, Typography } from "antd"
+import { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import {
+  Spin,
+  Button,
+  Table,
+  Space,
+  Modal,
+  message,
+  Empty,
+  Tooltip,
+  Select,
+  Row,
+  Col,
+  Image,
+  Typography,
+} from "antd";
 import {
   EditOutlined,
   DeleteOutlined,
@@ -10,31 +24,31 @@ import {
   FileImageOutlined,
   LeftOutlined,
   RightOutlined,
-} from "@ant-design/icons"
-import axios from "axios"
-import "../StudentAssessmentPage.css"
+} from "@ant-design/icons";
+import axios from "axios";
+import "../StudentAssessmentPage.css";
 
-const { confirm } = Modal
-const { Option } = Select
-const { Title, Text } = Typography
+const { confirm } = Modal;
+const { Option } = Select;
+const { Title, Text } = Typography;
 
 const StudentAssessmentPage = () => {
-  const { classId, studentId } = useParams()
-  const navigate = useNavigate()
-  const [student, setStudent] = useState(null)
-  const [assignments, setAssignments] = useState([])
-  const [filteredAssignments, setFilteredAssignments] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [learningSets, setLearningSets] = useState([])
-  const [assignmentTypes, setAssignmentTypes] = useState([])
-  const [tags, setTags] = useState([])
-  const [subjectFilter, setSubjectFilter] = useState("all")
-  const [uniqueSubjects, setUniqueSubjects] = useState([])
-  const [tagMap, setTagMap] = useState({}) // Add a state for tag mapping
-  const [evidenceModalVisible, setEvidenceModalVisible] = useState(false)
-  const [currentEvidence, setCurrentEvidence] = useState([])
-  const [currentAssignment, setCurrentAssignment] = useState(null)
-  const [currentSlideIndex, setCurrentSlideIndex] = useState(0) // Track current slide index
+  const { classId, studentId } = useParams();
+  const navigate = useNavigate();
+  const [student, setStudent] = useState(null);
+  const [assignments, setAssignments] = useState([]);
+  const [filteredAssignments, setFilteredAssignments] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [learningSets, setLearningSets] = useState([]);
+  const [assignmentTypes, setAssignmentTypes] = useState([]);
+  const [tags, setTags] = useState([]);
+  const [subjectFilter, setSubjectFilter] = useState("all");
+  const [uniqueSubjects, setUniqueSubjects] = useState([]);
+  const [tagMap, setTagMap] = useState({}); // Add a state for tag mapping
+  const [evidenceModalVisible, setEvidenceModalVisible] = useState(false);
+  const [currentEvidence, setCurrentEvidence] = useState([]);
+  const [currentAssignment, setCurrentAssignment] = useState(null);
+  const [currentSlideIndex, setCurrentSlideIndex] = useState(0); // Track current slide index
 
   // Function to simplify subject names
   const simplifySubjectName = (fullSubjectName) => {
@@ -60,178 +74,189 @@ const StudentAssessmentPage = () => {
       Technology: "Technology",
       Languages: "Languages",
       "Te Reo Māori": "Te Reo Māori",
-    }
+    };
 
     // Check if we have a direct mapping
     if (subjectMappings[fullSubjectName]) {
-      return subjectMappings[fullSubjectName]
+      return subjectMappings[fullSubjectName];
     }
 
     // Check for partial matches
     for (const [pattern, simplified] of Object.entries(subjectMappings)) {
       if (fullSubjectName.toLowerCase().includes(pattern.toLowerCase())) {
-        return simplified
+        return simplified;
       }
     }
 
     // If no match found, return the original name
-    return fullSubjectName
-  }
+    return fullSubjectName;
+  };
 
   // Fetch reference data for display purposes
   useEffect(() => {
     const fetchReferenceData = async () => {
       try {
         // Fetch learning sets (subjects)
-        const learningSetsResponse = await axios.get("/api/learningsets")
+        const learningSetsResponse = await axios.get("/api/learningsets");
         if (learningSetsResponse.status === 200) {
-          setLearningSets(learningSetsResponse.data)
+          setLearningSets(learningSetsResponse.data);
         }
 
         // Fetch assessment types
-        const assignmentTypesResponse = await axios.get("/api/assignmenttype")
+        const assignmentTypesResponse = await axios.get("/api/assignmenttype");
         if (assignmentTypesResponse.status === 200) {
-          setAssignmentTypes(assignmentTypesResponse.data)
+          setAssignmentTypes(assignmentTypesResponse.data);
         }
 
         // Fetch tags
-        const tagsResponse = await axios.get("/api/tags")
+        const tagsResponse = await axios.get("/api/tags");
         if (tagsResponse.status === 200) {
-          setTags(tagsResponse.data)
+          setTags(tagsResponse.data);
 
           // Create a mapping of tag IDs to tag names
-          const tagMapping = {}
+          const tagMapping = {};
           tagsResponse.data.forEach((tag) => {
-            tagMapping[tag._id] = tag.name
-          })
-          setTagMap(tagMapping)
+            tagMapping[tag._id] = tag.name;
+          });
+          setTagMap(tagMapping);
         }
       } catch (error) {
-        console.error("Error fetching reference data:", error)
+        console.error("Error fetching reference data:", error);
       }
-    }
+    };
 
-    fetchReferenceData()
-  }, [])
+    fetchReferenceData();
+  }, []);
 
   const fetchAssignments = async () => {
     try {
       // Fetch all assessments - IMPORTANT: Keep the original API endpoint
-      const assignmentsResponse = await axios.get("/api/assignments")
+      const assignmentsResponse = await axios.get("/api/assignments");
 
       if (assignmentsResponse.status === 200) {
         // Filter assessments for this student
-        const studentAssignments = assignmentsResponse.data.filter((assignment) => {
-          return (
-            assignment.studentNames === studentId ||
-            (Array.isArray(assignment.studentNames) && assignment.studentNames.includes(studentId))
-          )
-        })
+        const studentAssignments = assignmentsResponse.data.filter(
+          (assignment) => {
+            return (
+              assignment.studentNames === studentId ||
+              (Array.isArray(assignment.studentNames) &&
+                assignment.studentNames.includes(studentId))
+            );
+          }
+        );
 
-        console.log("Filtered assessments:", studentAssignments)
+        console.log("Filtered assessments:", studentAssignments);
 
         // Fetch all reference data at once to avoid multiple API calls
         const [allSubjects, allAssignments, allTags] = await Promise.all([
           axios.get("/api/learningsets"),
           axios.get("/api/assignmenttype"),
           axios.get("/api/tags"),
-        ])
+        ]);
 
         // Create lookup maps for faster access
-        const subjectMap = {}
+        const subjectMap = {};
         allSubjects.data.forEach((subject) => {
-          subjectMap[subject._id] = subject.name
-        })
+          subjectMap[subject._id] = subject.name;
+        });
 
-        const assignmentMap = {}
+        const assignmentMap = {};
         allAssignments.data.forEach((assignment) => {
-          assignmentMap[assignment._id] = assignment.name
-        })
+          assignmentMap[assignment._id] = assignment.name;
+        });
 
-        const tagMap = {}
+        const tagMap = {};
         allTags.data.forEach((tag) => {
-          tagMap[tag._id] = tag.name
-        })
+          tagMap[tag._id] = tag.name;
+        });
 
         // Update the tag map state
-        setTagMap(tagMap)
+        setTagMap(tagMap);
 
         // Enrich assessments with names from the lookup maps
         const enrichedAssignments = studentAssignments.map((assignment) => {
-          const fullSubjectName = subjectMap[assignment.subject] || "Unknown Subject"
-          const simplifiedSubjectName = simplifySubjectName(fullSubjectName)
+          const fullSubjectName =
+            subjectMap[assignment.subject] || "Unknown Subject";
+          const simplifiedSubjectName = simplifySubjectName(fullSubjectName);
 
           return {
             ...assignment,
             subjectName: fullSubjectName,
             simplifiedSubject: simplifiedSubjectName, // Add simplified subject name
-            assignmentName: assignmentMap[assignment.assignment] || "Unknown Assessment",
+            assignmentName:
+              assignmentMap[assignment.assignment] || "Unknown Assessment",
             tagNames: Array.isArray(assignment.tags)
               ? assignment.tags.map((tagId) => tagMap[tagId] || `Tag ${tagId}`)
               : [],
-          }
-        })
+          };
+        });
 
-        setAssignments(enrichedAssignments)
-        setFilteredAssignments(enrichedAssignments)
+        setAssignments(enrichedAssignments);
+        setFilteredAssignments(enrichedAssignments);
 
         // Extract unique simplified subjects for the filter
-        const subjects = new Set()
+        const subjects = new Set();
         enrichedAssignments.forEach((assignment) => {
           if (assignment.simplifiedSubject) {
-            subjects.add(assignment.simplifiedSubject)
+            subjects.add(assignment.simplifiedSubject);
           }
-        })
-        setUniqueSubjects(Array.from(subjects))
+        });
+        setUniqueSubjects(Array.from(subjects));
       }
     } catch (error) {
-      console.error("Error fetching assessments:", error)
-      message.error("Failed to load assessments")
+      console.error("Error fetching assessments:", error);
+      message.error("Failed to load assessments");
     }
-  }
+  };
 
   useEffect(() => {
     const fetchData = async () => {
-      setLoading(true)
+      setLoading(true);
       try {
         // Fetch student details
-        const studentResponse = await axios.get(`/api/classes/${classId}/students/${studentId}`)
-        setStudent(studentResponse.data)
+        const studentResponse = await axios.get(
+          `/api/classes/${classId}/students/${studentId}`
+        );
+        setStudent(studentResponse.data);
 
         // Fetch assessments separately
-        await fetchAssignments()
+        await fetchAssignments();
       } catch (error) {
-        console.error("Error fetching data:", error)
-        message.error("Failed to load student data")
+        console.error("Error fetching data:", error);
+        message.error("Failed to load student data");
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
+    };
 
-    fetchData()
+    fetchData();
 
     // Scroll to top when component mounts
-    window.scrollTo(0, 0)
-  }, [classId, studentId])
+    window.scrollTo(0, 0);
+  }, [classId, studentId]);
 
   // Apply subject filter when it changes
   useEffect(() => {
     if (subjectFilter === "all") {
-      setFilteredAssignments(assignments)
+      setFilteredAssignments(assignments);
     } else {
-      const filtered = assignments.filter((assignment) => assignment.simplifiedSubject === subjectFilter)
-      setFilteredAssignments(filtered)
+      const filtered = assignments.filter(
+        (assignment) => assignment.simplifiedSubject === subjectFilter
+      );
+      setFilteredAssignments(filtered);
     }
-  }, [subjectFilter, assignments])
+  }, [subjectFilter, assignments]);
 
   const handleBack = () => {
-    navigate(-1)
-  }
+    navigate("/assessments");
+  };
 
   const handleEditAssignment = (assignmentId) => {
     // Navigate to the create assessment page with the assessment ID
-    navigate(`/create-assignment?edit=${assignmentId}&studentId=${studentId}&classId=${classId}`)
-  }
+    navigate(
+      `/create-assignment?edit=${assignmentId}&studentId=${studentId}&classId=${classId}`
+    );
+  };
 
   // Updated to use the new delete endpoint
   const handleDeleteAssignment = (assignmentId) => {
@@ -244,101 +269,120 @@ const StudentAssessmentPage = () => {
       cancelText: "No",
       onOk: async () => {
         try {
-          setLoading(true)
-          console.log("Deleting assessment with ID:", assignmentId)
+          setLoading(true);
+          console.log("Deleting assessment with ID:", assignmentId);
 
           // IMPORTANT: Keep the original API endpoint
-          const response = await axios.delete(`/api/assignments/${assignmentId}`)
-          console.log("Delete response:", response)
+          const response = await axios.delete(
+            `/api/assignments/${assignmentId}`
+          );
+          console.log("Delete response:", response);
 
           if (response.status === 200) {
             // Remove from local state
-            const updatedAssignments = assignments.filter((a) => a._id !== assignmentId)
-            setAssignments(updatedAssignments)
+            const updatedAssignments = assignments.filter(
+              (a) => a._id !== assignmentId
+            );
+            setAssignments(updatedAssignments);
             setFilteredAssignments(
-              updatedAssignments.filter((a) => subjectFilter === "all" || a.simplifiedSubject === subjectFilter),
-            )
+              updatedAssignments.filter(
+                (a) =>
+                  subjectFilter === "all" ||
+                  a.simplifiedSubject === subjectFilter
+              )
+            );
 
-            message.success("Assessment deleted successfully")
+            message.success("Assessment deleted successfully");
           } else {
-            throw new Error(`Unexpected response status: ${response.status}`)
+            throw new Error(`Unexpected response status: ${response.status}`);
           }
         } catch (error) {
-          console.error("Error deleting assessment:", error)
-          const errorMsg = error.response?.data?.error || error.response?.data?.details || error.message
-          message.error(`Failed to delete assessment: ${errorMsg}`)
+          console.error("Error deleting assessment:", error);
+          const errorMsg =
+            error.response?.data?.error ||
+            error.response?.data?.details ||
+            error.message;
+          message.error(`Failed to delete assessment: ${errorMsg}`);
         } finally {
-          setLoading(false)
+          setLoading(false);
         }
       },
-    })
-  }
+    });
+  };
 
   // Handle subject filter change
   const handleSubjectFilterChange = (value) => {
-    setSubjectFilter(value)
-  }
+    setSubjectFilter(value);
+  };
 
   // Format the date to a more readable format
   const formatDate = (dateString) => {
-    if (!dateString) return "N/A"
-    const date = new Date(dateString)
-    return date.toLocaleDateString()
-  }
+    if (!dateString) return "N/A";
+    const date = new Date(dateString);
+    return date.toLocaleDateString();
+  };
 
   // Improved function to extract tag prefix
   const getTagPrefix = (tagName) => {
-    if (!tagName) return ""
+    if (!tagName) return "";
 
     // Check for common tag patterns
 
     // Pattern 1: "READ/AP 1A: ..." or "READ/R 1A"
-    const readMatch = tagName.match(/^(READ\/[A-Z]+\s+\d+[A-Z]*)/)
-    if (readMatch) return readMatch[1]
+    const readMatch = tagName.match(/^(READ\/[A-Z]+\s+\d+[A-Z]*)/);
+    if (readMatch) return readMatch[1];
 
     // Pattern 2: "WRITE/ENG 1B" or similar
-    const writeMatch = tagName.match(/^(WRITE\/[A-Z]+\s+\d+[A-Z]*)/)
-    if (writeMatch) return writeMatch[1]
+    const writeMatch = tagName.match(/^(WRITE\/[A-Z]+\s+\d+[A-Z]*)/);
+    if (writeMatch) return writeMatch[1];
 
     // Pattern 3: "NumN/E 1A." or "Num/N L4.14."
-    const numMatch = tagName.match(/^(Num[A-Z]*\/[A-Z]+\s+[A-Z0-9.]+)/)
-    if (numMatch) return numMatch[1]
+    const numMatch = tagName.match(/^(Num[A-Z]*\/[A-Z]+\s+[A-Z0-9.]+)/);
+    if (numMatch) return numMatch[1];
 
     // If no specific pattern matches, try to get the first part before a period, colon, or semicolon
-    const generalMatch = tagName.match(/^([^.;:]+)/)
+    const generalMatch = tagName.match(/^([^.;:]+)/);
     if (generalMatch) {
       // Limit to first 15 characters if it's too long
-      const prefix = generalMatch[1].trim()
-      return prefix.length > 15 ? prefix.substring(0, 15) + "..." : prefix
+      const prefix = generalMatch[1].trim();
+      return prefix.length > 15 ? prefix.substring(0, 15) + "..." : prefix;
     }
 
     // Fallback: return first 15 chars if nothing else works
-    return tagName.length > 15 ? tagName.substring(0, 15) + "..." : tagName
-  }
+    return tagName.length > 15 ? tagName.substring(0, 15) + "..." : tagName;
+  };
 
   // Helper function to generate assessment HTML for printing
   const generateAssignmentHtml = (assignment) => {
     // Format tag names with each tag on a new line
-    let tagNamesHtml = "No tags"
+    let tagNamesHtml = "No tags";
 
-    if (assignment.tags && Array.isArray(assignment.tags) && assignment.tags.length > 0) {
+    if (
+      assignment.tags &&
+      Array.isArray(assignment.tags) &&
+      assignment.tags.length > 0
+    ) {
       const tagList = assignment.tags
         .map((tagId) => {
-          const tagName = tagMap[tagId] || `Tag ${tagId}`
-          return `<li>${tagName}</li>`
+          const tagName = tagMap[tagId] || `Tag ${tagId}`;
+          return `<li>${tagName}</li>`;
         })
-        .join("")
+        .join("");
 
-      tagNamesHtml = `<ul class="tag-list">${tagList}</ul>`
+      tagNamesHtml = `<ul class="tag-list">${tagList}</ul>`;
     }
 
     // Generate HTML for a single assessment
     let assignmentHtml = `
       <div class="assessment-container">
-        <h2 class="assessment-title">${assignment.assignmentName || "Unnamed Assessment"}</h2>
+        <h2 class="assessment-title">${
+          assignment.assignmentName || "Unnamed Assessment"
+        }</h2>
         
         <div class="section">
-          <span class="label">Subject:</span> ${assignment.simplifiedSubject || "N/A"}
+          <span class="label">Subject:</span> ${
+            assignment.simplifiedSubject || "N/A"
+          }
         </div>
         
         <div class="section">
@@ -346,66 +390,72 @@ const StudentAssessmentPage = () => {
         </div>
         
         <div class="section">
-          <span class="label">Completed Date:</span> ${formatDate(assignment.completedDate)}
+          <span class="label">Completed Date:</span> ${formatDate(
+            assignment.completedDate
+          )}
         </div>
         
         <div class="section">
-          <span class="label">Additional Comments:</span> ${assignment.additionalComments || "N/A"}
+          <span class="label">Additional Comments:</span> ${
+            assignment.additionalComments || "N/A"
+          }
         </div>
         
-    `
+    `;
 
     // Add evidence if available
     if (assignment.evidence && assignment.evidence.length > 0) {
       assignmentHtml += `
         <div class="evidence-section">
           <h3>Evidence</h3>
-      `
+      `;
 
       assignment.evidence.forEach((item, index) => {
         // Check if it's an image (by extension)
-        const isImage = /\.(jpg|jpeg|png|gif|bmp|webp)$/i.test(item)
+        const isImage = /\.(jpg|jpeg|png|gif|bmp|webp)$/i.test(item);
         // Check if it's a video (by extension)
-        const isVideo = /\.(mp4|webm|ogg|mov|avi)$/i.test(item)
+        const isVideo = /\.(mp4|webm|ogg|mov|avi)$/i.test(item);
 
         assignmentHtml += `
           <div class="evidence-item">
             <div>Evidence Item ${index + 1}:</div>
-        `
+        `;
 
         if (isImage) {
           // For images, display the actual image
-          assignmentHtml += `<img src="${item}" alt="Evidence ${index + 1}" />`
+          assignmentHtml += `<img src="${item}" alt="Evidence ${index + 1}" />`;
         } else if (isVideo) {
           // For videos, display a video thumbnail with play button overlay
           assignmentHtml += `
             <div class="video-thumbnail">
               <div class="video-placeholder">
                 <div class="play-button-overlay">▶</div>
-                <div class="video-text">Video: ${item.split("/").pop() || "Video file"}</div>
+                <div class="video-text">Video: ${
+                  item.split("/").pop() || "Video file"
+                }</div>
               </div>
               <div class="video-link">Video URL: <a href="${item}" target="_blank">${item}</a></div>
             </div>
-          `
+          `;
         } else {
           // For other files, just show a link
-          assignmentHtml += `<a href="${item}" target="_blank">${item}</a>`
+          assignmentHtml += `<a href="${item}" target="_blank">${item}</a>`;
         }
 
-        assignmentHtml += `</div>`
-      })
+        assignmentHtml += `</div>`;
+      });
 
-      assignmentHtml += `</div>`
+      assignmentHtml += `</div>`;
     }
 
-    assignmentHtml += `</div>`
-    return assignmentHtml
-  }
+    assignmentHtml += `</div>`;
+    return assignmentHtml;
+  };
 
   // Function to handle printing an assessment
   const handlePrintAssignment = (assignment) => {
     // Create a new window for printing
-    const printWindow = window.open("", "_blank")
+    const printWindow = window.open("", "_blank");
 
     // Create the content for the print window
     printWindow.document.write(`
@@ -506,7 +556,9 @@ const StudentAssessmentPage = () => {
         <body>
           <div class="header">
             <h1>Assessment Details</h1>
-            <h2>${student ? `${student.firstName} ${student.lastName}` : "Student"}</h2>
+            <h2>${
+              student ? `${student.firstName} ${student.lastName}` : "Student"
+            }</h2>
           </div>
           
           ${generateAssignmentHtml(assignment)}
@@ -517,32 +569,34 @@ const StudentAssessmentPage = () => {
           </div>
         </body>
       </html>
-    `)
+    `);
 
-    printWindow.document.close()
+    printWindow.document.close();
 
     // Focus the new window
-    printWindow.focus()
-  }
+    printWindow.focus();
+  };
 
   // Function to handle printing all assessments
   const handlePrintAllAssignments = () => {
     // Use the currently filtered assessments
-    const assessmentsToPrint = filteredAssignments
+    const assessmentsToPrint = filteredAssignments;
 
     if (assessmentsToPrint.length === 0) {
-      message.info("No assessments to print")
-      return
+      message.info("No assessments to print");
+      return;
     }
 
     // Create a new window for printing
-    const printWindow = window.open("", "_blank")
+    const printWindow = window.open("", "_blank");
 
     // Create the content for the print window
     printWindow.document.write(`
       <html>
         <head>
-          <title>All Assessments - ${student ? `${student.firstName} ${student.lastName}` : "Student"}</title>
+          <title>All Assessments - ${
+            student ? `${student.firstName} ${student.lastName}` : "Student"
+          }</title>
           <style>
             body {
               font-family: Arial, sans-serif;
@@ -653,21 +707,27 @@ const StudentAssessmentPage = () => {
         <body>
           <div class="header">
             <h1>All Assessments</h1>
-            <h2>${student ? `${student.firstName} ${student.lastName}` : "Student"}</h2>
-            ${subjectFilter !== "all" ? `<h3>Subject: ${subjectFilter}</h3>` : ""}
+            <h2>${
+              student ? `${student.firstName} ${student.lastName}` : "Student"
+            }</h2>
+            ${
+              subjectFilter !== "all"
+                ? `<h3>Subject: ${subjectFilter}</h3>`
+                : ""
+            }
             <p>Total Assessments: ${assessmentsToPrint.length}</p>
           </div>
-    `)
+    `);
 
     // Add each assessment to the print window
     assessmentsToPrint.forEach((assignment, index) => {
-      printWindow.document.write(generateAssignmentHtml(assignment))
+      printWindow.document.write(generateAssignmentHtml(assignment));
 
       // Add a page break after each assessment except the last one
       if (index < assessmentsToPrint.length - 1) {
-        printWindow.document.write('<div class="page-break"></div>')
+        printWindow.document.write('<div class="page-break"></div>');
       }
-    })
+    });
 
     // Add print button and close the HTML
     printWindow.document.write(`
@@ -677,49 +737,49 @@ const StudentAssessmentPage = () => {
           </div>
         </body>
       </html>
-    `)
+    `);
 
-    printWindow.document.close()
+    printWindow.document.close();
 
     // Focus the new window
-    printWindow.focus()
-  }
+    printWindow.focus();
+  };
 
   // Function to handle showing evidence
   const handleShowEvidence = (assignment) => {
     if (assignment.evidence && assignment.evidence.length > 0) {
-      setCurrentEvidence(assignment.evidence)
-      setCurrentAssignment(assignment)
-      setCurrentSlideIndex(0) // Reset to first slide
-      setEvidenceModalVisible(true)
+      setCurrentEvidence(assignment.evidence);
+      setCurrentAssignment(assignment);
+      setCurrentSlideIndex(0); // Reset to first slide
+      setEvidenceModalVisible(true);
     } else {
-      message.info("No evidence available for this assessment")
+      message.info("No evidence available for this assessment");
     }
-  }
+  };
 
   // Function to navigate to the next slide
   const nextSlide = () => {
     if (currentSlideIndex < currentEvidence.length - 1) {
-      setCurrentSlideIndex(currentSlideIndex + 1)
+      setCurrentSlideIndex(currentSlideIndex + 1);
     }
-  }
+  };
 
   // Function to navigate to the previous slide
   const prevSlide = () => {
     if (currentSlideIndex > 0) {
-      setCurrentSlideIndex(currentSlideIndex - 1)
+      setCurrentSlideIndex(currentSlideIndex - 1);
     }
-  }
+  };
 
   // Function to determine if a URL is an image
   const isImageUrl = (url) => {
-    return /\.(jpg|jpeg|png|gif|bmp|webp)$/i.test(url)
-  }
+    return /\.(jpg|jpeg|png|gif|bmp|webp)$/i.test(url);
+  };
 
   // Function to determine if a URL is a video
   const isVideoUrl = (url) => {
-    return /\.(mp4|webm|ogg|mov|avi)$/i.test(url)
-  }
+    return /\.(mp4|webm|ogg|mov|avi)$/i.test(url);
+  };
 
   const columns = [
     {
@@ -740,25 +800,25 @@ const StudentAssessmentPage = () => {
       key: "tags",
       render: (tagIds, record) => {
         if (!tagIds || !Array.isArray(tagIds) || tagIds.length === 0) {
-          return "No tags"
+          return "No tags";
         }
 
         return (
           <div className="tag-container">
             {tagIds.map((tagId) => {
               // Get the full tag name from the mapping
-              const fullTagName = tagMap[tagId] || `Tag ${tagId}`
+              const fullTagName = tagMap[tagId] || `Tag ${tagId}`;
               // Get just the prefix using our improved function
-              const tagPrefix = getTagPrefix(fullTagName)
+              const tagPrefix = getTagPrefix(fullTagName);
 
               return (
                 <Tooltip key={tagId} title={fullTagName}>
                   <span className="assessment-tag">{tagPrefix}</span>
                 </Tooltip>
-              )
+              );
             })}
           </div>
-        )
+        );
       },
     },
     {
@@ -778,13 +838,26 @@ const StudentAssessmentPage = () => {
       key: "actions",
       render: (_, record) => (
         <Space size="small" wrap>
-          <Button type="primary" icon={<EditOutlined />} onClick={() => handleEditAssignment(record._id)}>
+          <Button
+            type="primary"
+            icon={<EditOutlined />}
+            onClick={() => handleEditAssignment(record._id)}
+          >
             Edit
           </Button>
-          <Button type="primary" danger icon={<DeleteOutlined />} onClick={() => handleDeleteAssignment(record._id)}>
+          <Button
+            type="primary"
+            danger
+            icon={<DeleteOutlined />}
+            onClick={() => handleDeleteAssignment(record._id)}
+          >
             Delete
           </Button>
-          <Button type="default" icon={<PrinterOutlined />} onClick={() => handlePrintAssignment(record)}>
+          <Button
+            type="default"
+            icon={<PrinterOutlined />}
+            onClick={() => handlePrintAssignment(record)}
+          >
             Print
           </Button>
           <Button
@@ -798,14 +871,14 @@ const StudentAssessmentPage = () => {
         </Space>
       ),
     },
-  ]
+  ];
 
   if (loading) {
     return (
       <div className="loading-container">
         <Spin size="large" tip="Loading student data..." />
       </div>
-    )
+    );
   }
 
   if (!student) {
@@ -817,26 +890,31 @@ const StudentAssessmentPage = () => {
           Go Back
         </Button>
       </div>
-    )
+    );
   }
 
   // Render the current evidence item based on its type
   const renderCurrentEvidence = () => {
     if (!currentEvidence || currentEvidence.length === 0) {
-      return <Empty description="No evidence available" />
+      return <Empty description="No evidence available" />;
     }
 
-    const currentItem = currentEvidence[currentSlideIndex]
+    const currentItem = currentEvidence[currentSlideIndex];
 
     if (isImageUrl(currentItem)) {
-      return <Image src={currentItem || "/placeholder.svg"} alt={`Evidence ${currentSlideIndex + 1}`} />
+      return (
+        <Image
+          src={currentItem || "/placeholder.svg"}
+          alt={`Evidence ${currentSlideIndex + 1}`}
+        />
+      );
     } else if (isVideoUrl(currentItem)) {
       return (
         <video controls width="100%" style={{ maxHeight: "400px" }}>
           <source src={currentItem} />
           Your browser does not support the video tag.
         </video>
-      )
+      );
     } else {
       return (
         <div>
@@ -845,9 +923,9 @@ const StudentAssessmentPage = () => {
             {currentItem.split("/").pop() || "View File"}
           </a>
         </div>
-      )
+      );
     }
-  }
+  };
 
   return (
     <div className="student-page-container">
@@ -875,7 +953,10 @@ const StudentAssessmentPage = () => {
       <div className="student-profile-section">
         <div className="student-avatar">
           {student.image ? (
-            <img src={student.image || "/placeholder.svg"} alt={`${student.firstName} ${student.lastName}`} />
+            <img
+              src={student.image || "/placeholder.svg"}
+              alt={`${student.firstName} ${student.lastName}`}
+            />
           ) : (
             <div className="avatar-placeholder">
               {student.firstName.charAt(0)}
@@ -917,7 +998,12 @@ const StudentAssessmentPage = () => {
         </Row>
 
         {filteredAssignments.length > 0 ? (
-          <Table columns={columns} dataSource={filteredAssignments} rowKey="_id" pagination={{ pageSize: 10 }} />
+          <Table
+            columns={columns}
+            dataSource={filteredAssignments}
+            rowKey="_id"
+            pagination={{ pageSize: 10 }}
+          />
         ) : (
           <Empty
             description={
@@ -932,7 +1018,9 @@ const StudentAssessmentPage = () => {
 
       {/* Evidence Modal with Slideshow */}
       <Modal
-        title={`Evidence for ${currentAssignment?.assignmentName || "Assessment"}`}
+        title={`Evidence for ${
+          currentAssignment?.assignmentName || "Assessment"
+        }`}
         open={evidenceModalVisible}
         onCancel={() => setEvidenceModalVisible(false)}
         footer={[
@@ -965,7 +1053,9 @@ const StudentAssessmentPage = () => {
                 {currentEvidence.map((_, index) => (
                   <span
                     key={index}
-                    className={`dot ${index === currentSlideIndex ? "active" : ""}`}
+                    className={`dot ${
+                      index === currentSlideIndex ? "active" : ""
+                    }`}
                     onClick={() => setCurrentSlideIndex(index)}
                   />
                 ))}
@@ -985,7 +1075,7 @@ const StudentAssessmentPage = () => {
         )}
       </Modal>
     </div>
-  )
-}
+  );
+};
 
-export default StudentAssessmentPage
+export default StudentAssessmentPage;
