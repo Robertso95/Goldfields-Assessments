@@ -55,7 +55,7 @@ The Goldfields Assessment System is a web application designed to support teache
 
 ### Environment File
 
-A `.env` file is required in the backend folder to connect to the database. This file is not included in the GitHub repository. If you are taking over this project, the `.env` file should be provided in the handover documentation. The file specifies the server port and the `MONGO_URI` database connection string.
+A `.env` file is required in the backend folder to connect to the database. This file is not included in the GitHub repository. If you are taking over this project, the `.env` file should be provided in the handover documentation in src code file. The file specifies the server port and the `MONGO_URI` database connection string.
 
 ### Local Setup Steps
 
