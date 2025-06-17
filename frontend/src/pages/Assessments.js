@@ -411,8 +411,7 @@ const switchClass = (classId) => {
     form.resetFields();
   };
 
-  // First, update the handleTransferStudent function to allow teachers
-const handleTransferStudent = async (studentId, oldClassId, newClassId) => {
+  const handleTransferStudent = async (studentId, oldClassId, newClassId) => {
   // Allow both admin and teacher to transfer students
   if (currentUser.role !== "Admin" && currentUser.role !== "Teacher") {
     message.error("You don't have permission to transfer students");
@@ -420,37 +419,54 @@ const handleTransferStudent = async (studentId, oldClassId, newClassId) => {
   }
   
   try {
+    // Add check to ensure that for teachers, they're only transferring from classes they have access to
+    if (currentUser.role === "Teacher") {
+      const hasAccessToOldClass = currentUser.teacherClasses?.some(c => c._id === oldClassId);
+      if (!hasAccessToOldClass) {
+        message.error("You don't have permission to transfer students from this class");
+        return;
+      }
+    }
+    
+    console.log("Transferring student:", studentId, "from class:", oldClassId, "to class:", newClassId);
+    
     const response = await fetch("/api/classes/transfer-student", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        "Authorization": `Bearer ${localStorage.getItem("token")}` // Add token for authorization
       },
-      body: JSON.stringify({ studentId, oldClassId, newClassId }),
-    })
+      body: JSON.stringify({ 
+        studentId, 
+        oldClassId, 
+        newClassId,
+        teacherEmail: currentUser.email // Send teacher email for verification
+      }),
+    });
 
     if (!response.ok) {
-      const errorData = await response.json()
-      throw new Error(errorData.error || "Failed to transfer student")
+      const errorData = await response.json();
+      throw new Error(errorData.error || "Failed to transfer student");
     }
 
-    message.success("Student transferred successfully")
+    message.success("Student transferred successfully");
 
-    const wasAllStudentsView = selectedClass === null
-
-    if (wasAllStudentsView) {
-      await fetchAllStudents()
+    // Refresh student data
+    if (!selectedClass) {
+      await fetchAllTeacherStudents(currentUser.teacherClasses);
     } else {
-      setStudents((prevStudents) => prevStudents.filter((student) => student._id !== studentId))
+      // Refresh the current class
+      await handleClassChange(selectedClass._id);
     }
 
-    setIsModalVisible(false)
-    setEditingStudent(null)
-    form.resetFields()
+    setIsModalVisible(false);
+    setEditingStudent(null);
+    form.resetFields();
   } catch (error) {
-    console.error("Error transferring student:", error)
-    message.error(error.message || "Error transferring student")
+    console.error("Error transferring student:", error);
+    message.error(error.message || "Error transferring student");
   }
-}
+};
 
   const handleSave = async () => {
     try {
